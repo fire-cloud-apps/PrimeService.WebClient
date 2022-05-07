@@ -1,0 +1,48 @@
+﻿@page "/Error"
+@layout EmptyLayout
+
+@using Microsoft.Extensions.Primitives
+@using Microsoft.AspNetCore.WebUtilities
+
+
+
+
+<MudPaper Class="pa-0 mt-0 d-flex justify-center align-center" Elevation="0">
+
+    <MudGrid>
+        <MudItem xs="12" sm="12" md="12" Class="d-flex justify-center align-center">
+            <MudText Typo="Typo.h4">@_errorValue Error</MudText>
+        </MudItem>
+        
+        <MudItem xs="12" sm="12" md="12" Class="d-flex justify-center align-center">
+             <span class="iconify" 
+                data-icon="bxs:error-alt" style="color: #c70039;" 
+                data-width="258" data-height="258"></span>
+        </MudItem>
+        <MudItem xs="12" sm="12" md="12" Class="d-flex justify-center align-center">
+            <MudText Typo="Typo.body1">Couldn't launch :(</MudText>
+        </MudItem>
+    </MudGrid>
+
+</MudPaper>
+
+ <MudAlert Severity="Severity.Info" Class="mt-8 mud-width-full" Style="max-width:500px;"
+        Elevation="25">Lets take you back to home 
+            <a href="@_navigationManager.BaseUri">BACK</a></MudAlert>
+
+@code
+{
+    string _errorValue = string.Empty;
+    protected override void OnInitialized()  
+    {  
+        StringValues code;  
+        
+        var uri = _navigationManager.ToAbsoluteUri(_navigationManager.Uri);  
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("code", out code))
+        {
+            _errorValue = code;
+        }  
+  
+    }  
+}
+

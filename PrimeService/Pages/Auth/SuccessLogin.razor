@@ -1,0 +1,24 @@
+﻿@page "/SuccessLogin"
+<h3>SuccessLogin</h3>
+
+<MudText Typo="Typo.h5">JWT Encoder Value</MudText>
+<MudText>@_jwt</MudText>
+
+<MudText Typo="Typo.h5">Message</MudText>
+<MudText>@_message</MudText>
+
+<MudText Typo="Typo.h5">Domain URL</MudText>
+<MudText>@_navigationManager.BaseUri</MudText>
+
+<MudText Typo="Typo.h5">JWT Decoder Value</MudText>
+<MudText>@_encode</MudText>
+
+<MudPaper Square="true">
+    @foreach(var claim in _claimList)
+    {	
+        <MudList Clickable="true">
+            <MudListItem>@claim.Type - @claim.Value</MudListItem>
+            <MudDivider />
+        </MudList>
+    }
+</MudPaper>

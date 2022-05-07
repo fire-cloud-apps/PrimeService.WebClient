@@ -1,0 +1,30 @@
+﻿
+@page "/index"
+@using Microsoft.AspNetCore.Authorization
+@using FireCloud.WebClient.PrimeService.Service
+@using FireCloud.WebClient.PrimeService.Model
+
+@attribute [Authorize]
+@inject IUserService _userService
+
+<PageTitle>Index</PageTitle>
+
+
+@if (_isAuthenticated)
+{
+    <MudText Typo="Typo.h3" GutterBottom="true">Welcome @_userInfo.Username !</MudText>
+    <MudText Class="mb-8">Welcome to your new app, powered by MudBlazor!</MudText>
+    <MudAlert Severity="Severity.Normal">You can find documentation and examples on our website here: <MudLink Href="https://mudblazor.com" Typo="Typo.body2" Color="Color.Inherit"><b>www.mudblazor.com</b></MudLink></MudAlert>
+    <MudText Typo="Typo.h5">
+        You're logged in with Blazor WebAssembly & JWT!!
+    </MudText>
+}
+else
+{
+    <MudText Typo="Typo.h5">
+        User not logged in.
+    </MudText>
+    //_navigationManager.NavigateTo("/Login");
+}
+
+

@@ -1,0 +1,26 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.JSInterop
+@using MudBlazor
+@using FireCloud.WebClient.PrimeService
+@using FireCloud.WebClient.PrimeService.Service
+@using FireCloud.WebClient.PrimeService.Shared
+@using Microsoft.Extensions.Logging @*//Ref: https://www.c-sharpcorner.com/article/introduction-to-logging-framework-in-blazor-with-net-core/*@
+
+@*Global Dependency Injection*@
+@inject ILocalStorageService _localStore
+@inject IAuthenticationService _authenticationService
+@inject IConfiguration _configuration
+@inject HttpClient _httpClient
+@inject NavigationManager _navigationManager
+@inject Helper.AppSettings _appSettings
+
+@*External Project Reference*@
+
+@using FC.PrimeService.Common

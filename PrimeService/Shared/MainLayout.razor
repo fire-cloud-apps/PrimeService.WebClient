@@ -1,0 +1,60 @@
+﻿@inherits LayoutComponentBase
+
+
+@*
+    Ref: Theme provider
+    https://mudblazor.com/customization/overview#custom-themes
+*@
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        
+        <MudToggleIconButton   
+            Toggled="@ThemeChanged" 
+            ToggledChanged="OnToggledChanged"
+            Icon="@Icons.Rounded.WbSunny" 
+            Color="@_switchTheme.Color" 
+            Title="@_switchTheme.Title"
+            ToggledIcon="@Icons.TwoTone.WbSunny" 
+            ToggledColor="@_switchTheme.IconColor" 
+            ToggledTitle="@_switchTheme.Title"/>
+        
+        <MudIconButton Icon="@Icons.TwoTone.Logout" 
+                       Color="Color.Error"
+                       Link="/Logout" />
+        
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">
+                <a class="navbar-brand" href="" style="font-size: 24px;font-family: cursive;">
+                    <i class="icofont-butterfly-alt icofont-2x" 
+                       style="color: lightcoral; font-size: 28px;"></i>
+                    Prime-Ser
+                </a>
+            </MudText>
+            <MudText Color="Color.Info" Typo="Typo.overline">
+                &nbsp;@_appSettings.Version
+                @* <MudIcon Size="Size.Small" Icon="@Icons.Filled.NewReleases" ></MudIcon> *@
+            </MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="my-4 pt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    
+
+    
+}
+

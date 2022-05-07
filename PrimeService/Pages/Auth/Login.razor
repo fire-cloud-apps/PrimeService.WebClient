@@ -1,0 +1,82 @@
+﻿@page "/"
+@page "/login"
+@layout LoginLayout
+
+@inject ILogger<Login> _log
+
+@using System.ComponentModel.DataAnnotations
+@using FireCloud.WebClient.PrimeService.Service
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@inject IAuthenticationService AuthenticationService
+
+<EditForm Model="@model" OnValidSubmit="LoginInvoke">
+
+    <MudPaper Class="pa-0 mt-0 d-flex justify-center align-center" Elevation="0">
+        <MudGrid>
+            <MudItem xs="12" sm="12" md="12" Class="d-flex justify-center align-center">
+                <MudImage Src="svg/service.svg" Alt="FireCloud Prime Service Logo"  
+                          Width="80" Height="80"  Elevation="0" Class="rounded-lg"/>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="12" Class="d-flex justify-center align-center">
+                <MudText Class="landing-h1-gradient" Typo="Typo.h4" GutterBottom="true">
+                   Prime Service
+                </MudText>                
+            </MudItem>
+        </MudGrid>
+        
+    </MudPaper>
+    
+    <MudTextField T="string"  @bind-Value="model.Username"  Label="E-mail" Variant="Variant.Outlined" Class="my-6"></MudTextField>
+
+    <MudTextField @bind-Value="model.Password" Label="Password" Variant="Variant.Outlined" 
+                  InputType="@PasswordInput" 
+                  Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" 
+                  OnAdornmentClick="TogglePasswordVisibility" />
+
+    <div Class="d-flex justify-space-between align-center">
+        <MudCheckBox T="bool" Label="Remember me?" Color="Color.Primary" Class="ml-n1 my-3"></MudCheckBox>
+        <MudLink Href="/pages/authentication/forgot-password">Forgot Password?</MudLink>
+    </div>
+    
+    <MudGrid>
+        <MudItem xs="6" sm="6" md="4">
+            <MudButton Variant="Variant.Filled"
+                       OnClick="LoginGoogle"
+                       FullWidth="true"
+                       EndIcon="@Icons.Custom.Brands.Gmail" 
+                       Color="Color.Error">Google+</MudButton>
+        </MudItem>
+        <MudItem xs="6" sm="6" md="4">
+            <MudButton Variant="Variant.Filled" 
+                       Disabled="@_processing"
+                       Color="Color.Primary" 
+                       FullWidth="true"
+                       EndIcon="@Icons.Filled.Login"
+                       ButtonType="ButtonType.Submit">
+                       @if (_processing)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                            <MudText Class="ms-2">Verify...</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Sign In</MudText>
+                        }
+                   
+             </MudButton>
+        </MudItem>
+    </MudGrid>
+
+</EditForm>
+
+<style>
+   .landing-h1-gradient
+   {
+       background:linear-gradient(82deg,#594ae2 0%,#f69 100%);
+       -webkit-background-clip:text;
+       -webkit-text-fill-color:transparent;
+   }
+</style>
