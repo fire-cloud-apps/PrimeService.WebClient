@@ -2,10 +2,15 @@
 
 @using FC.PrimeService.Common.Settings
 
-<h3>Settings</h3>
+<MudBreadcrumbs Items="_items"></MudBreadcrumbs>
 
 <SettingsView />
 
 @code {
-
+    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Home", href: "#", icon: Icons.Material.Filled.Home),
+        new BreadcrumbItem("Settings", href: "#", icon: Icons.Material.Filled.VideoLibrary),
+        new BreadcrumbItem("View", href: null, disabled: true, icon: Icons.Material.Filled.Create)
+    };
 }

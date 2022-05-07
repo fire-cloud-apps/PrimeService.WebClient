@@ -1,18 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
-using FireCloud.WebClient.PrimeService.Model;
-
+using Microsoft.Extensions.Configuration;
+using PrimeService.Model;
 
 namespace FireCloud.WebClient.PrimeService.Service;
 public interface IHttpService

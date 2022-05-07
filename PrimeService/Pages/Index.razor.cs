@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using FireCloud.WebClient.PrimeService.Model;
+using PrimeService.Model;
 using FireCloud.WebClient.PrimeService.Service;
 
 namespace FireCloud.WebClient.PrimeService.Pages;

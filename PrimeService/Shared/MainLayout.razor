@@ -14,6 +14,32 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudSpacer />
         
+        <MudTextField  T="string" 
+                       Style="height: 45px;"
+                       Variant="Variant.Outlined" 
+                       FullWidth="true"
+                       Adornment="Adornment.End"
+                       Placeholder="Search any"
+                       AdornmentIcon="@Icons.Filled.Search"
+                       AdornmentColor="Color.Secondary" />
+        <MudMenu>
+            <ActivatorContent>
+                <MudAvatar Square="false" Color="Color.Info"
+                           Class="ma-2"
+                           Image="img/male-profile.png"
+                           Variant="Variant.Outlined"></MudAvatar>
+                @* <MudAvatar Image="img/male-profile.png" /> *@
+                @* <MudIconButton Icon="@Icons.Material.Filled.Person"  *@
+                @*                Color="Color.Secondary" aria-label="add to favorite"></MudIconButton> *@
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem>Profile</MudMenuItem>
+                <MudMenuItem>Theme</MudMenuItem>
+                <MudMenuItem>Usage</MudMenuItem>
+                <MudMenuItem>Sign Out</MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+        
         <MudToggleIconButton   
             Toggled="@ThemeChanged" 
             ToggledChanged="OnToggledChanged"

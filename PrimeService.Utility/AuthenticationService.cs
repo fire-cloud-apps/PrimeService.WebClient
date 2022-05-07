@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
-using FireCloud.WebClient.PrimeService.Model;
+using PrimeService.Model;
 
 namespace FireCloud.WebClient.PrimeService.Service;
 public interface IAuthenticationService

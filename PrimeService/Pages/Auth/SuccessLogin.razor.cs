@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
-using FireCloud.WebClient.PrimeService.Model;
+using PrimeService.Model;
 using FireCloud.WebClient.PrimeService.Helper;
 
 namespace FireCloud.WebClient.PrimeService.Pages.Auth;

@@ -19,10 +19,21 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\FC.PrimeService.Common\FC.PrimeService.Common.csproj" />
+	  <ProjectReference Include="..\PrimeService.Model\PrimeService.Model.csproj" />
+	  <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>
 		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Model" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Shared\PrimeService.Model\obj\PrimeService.Model.csproj.nuget.dgspec.json" />
+	  <_ContentIncludedByDefault Remove="Shared\PrimeService.Model\obj\project.assets.json" />
 	</ItemGroup>
 	
 </Project>

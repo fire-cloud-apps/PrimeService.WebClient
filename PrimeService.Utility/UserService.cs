@@ -1,7 +1,4 @@
-﻿
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using FireCloud.WebClient.PrimeService.Model;
+﻿using PrimeService.Model;
 
 namespace FireCloud.WebClient.PrimeService.Service;
 

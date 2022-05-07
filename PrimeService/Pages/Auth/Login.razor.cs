@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using FireCloud.WebClient.PrimeService.Helper;
-using FireCloud.WebClient.PrimeService.Model;
+using PrimeService.Model;
 using MudBlazor;
 
 namespace FireCloud.WebClient.PrimeService.Pages.Auth;

@@ -1,17 +1,4 @@
-﻿namespace FireCloud.WebClient.PrimeService.Model;
-
-
-/*
- *
- * https://gorest.co.in/public/v2/users
- * {
-    "id": 3989,
-    "name": "Dhanesh Adiga",
-    "email": "adiga_dhanesh@johnson.name",
-    "gender": "male",
-    "status": "inactive"
-  },
- */
+﻿namespace PrimeService.Model;
 
 public class User
 {
@@ -24,7 +11,10 @@ public class User
     /// Name of the user, Primarily used in External Authentication
     /// </summary>
     public string? Name { get; set; } = string.Empty;
-    public string Username { get; set; }
+    /// <summary>
+    /// A Unique username for the login user/employee.
+    /// </summary>
+    public string? Username { get; set; }
     public string Password { get; set; }
     public string DomainURL { get; set; }
     public string UserType { get; set; }
