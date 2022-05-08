@@ -2,7 +2,7 @@
 
 namespace FC.PrimeService.Common.Settings;
 
-public partial class SettingsView
+public partial class SettingsList
 {
     private IList<SettingsMenu> _settingsMenus;
     protected override void OnInitialized()
@@ -28,7 +28,8 @@ public partial class SettingsView
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "Company Profile Details Service",
-                    Icon = Icons.Filled.Task
+                    Icon = Icons.Filled.Task,
+                    Link = $"/SettingsView?viewId=Company"
                 },
                 new SettingsItem()
                 {

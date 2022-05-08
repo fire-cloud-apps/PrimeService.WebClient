@@ -3,21 +3,24 @@ using System.Security.Claims;
 using System.Text.Json;
 using PrimeService.Model;
 using FireCloud.WebClient.PrimeService.Helper;
+using FireCloud.WebClient.PrimeService.Service.QueryString;
 
 namespace FireCloud.WebClient.PrimeService.Pages.Auth;
 
 public partial class SuccessLogin
 {
+    #region Initialization
     private string _jwt;
     private string _message;
     private string _encode;
     IList<Claim> _claimList;
+    #endregion
+    
     protected  async override void OnInitialized()
     {
         _claimList = GetClaims();//Gets the list of claims from the query string by decoding JWT Token
         User user = new User();
         SetUserClaim(user);//Set the user details from the Claim data.
-
         #region Debugging
 #if DEBUG
         string jsonString = JsonSerializer.Serialize(user);

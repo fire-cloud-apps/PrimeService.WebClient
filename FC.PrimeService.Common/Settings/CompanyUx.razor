@@ -1,0 +1,111 @@
+﻿@using MudBlazor
+@using Microsoft.AspNetCore.Components
+@using global::PrimeService.Utility.ValidationHelper
+
+<MudCard>
+        
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <img src="svg/client.svg" Height="45" Width="45" alt="client avatar"/>
+            @*<MudIcon  Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />*@
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Company Profile </MudText>
+            <MudText Typo="Typo.caption">Details about the company</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            @* <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/> *@
+        </CardHeaderActions>
+    </MudCardHeader>
+
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+
+    <MudCardContent>
+         @if (_loading)
+         {
+             <MudSkeleton Class="my-2"/>
+             <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+             <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+             <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+             <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+             <MudSkeleton Class="my-2"/>
+         }
+         else
+         {
+             <MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
+                      @bind-Errors="@errors">
+                 <MudGrid>
+                     <MudItem xs="12" sm="6" md="4">
+                         <MudTextField Disabled="@_isReadOnly" Label="Title" HelperText="Max. 50 characters"
+                                       @bind-Value="_inputMode.BusinessName"
+                                       For="@(() => _inputMode.BusinessName)"
+                                       Counter="50"  MaxLength="50"
+                                       Immediate="true"
+                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                     </MudItem>
+                     <MudItem xs="12" sm="6" md="4">
+                         <MudTextField Disabled="@_isReadOnly" 
+                                       Label="Primary Mobile" HelperText="Max. 12 characters"
+                                       Adornment="Adornment.Start" 
+                                       AdornmentIcon="@Icons.TwoTone.Add"
+                                       @bind-Value="_inputMode.PrimaryMobile"
+                                       For="@(() => _inputMode.PrimaryMobile)"
+                                       Counter="12"  MaxLength="12"
+                                       Immediate="true"
+                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max12Characters))"/>
+                     </MudItem>
+                     <MudItem xs="12" sm="6" md="4">
+                         <MudTextField Disabled="@_isReadOnly" Label="Secondary Mobile"
+                                       HelperText="Max. 12 characters"
+                                       Adornment="Adornment.Start" 
+                                       AdornmentIcon="@Icons.TwoTone.Add"
+                                       @bind-Value="_inputMode.SecondaryMobile"
+                                       For="@(() => _inputMode.SecondaryMobile)"
+                                       Counter="12"  MaxLength="12"
+                                       Immediate="true"
+                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max12Characters))"/>
+                     </MudItem>
+                     
+                     <MudItem xs="12">
+                         <MudTextField Disabled="@_isReadOnly" Label="Description"
+                                       HelperText="Max. 300 characters"
+                                       @bind-Value="_inputMode.Address"
+                                       For="@(() => _inputMode.Address)"
+                                       Lines="3"
+                                       Counter="300"
+                                       MaxLength="330"
+                                       Immediate="true"/>
+                     </MudItem>
+                    
+                     <MudItem xs="12" sm="6" md="4">
+                         <MudTextField Disabled="@_isReadOnly" Label="Business Type" HelperText="Max. 50 characters"
+                                       @bind-Value="_inputMode.BusinessType"
+                                       For="@(() => _inputMode.BusinessType)"
+                                       Counter="50"  MaxLength="50"
+                                       Immediate="true"
+                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                     </MudItem>
+                     <MudItem xs="12" sm="6" md="4">
+                         <MudTextField Disabled="@_isReadOnly" Label="Currency" HelperText="Max. 50 characters"
+                                       @bind-Value="_inputMode.Currency"
+                                       For="@(() => _inputMode.Currency)"
+                                       Counter="50"  MaxLength="50"
+                                       Immediate="true"
+                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                     </MudItem>
+                     
+                 </MudGrid>
+
+                 
+             </MudForm>
+         }
+        
+    </MudCardContent>
+        
+    @* <MudCardActions Class="pa-4 mt-4 d-flex justify-end"> *@
+    @*     <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default"/> *@
+    @*     <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Default"/> *@
+    @* </MudCardActions> *@
+
+</MudCard>
+

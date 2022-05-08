@@ -1,0 +1,14 @@
+﻿@page "/SettingsView"
+@using FC.PrimeService.Common.Settings
+@using FireCloud.WebClient.PrimeService.Service.QueryString
+
+<MudBreadcrumbs Items="_items"></MudBreadcrumbs>
+
+@switch (_viewId)
+{
+    case "Company":
+        <CompanyUx />
+        break;
+    default:
+        break;
+}

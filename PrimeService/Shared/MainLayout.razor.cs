@@ -8,6 +8,8 @@ namespace FireCloud.WebClient.PrimeService.Shared
         private MudTheme _theme = new();
         private bool _isDarkMode = true;
         bool _drawerOpen = true;
+        private MudText _mudHeaderText;
+        private string _txtCompanyName = "Prime-Ser";
 
         private SwitchTheme _switchTheme = new SwitchTheme()
         {
@@ -19,6 +21,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
         void DrawerToggle()
         {
             _drawerOpen = !_drawerOpen;
+            _txtCompanyName = _drawerOpen ? "Prime-Ser" : string.Empty; // "PS";
         }
 
         #region Enable Dark Theme

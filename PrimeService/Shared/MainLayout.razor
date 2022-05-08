@@ -11,17 +11,17 @@
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" 
+                       Color="Color.Inherit" Edge="Edge.Start" 
+                       OnClick="@((e) => DrawerToggle())" />
         <MudSpacer />
-        
-        <MudTextField  T="string" 
-                       Style="height: 45px;"
-                       Variant="Variant.Outlined" 
-                       FullWidth="true"
-                       Adornment="Adornment.End"
-                       Placeholder="Search any"
-                       AdornmentIcon="@Icons.Filled.Search"
+
+        <MudTextField  T="string" Style="height: 45px;"
+                       Class="rounded-pill" Variant="Variant.Outlined" 
+                       FullWidth="true" Adornment="Adornment.End"
+                       Placeholder="Search any" AdornmentIcon="@Icons.Filled.Search"
                        AdornmentColor="Color.Secondary" />
+
         <MudMenu>
             <ActivatorContent>
                 <MudAvatar Square="false" Color="Color.Info"
@@ -55,16 +55,19 @@
                        Link="/Logout" />
         
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
+    
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" 
+               Fixed="true" Variant="@DrawerVariant.Mini"
+               OpenMiniOnHover="false">
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">
                 <a class="navbar-brand" href="" style="font-size: 24px;font-family: cursive;">
                     <i class="icofont-butterfly-alt icofont-2x" 
                        style="color: lightcoral; font-size: 28px;"></i>
-                    Prime-Ser
+                   @_txtCompanyName
                 </a>
             </MudText>
-            <MudText Color="Color.Info" Typo="Typo.overline">
+            <MudText @ref="_mudHeaderText" Color="Color.Info" Typo="Typo.overline">
                 &nbsp;@_appSettings.Version
                 @* <MudIcon Size="Size.Small" Icon="@Icons.Filled.NewReleases" ></MudIcon> *@
             </MudText>
