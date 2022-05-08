@@ -41,6 +41,4 @@ public partial class CompanyUx
         StateHasChanged();
     }
 
-    
-
 }

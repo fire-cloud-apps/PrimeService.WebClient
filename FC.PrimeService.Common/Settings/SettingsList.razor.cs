@@ -37,7 +37,8 @@ public partial class SettingsList
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "Company HQ Location",
-                    Icon = Icons.Filled.LocationOn
+                    Icon = Icons.Filled.LocationOn,
+                    Link = $"/SettingsView?viewId=Location"
                 },
                 new SettingsItem()
                 {
