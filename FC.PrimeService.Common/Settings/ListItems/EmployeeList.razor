@@ -1,0 +1,81 @@
+﻿@using MudBlazor
+@using Microsoft.AspNetCore.Components
+@using global::PrimeService.Utility.ValidationHelper
+@using global::PrimeService.Model
+@using global::PrimeService.Model.Settings
+
+@inject IDialogService DialogService
+
+<MudCard>
+        
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <img src="svg/employee.svg" Height="45" Width="45" alt="employee avatar"/>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Employee </MudText>
+            <MudText Typo="Typo.caption">List of employees.</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Outlined.AddBox" 
+                           Size="Size.Large"
+                           OnClick="OpenAddDialog"
+                           Color="Color.Info"/>
+        </CardHeaderActions>
+    </MudCardHeader>
+
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+
+    <MudCardContent>
+
+        <MudTable ServerData="@(new Func<TableState, Task<TableData<Employee>>>(ServerReload))"
+                  Dense="true" Hover="true" @ref="table">
+            <ToolBarContent>
+                @* <MudText Typo="Typo.h6"></MudText> *@
+                @* <MudSpacer /> *@
+                <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" 
+                              FullWidth="true"
+                              Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" 
+                              IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortLabel="Name" T="Employee">Name</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Mobile" T="Employee">Mobile</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Email" T="Employee">Email</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Work Location" T="Employee">WorkLocation</MudTableSortLabel></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">
+                    <MudTooltip Color="Color.Tertiary" Arrow="true">
+                        <ChildContent>
+                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                                @context.User.Name
+                            </MudButton>
+                        </ChildContent>
+                        
+                        <TooltipContent>
+                            <MudText Typo="Typo.body2"> Edit Employee - '@context.User.Name' </MudText>
+                        </TooltipContent>
+                    </MudTooltip>
+                </MudTd>
+               
+                <MudTd DataLabel="Mobile">@context.Mobile</MudTd>
+                <MudTd DataLabel="Email">@context.User.Email</MudTd>
+                <MudTd DataLabel="Work Location">@context.WorkLocation.Title </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+        
+    </MudCardContent>
+     
+   
+</MudCard>

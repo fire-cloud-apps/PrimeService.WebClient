@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PrimeService.Model.Settings;
 
-namespace FC.PrimeService.Common.Settings;
+namespace FC.PrimeService.Common.Settings.Dialog;
 
 public partial class  WorkLocationDialog
 {
     #region Initialization
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
+    private string _title = string.Empty;
     [Parameter] public WorkLocation _WorkLocation { get; set; } 
     private bool _processing = false;
     MudForm form;
@@ -22,21 +23,25 @@ public partial class  WorkLocationDialog
     
     protected override async Task OnInitializedAsync()
     {
-        _inputMode = _WorkLocation;
+        if (_WorkLocation == null)
+        {
+            //Dialog box opened in "Add" mode
+            _inputMode = new WorkLocation();//Initializes an empty object.
+            _title = "Add Work Location";
+        }
+        else
+        {
+            //Dialog box opened in "Edit" mode
+            _inputMode = _WorkLocation;
+            _title = "Edit Work Location";
+        }
+        
     }
     
     private void Cancel()
     {
         MudDialog.Cancel();
     }
-
-    // private void DeleteServer()
-    // {
-    //     //In a real world scenario this bool would probably be a service to delete
-    //     //the item from api/database
-    //     Snackbar.Add("Location Deleted", Severity.Success);
-    //     MudDialog.Close(DialogResult.Ok(_WorkLocation.Title));
-    // }
     
     #region Submit Button with Animation
     async Task ProcessSomething()

@@ -1,0 +1,144 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Settings
+@using global::PrimeService.Utility.ValidationHelper
+@using System.Text.Json
+@inject ISnackbar Snackbar
+
+<MudForm @ref="form" Model="_inputMode">
+    
+
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.TwoTone.Person" Class="mr-3 mb-n1"/>
+                @_title
+            </MudText>
+        
+        </TitleContent>
+   
+        <DialogContent >
+            <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+        
+            @if (_loading)
+            {
+                <MudSkeleton Class="my-2"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2"/>
+            }
+            else
+            {
+                
+                   
+                <MudGrid Style="max-height: 500px; overflow-y: scroll; overflow-x: hidden;">
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly" Label="Name" HelperText="Max. 50 characters"
+                                      @bind-Value="_inputMode.User.Name"
+                                      For="@(() => _inputMode.User.Name)"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly" Label="Email" HelperText="Max. 50 characters"
+                                      InputType="InputType.Email"
+                                      @bind-Value="_inputMode.User.Email"
+                                      For="@(() => _inputMode.User.Email)"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly" Label="Mobile" HelperText="Max. 50 characters"
+                                      InputType="InputType.Telephone"
+                                      @bind-Value="_inputMode.Mobile"
+                                      For="@(() => _inputMode.Mobile)"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                </MudGrid>
+                    
+                <MudGrid>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly" Label="User Name" HelperText="Max. 50 characters"
+                                      @bind-Value="_inputMode.User.Username"
+                                      For="@(() => _inputMode.User.Username)"
+                                      Counter="50" MaxLength="50"
+                                      autocomplete="new-username"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly" Label="Password" HelperText="Max. 50 characters"
+                                      InputType="@PasswordInput" 
+                                      autocomplete="new-password"
+                                      @bind-Value="_inputMode.User.Password"
+                                      For="@(() => _inputMode.User.Password)"
+                                      Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" 
+                                      OnAdornmentClick="TogglePasswordVisibility"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Label="Salary" Disabled="@_isReadOnly" 
+                                      Variant="Variant.Text" MaxLength="10"
+                                      Counter="10"
+                                      For="@(() => _inputMode.Salary)"
+                                      @bind-Value="_inputMode.Salary"
+                                      Immediate="true" HelperText="Max. 10 characters"
+                                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Money"
+                        />
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudAutocomplete T="WorkLocation" Label="Work Location"
+                                         HelperText="Select Employee Work Location"
+                                         @bind-Value="_inputMode.WorkLocation"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.Title} ({e.Phone})")"
+                                         Required="true"
+                                         RequiredError="Please Select Work Location"
+                                         SearchFunc="@WorkLocation_SearchAsync" Immediate="true"
+                                         ResetValueOnEmptyText="true"
+                                         CloseIcon="@Icons.Material.Filled.Search"
+                                         AdornmentColor="Color.Tertiary"/>
+                        @* Validation="@(new Func<string, IEnumerable<string>>(Validate))" *@
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudSwitch @bind-Checked="@_inputMode.User.IsActive"
+                                   Color="Color.Success"
+                                   Label="Is Active"></MudSwitch>
+                    </MudItem>
+                </MudGrid>
+                    
+            }
+        
+        </DialogContent>
+        <DialogActions>
+            @* <MudButton OnClick="Cancel">Cancel</MudButton> *@
+            @* <MudButton Color="Color.Secondary" OnClick="Submit">Submit</MudButton> *@
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Filled.Input"
+                       Color="Color.Primary" DisableElevation="true"
+                       OnClick="@(async () => await Submit())">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Submit</MudText>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Secondary" DisableElevation="true"
+                       OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       DisableElevation="true"
+                       OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+        </DialogActions>
+    </MudDialog>
+</MudForm>

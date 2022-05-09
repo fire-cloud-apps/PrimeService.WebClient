@@ -1,5 +1,6 @@
 ﻿@page "/SettingsView"
 @using FC.PrimeService.Common.Settings
+@using FC.PrimeService.Common.Settings.ListItems
 @using FireCloud.WebClient.PrimeService.Service.QueryString
 
 <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
@@ -11,6 +12,9 @@
         break;
     case "Location":
         <WorkLocationUx />
+        break;
+    case "Employee":
+        <EmployeeList />
         break;
     default:
         break;

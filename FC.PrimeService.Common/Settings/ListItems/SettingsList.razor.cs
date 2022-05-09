@@ -1,6 +1,6 @@
 ﻿using MudBlazor;
 
-namespace FC.PrimeService.Common.Settings;
+namespace FC.PrimeService.Common.Settings.ListItems;
 
 public partial class SettingsList
 {
@@ -46,8 +46,8 @@ public partial class SettingsList
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "Employee Service",
-                    Icon = @Icons.Filled.Group
-                    //Icon = "fas fa-solid fa-user-group"
+                    Icon = @Icons.Filled.Group,
+                    Link = $"/SettingsView?viewId=Employee"
                 },
                 new SettingsItem()
                 {

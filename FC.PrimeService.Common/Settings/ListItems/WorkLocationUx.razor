@@ -17,7 +17,10 @@
             <MudText Typo="Typo.caption">Tells where is your headquarter/location.</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-            @* <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/> *@
+            <MudIconButton Icon="@Icons.Material.Outlined.AddBox" 
+                           Size="Size.Large"
+                           OnClick="OpenAddDialog"
+                           Color="Color.Info"/>
         </CardHeaderActions>
     </MudCardHeader>
 
@@ -42,11 +45,18 @@
                 <MudTh><MudTableSortLabel SortLabel="Address" T="User">Address</MudTableSortLabel></MudTh>
             </HeaderContent>
             <RowTemplate>
-                @*  *@
                 <MudTd DataLabel="Title">
-                    <MudButton OnClick="@(s => OpenDialog(@context))">
-                        @context.Title
-                    </MudButton>
+                    <MudTooltip Color="Color.Tertiary" Arrow="true">
+                        <ChildContent>
+                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                                @context.Title
+                            </MudButton>
+                        </ChildContent>
+                        
+                        <TooltipContent>
+                            <MudText Typo="Typo.body2"> Edit Location - '@context.Title' </MudText>
+                        </TooltipContent>
+                    </MudTooltip>
                 </MudTd>
                
                 <MudTd DataLabel="Phone">@context.Phone</MudTd>

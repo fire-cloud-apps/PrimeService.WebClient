@@ -15,4 +15,9 @@ public sealed class CharacterValidation
         if (!string.IsNullOrEmpty(ch) && 12 < ch?.Length)
             yield return "Max 12 characters";
     }
+    public static IEnumerable<string> Max10Characters(string ch)
+    {
+        if (!string.IsNullOrEmpty(ch) && 10 < ch?.Length)
+            yield return "Max 10 characters";
+    }
 }

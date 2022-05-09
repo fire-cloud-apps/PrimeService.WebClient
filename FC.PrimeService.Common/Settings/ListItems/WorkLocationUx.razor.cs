@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
+using FC.PrimeService.Common.Settings.Dialog;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
@@ -8,7 +10,7 @@ using PrimeService.Model.Location;
 using PrimeService.Model.Settings;
 
 
-namespace FC.PrimeService.Common.Settings;
+namespace FC.PrimeService.Common.Settings.ListItems;
 
 public partial class WorkLocationUx
 {
@@ -106,6 +108,7 @@ public partial class WorkLocationUx
         table.ReloadServerData();
     }
 
+    #region Dialog Open Action
     private async Task OpenDialog(WorkLocation workLocation)
     {
         Console.WriteLine(JsonSerializer.Serialize(workLocation));
@@ -120,9 +123,21 @@ public partial class WorkLocationUx
             //Servers.RemoveAll(item => item.Id == deletedServer);
         }
     }
+    private async Task OpenAddDialog(MouseEventArgs arg)
+    {
+        var parameters = new DialogParameters { ["_WorkLocation"] = null };//'null' indicates that the Dialog should open in 'Add' Mode.
+        var dialog = DialogService.Show<WorkLocationDialog>("Work Location", parameters);
+        var result = await dialog.Result;
+        
+        if (!result.Cancelled)
+        {
+            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+        }
+    }
     
-   
-    
+
+    #endregion
+
     #region Submit Button with Animation
     async Task ProcessSomething()
     {
@@ -157,4 +172,6 @@ public partial class WorkLocationUx
         }
     }
     #endregion
+
+    
 }

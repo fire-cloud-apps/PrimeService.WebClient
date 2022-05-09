@@ -14,8 +14,8 @@ public partial class SettingsView
         Console.WriteLine($"ViewId : {_viewId}");
         _items = new List<BreadcrumbItem>
         {
-            new BreadcrumbItem("Home", href: "#", icon: Icons.Material.TwoTone.Home),
-            new BreadcrumbItem("Settings", href: "#", icon: Icons.Material.TwoTone.Settings),
+            new BreadcrumbItem("Home", href: "/", icon: Icons.Material.TwoTone.Home),
+            new BreadcrumbItem("Settings", href: "/Settings", icon: Icons.Material.TwoTone.Settings),
             new BreadcrumbItem(_viewId, href: null, disabled: true, icon: Icons.Material.TwoTone.DoubleArrow)
         };
 
