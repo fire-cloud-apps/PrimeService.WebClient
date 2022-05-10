@@ -1,9 +1,4 @@
-﻿@using MudBlazor
-@using Microsoft.AspNetCore.Components
-@using global::PrimeService.Utility.ValidationHelper
-@using global::PrimeService.Model
-@using global::PrimeService.Model.Settings
-
+﻿@using global::PrimeService.Model.Settings.Tickets
 @inject IDialogService DialogService
 
 <MudCard>
@@ -12,8 +7,8 @@
             <img src="svg/location.svg" Height="45" Width="45" alt="client avatar"/>
         </CardHeaderAvatar>
         <CardHeaderContent>
-            <MudText Typo="Typo.h6">Company Work & Branch Location </MudText>
-            <MudText Typo="Typo.caption">Tells where is your headquarter/location.</MudText>
+            <MudText Typo="Typo.h6">Ticket Category </MudText>
+            <MudText Typo="Typo.caption">List of cateogory for the status eg. 'New', 'InProgress' etc.</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
             <MudIconButton Icon="@Icons.Material.Outlined.AddBox" 
@@ -25,7 +20,7 @@
     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
     <MudCardContent>
 
-        <MudTable ServerData="@(new Func<TableState, Task<TableData<WorkLocation>>>(ServerReload))"
+        <MudTable ServerData="@(new Func<TableState, Task<TableData<Status>>>(ServerReload))"
                   Dense="true" Hover="true" @ref="table">
             <ToolBarContent>
                 @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
@@ -37,27 +32,23 @@
                               IconSize="Size.Medium" Class="mt-0"></MudTextField>
             </ToolBarContent>
             <HeaderContent>
-                <MudTh><MudTableSortLabel SortLabel="Title" T="User">Title</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortLabel="Phone" T="User">Phone</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortLabel="Address" T="User">Address</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Name" T="Status">Name</MudTableSortLabel></MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="Title">
+                <MudTd DataLabel="Name">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
                             <MudButton OnClick="@(s => OpenDialog(@context))">
-                                @context.Title
+                                @context.Name
                             </MudButton>
                         </ChildContent>
                         
                         <TooltipContent>
-                            <MudText Typo="Typo.body2"> Edit Location - '@context.Title' </MudText>
+                            <MudText Typo="Typo.body2"> Edit Status - '@context.Name' </MudText>
                         </TooltipContent>
                     </MudTooltip>
                 </MudTd>
                
-                <MudTd DataLabel="Phone">@context.Phone</MudTd>
-                <MudTd DataLabel="Address">@context.Address </MudTd>
             </RowTemplate>
             <NoRecordsContent>
                 <MudText>No matching records found</MudText>

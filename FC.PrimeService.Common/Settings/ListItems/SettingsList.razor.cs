@@ -25,8 +25,7 @@ public partial class SettingsList
     }
 
     #region Company Settings
-
-     private SettingsMenu CompanySettings()
+    private SettingsMenu CompanySettings()
     {
         SettingsMenu companySettings = new SettingsMenu()
         {
@@ -102,42 +101,42 @@ public partial class SettingsList
         };
         return companySettings;
     }
-
-
+    
     #endregion
    
     #region Ticket Settings
 
     private SettingsMenu TicketSettings()
     {
-        SettingsMenu companySettings = new SettingsMenu()
+        SettingsMenu settings = new SettingsMenu()
         {
             Title = "Ticket Settings",
             Items = new List<SettingsItem>()
             {
                 new SettingsItem()
                 {
-                    Title = "General",
+                    Title = "Default",
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
-                    ToolTip = "Ticket Service Definition",
+                    ToolTip = "Ticket Default Values",
                     Icon = @Icons.TwoTone.StickyNote2
                 },
-                new SettingsItem()
-                {
-                    Title = "Notification",
-                    ButtonColor = Color.Default,
-                    IconColor = Color.Default,
-                    ToolTip = "Enable/Disable Notification",
-                    Icon = @Icons.TwoTone.NotificationsActive
-                },
+                // new SettingsItem()
+                // {
+                //     Title = "Notification",
+                //     ButtonColor = Color.Default,
+                //     IconColor = Color.Default,
+                //     ToolTip = "Enable/Disable Notification",
+                //     Icon = @Icons.TwoTone.NotificationsActive
+                // },
                 new SettingsItem()
                 {
                     Title = "Status",
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "Ticket Status Definition",
-                    Icon = @Icons.TwoTone.NotificationsActive
+                    Icon = @Icons.TwoTone.FeaturedPlayList,
+                    Link = $"/SettingsView?viewId=Status"
                 },
                 new SettingsItem()
                 {
@@ -149,42 +148,41 @@ public partial class SettingsList
                 }
             }
         };
-        return companySettings;
+        return settings;
     }
-
-
+    
     #endregion
 
     #region Form & Payment Settings
-     
-     private SettingsMenu PaymentsSettings()
-     {
-         SettingsMenu settings = new SettingsMenu()
-         {
-             Title = "Payment Settings",
-             Items = new List<SettingsItem>()
-             {
-                 new SettingsItem()
-                 {
-                     Title = "Tag",
-                     ButtonColor = Color.Default,
-                     IconColor = Color.Default,
-                     ToolTip = "Payment Tags for ease of use",
-                     Icon = @Icons.TwoTone.MonetizationOn
-                 },
-                 new SettingsItem()
-                 {
-                     Title = "Methods",
-                     ButtonColor = Color.Default,
-                     IconColor = Color.Default,
-                     ToolTip = "Various ways of payments collected by the clients.",
-                     Icon = @Icons.TwoTone.CreditCard
-                 },
-             }
-         };
-         return settings;
-     }
-     private SettingsMenu FormsSettings()
+    private SettingsMenu PaymentsSettings()
+    {
+        SettingsMenu settings = new SettingsMenu()
+        {
+            Title = "Payment Settings",
+            Items = new List<SettingsItem>()
+            {
+                new SettingsItem()
+                {
+                    Title = "Tag",
+                    ButtonColor = Color.Default,
+                    IconColor = Color.Default,
+                    ToolTip = "Payment Tags for ease of use",
+                    Icon = @Icons.TwoTone.MonetizationOn
+                },
+                new SettingsItem()
+                {
+                    Title = "Methods",
+                    ButtonColor = Color.Default,
+                    IconColor = Color.Default,
+                    ToolTip = "Various ways of payments collected by the clients.",
+                    Icon = @Icons.TwoTone.CreditCard
+                },
+            }
+        };
+        return settings;
+    }
+
+    private SettingsMenu FormsSettings()
      {
          SettingsMenu formSettings = new SettingsMenu()
          {
@@ -236,33 +234,37 @@ public partial class SettingsList
          return formSettings;
      }
 
-     #endregion
-   
-
-     private void PerformNavigation(SettingsItem selectedItem)
-     {
-         if (selectedItem.Title == "License")
-         {
-             OpenLicenseBox();
-         }
-         else
-         {
-             _navigationManager.NavigateTo(selectedItem.Link);
-         }
-         
-         //@(() => { _navigationManager.NavigateTo(menuItems.Link);  })
-     }
+    #endregion
      
-     async Task OpenLicenseBox()
+     #region Helper Methods
+     
+     private async  Task PerformNavigation(SettingsItem selectedItem)
      {
-         var result = DialogService.Show<LicenseDialog>("Prime Service License", _dialogOptions);
-         Console.WriteLine("License Loaded");
+         switch (selectedItem.Title)
+         {
+             case "License":
+                 await InvokeDialogBox<LicenseDialog>("Prime Service License");
+                 break;
+             case "Default":
+                 await InvokeDialogBox<DefaultSettingsDialog>("Ticket Default Settings");
+                 break;
+             default:
+                 _navigationManager.NavigateTo(selectedItem.Link);
+                 break;
+         }
+        
+     }
 
+     async Task InvokeDialogBox<T>(string title) where T : Microsoft.AspNetCore.Components.ComponentBase
+     {
+         var result = DialogService.Show<T>(title: title, _dialogOptions);
          if (!result.Result.IsCanceled)
          {
              //some action.
          }
      }
+
+     #endregion
 }
 
 public class SettingsMenu

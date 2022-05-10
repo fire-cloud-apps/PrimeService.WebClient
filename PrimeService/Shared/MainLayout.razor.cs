@@ -9,8 +9,11 @@ namespace FireCloud.WebClient.PrimeService.Shared
         private bool _isDarkMode = true;
         bool _drawerOpen = true;
         private MudText _mudHeaderText;
-        private string _txtCompanyName = "Prime-Ser";
-
+        private string _txtCompanyName;
+        private string _title = "Prime Ser";
+        private MudText _mudVersionText;
+        private string _version;
+        
         private SwitchTheme _switchTheme = new SwitchTheme()
         {
             Color = Color.Success,
@@ -18,10 +21,18 @@ namespace FireCloud.WebClient.PrimeService.Shared
             Title = "Off"
         };
 
+        protected override void OnInitialized()
+        {
+            Console.WriteLine($"Dark Or Light : {_isDarkMode}");
+            _txtCompanyName = _title;
+            _version = _appSettings.Version;
+        }
+
         void DrawerToggle()
         {
             _drawerOpen = !_drawerOpen;
-            _txtCompanyName = _drawerOpen ? "Prime-Ser" : string.Empty; // "PS";
+            _txtCompanyName = _drawerOpen ? _title : string.Empty; // "PS";
+            _version = _drawerOpen ? _appSettings.Version : string.Empty; // "PS";
         }
 
         #region Enable Dark Theme
@@ -29,11 +40,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
         {
             get; set;
         }
-        protected override void OnInitialized()
-        {
-            //StateHasChanged();
-            Console.WriteLine($"Dark Or Light : {_isDarkMode}");
-        }
+        
         public void OnToggledChanged(bool toggled)
         {
             // Because variable is not two-way bound, we need to update it ourself

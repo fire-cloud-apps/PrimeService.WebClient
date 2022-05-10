@@ -56,8 +56,8 @@
         
     </MudAppBar>
     
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" 
-               Fixed="true" Variant="@DrawerVariant.Mini"
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2"
+                Fixed="true" Variant="@DrawerVariant.Mini"
                OpenMiniOnHover="false">
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">
@@ -67,9 +67,8 @@
                    @_txtCompanyName
                 </a>
             </MudText>
-            <MudText @ref="_mudHeaderText" Color="Color.Info" Typo="Typo.overline">
-                &nbsp;@_appSettings.Version
-                @* <MudIcon Size="Size.Small" Icon="@Icons.Filled.NewReleases" ></MudIcon> *@
+            <MudText @ref="_mudVersionText" Color="Color.Info" Typo="Typo.overline">
+                @_version
             </MudText>
         </MudDrawerHeader>
         <NavMenu />

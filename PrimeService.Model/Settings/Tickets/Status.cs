@@ -5,7 +5,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace PrimeService.Model.Settings.Tickets;
 
 /// <summary>
-/// Ticket Status category
+/// Ticket Status category eg. 'New', 'In Progress', 'Pending' ... etc 'Done'
 /// </summary>
 public class Status
 {

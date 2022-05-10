@@ -15,7 +15,7 @@ namespace FC.PrimeService.Common.Settings.ListItems;
 public partial class WorkLocationUx
 {
 
-    #region Initialization
+    #region Variables
     [Inject] ISnackbar Snackbar { get; set; }
     MudForm form;
     private bool _loading = false;
@@ -32,6 +32,7 @@ public partial class WorkLocationUx
     private string searchString = null;
     #endregion
 
+    #region Initialization Load
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
@@ -48,7 +49,9 @@ public partial class WorkLocationUx
         _loading = false;
         StateHasChanged();
     }
-    
+    #endregion
+
+    #region Grid View
     /// <summary>
     /// Here we simulate getting the paged, filtered and ordered data from the server
     /// </summary>
@@ -101,13 +104,13 @@ public partial class WorkLocationUx
         Console.WriteLine($"Table State : {JsonSerializer.Serialize(state)}");
         return new TableData<WorkLocation>() {TotalItems = totalItems, Items = pagedData};
     }
-
     private void OnSearch(string text)
     {
         searchString = text;
         table.ReloadServerData();
     }
-
+    #endregion
+    
     #region Dialog Open Action
     private async Task OpenDialog(WorkLocation workLocation)
     {
@@ -172,6 +175,5 @@ public partial class WorkLocationUx
         }
     }
     #endregion
-
     
 }

@@ -1,0 +1,75 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Settings
+@using global::PrimeService.Utility.ValidationHelper
+@using System.Text.Json
+@inject ISnackbar Snackbar
+
+<MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
+         @bind-Errors="@errors">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.TwoTone.StickyNote2" Class="mr-3 mb-n1"/>
+                @_title
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            @if (_loading)
+            {
+                <MudSkeleton Class="my-2"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2"/>
+            }
+            else
+            {
+                <MudGrid>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudTextField Disabled="@_isReadOnly" Label="Name" 
+                                      HelperText="Max. 50 characters"
+                                      @bind-Value="_inputMode.Name"
+                                      For="@(() => _inputMode.Name)"
+                                      MaxLength="50"
+                                      Immediate="true" />
+                    </MudItem>
+                </MudGrid>
+            }
+        </DialogContent>
+        <DialogActions>
+        
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Filled.Input"
+                       Color="Color.Primary" DisableElevation="true"
+                       OnClick="@(async () => await Submit())">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Submit</MudText>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
+                       StartIcon="@Icons.Outlined.Cancel"
+                       OnClick="Cancel">Cancel</MudButton>
+            
+            @if (_appSettings.IsDev)
+            {
+                @* <MudButton Variant="Variant.Filled" *@
+                @*            Color="Color.Warning" DisableElevation="true" *@
+                @*            OnClick="GetFakeData" Class="mx-2">Fake It</MudButton> *@
+                @* <MudButton Variant="Variant.Filled" *@
+                @*            Color="Color.Secondary" DisableElevation="true" *@
+                @*            OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton> *@
+                @* <MudButton Variant="Variant.Filled" *@
+                @*            DisableElevation="true" *@
+                @*            OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton> *@
+            }
+            
+        </DialogActions>
+    </MudDialog>
+</MudForm>

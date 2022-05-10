@@ -2,12 +2,12 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace PrimeService.Model.Settings.Tickets;
+namespace PrimeService.Model.Settings.Payments;
 
 /// <summary>
-/// Ticket Service Category
+/// Supported Payment methods such as 'Cash', 'Card', 'QR' etc.
 /// </summary>
-public class ServiceCategory
+public class PaymentMethods
 {
     /// <summary>
     /// A Unique Id to get account details.
@@ -17,8 +17,8 @@ public class ServiceCategory
     public string? Id { get; set; } = string.Empty;
 
     /// <summary>
-    /// Service Category Name
+    /// Payment Method
     /// </summary>
-    [Required(ErrorMessage = "Category Name is required.")]
-    public string? CategoryName { get; set; }
+    [Required(ErrorMessage = "Payment Method is required.")]
+    public string? Title { get; set; }
 }

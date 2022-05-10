@@ -2,12 +2,12 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace PrimeService.Model.Settings.Tickets;
+namespace PrimeService.Model.Settings.Forms;
 
 /// <summary>
-/// Ticket Service Category
+/// Client Type, eg, 'Individual' or 'Company'
 /// </summary>
-public class ServiceCategory
+public class ClientType
 {
     /// <summary>
     /// A Unique Id to get account details.
@@ -17,8 +17,8 @@ public class ServiceCategory
     public string? Id { get; set; } = string.Empty;
 
     /// <summary>
-    /// Service Category Name
+    /// Payment Method
     /// </summary>
-    [Required(ErrorMessage = "Category Name is required.")]
-    public string? CategoryName { get; set; }
+    [Required(ErrorMessage = "Client Type is required.")]
+    public string? Title { get; set; }
 }
