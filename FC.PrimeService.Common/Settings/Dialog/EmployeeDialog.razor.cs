@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
+using FireCloud.WebClient.PrimeService.Service.Helper;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
@@ -19,6 +21,8 @@ public partial class EmployeeDialog
     string _outputJson;
     bool success;
     string[] errors = { };
+    private string _detectedHeight = "450";
+    private string _dialogBehaviour = "max-height:{0}px; overflow-y: scroll; overflow-x: hidden;";
     private bool _isReadOnly = false;
 
     public List<WorkLocation> _WorkLocations = new List<WorkLocation>()
@@ -33,6 +37,11 @@ public partial class EmployeeDialog
     #region Load
     protected override async Task OnInitializedAsync()
     {
+        // var dimension = await JsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+        // _detectedHeight = (dimension.Height - 250).ToString();
+        // _dialogBehaviour = string.Format(_dialogBehaviour, _detectedHeight);
+        // Console.WriteLine($"Detected Style: {_dialogBehaviour}");
+        
         if (_employee == null)
         {
             //Dialog box opened in "Add" mode
@@ -140,4 +149,9 @@ public partial class EmployeeDialog
     }
 
     #endregion
+
+    private Task GetFakeData()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -30,7 +30,8 @@ public partial class EmployeeList
         MaxWidth = MaxWidth.Large, 
         FullWidth = true,
         CloseButton = true,
-        CloseOnEscapeKey = true
+        CloseOnEscapeKey = true, 
+        
     };
     #endregion
     

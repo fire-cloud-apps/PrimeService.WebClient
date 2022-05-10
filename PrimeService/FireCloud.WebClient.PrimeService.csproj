@@ -28,12 +28,12 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Folder Include="Model" />
+	  <_ContentIncludedByDefault Remove="Shared\PrimeService.Model\obj\PrimeService.Model.csproj.nuget.dgspec.json" />
+	  <_ContentIncludedByDefault Remove="Shared\PrimeService.Model\obj\project.assets.json" />
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <_ContentIncludedByDefault Remove="Shared\PrimeService.Model\obj\PrimeService.Model.csproj.nuget.dgspec.json" />
-	  <_ContentIncludedByDefault Remove="Shared\PrimeService.Model\obj\project.assets.json" />
+	  <Folder Include="Dialogs" />
 	</ItemGroup>
 	
 </Project>

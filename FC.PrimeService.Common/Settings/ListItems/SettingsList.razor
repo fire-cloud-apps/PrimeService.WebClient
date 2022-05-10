@@ -36,18 +36,19 @@
                             <MudItem>
                                 <MudTooltip Text="@menuItems.ToolTip" Arrow="true">
                                    
-                                        <MudIconButton Class="pa-2 ma-2"
-                                             Variant="Variant.Filled"
-                                             Size="Size.Large" Color="Color.Default"
-                                             OnClick="@(() => { _navigationManager.NavigateTo(menuItems.Link);  })"
-                                            Title="@menuItems.Title" aria-label="github">
-                                            <MudIcon Icon="@menuItems.Icon"
-                                                     Color="@menuItems.IconColor"
-                                                     Style="font-size: 3rem;"/>
-                                            <MudText Typo="Typo.body1">
-                                                @menuItems.Title
-                                            </MudText>
-                                        </MudIconButton>
+                                    <MudIconButton Class="pa-2 ma-2"
+                                                   Disabled="@menuItems.Disabled"
+                                                   Variant="Variant.Filled"
+                                                   Size="Size.Large" Color="Color.Default"
+                                                   OnClick="@(e => PerformNavigation(menuItems))"
+                                                   Title="@menuItems.Title" aria-label="github">
+                                        <MudIcon Icon="@menuItems.Icon"
+                                                 Color="@menuItems.IconColor"
+                                                 Style="font-size: 3rem;"/>
+                                        <MudText Typo="Typo.body1">
+                                            @menuItems.Title
+                                        </MudText>
+                                    </MudIconButton>
                                     
                                 </MudTooltip>
                             </MudItem>

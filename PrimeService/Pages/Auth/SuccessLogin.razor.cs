@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Text.Json;
 using PrimeService.Model;
-using FireCloud.WebClient.PrimeService.Helper;
 using FireCloud.WebClient.PrimeService.Service.QueryString;
 
 namespace FireCloud.WebClient.PrimeService.Pages.Auth;

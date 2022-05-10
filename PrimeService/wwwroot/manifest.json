@@ -1,9 +1,10 @@
 {
-  "name": "FireCloud.WebClient.PrimeService",
-  "short_name": "FireCloud.WebClient.PrimeService",
+  "name": "PrimeService",
+  "short_name": "PS",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "description":"Fire Cloud - Prime Service web tool for service and inventory.",
+  "background_color": "#1A1A27",
   "theme_color": "#03173d",
   "prefer_related_applications": false,
   "icons": [

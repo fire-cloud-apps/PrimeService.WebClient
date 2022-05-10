@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Blazored.LocalStorage;
-using FireCloud.WebClient.PrimeService.Helper;
 using FireCloud.WebClient.PrimeService.Service;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -9,6 +8,7 @@ using Blazored.LocalStorage.JsonConverters;
 using Blazored.LocalStorage.Serialization;
 using Blazored.LocalStorage.StorageOptions;
 using Blazor.Extensions.Logging;
+using FireCloud.WebClient.PrimeService.Service.Helper;
 using App = FireCloud.WebClient.PrimeService.App;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

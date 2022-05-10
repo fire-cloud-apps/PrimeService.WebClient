@@ -1,10 +1,19 @@
-﻿using MudBlazor;
+﻿using FC.PrimeService.Common.Settings.Dialog;
+using MudBlazor;
 
 namespace FC.PrimeService.Common.Settings.ListItems;
 
 public partial class SettingsList
 {
     private IList<SettingsMenu> _settingsMenus;
+    private DialogOptions _dialogOptions = new DialogOptions()
+    {
+        MaxWidth = MaxWidth.Small, 
+        FullWidth = false,
+        CloseButton = true,
+        CloseOnEscapeKey = true,
+    };
+    
     protected override void OnInitialized()
     {
         _settingsMenus = new List<SettingsMenu>();
@@ -15,7 +24,9 @@ public partial class SettingsList
         StateHasChanged();
     }
 
-    private SettingsMenu CompanySettings()
+    #region Company Settings
+
+     private SettingsMenu CompanySettings()
     {
         SettingsMenu companySettings = new SettingsMenu()
         {
@@ -55,7 +66,8 @@ public partial class SettingsList
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "Your Profile",
-                    Icon =@Icons.TwoTone.AccountBox
+                    Disabled = false,
+                    Icon =@Icons.TwoTone.AccountBox,
                 },
                 new SettingsItem()
                 {
@@ -63,6 +75,7 @@ public partial class SettingsList
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "Document uploaded into the system",
+                    Disabled = false,
                     Icon = @Icons.Filled.InsertDriveFile
                 },
                 new SettingsItem()
@@ -71,6 +84,7 @@ public partial class SettingsList
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "3rd Party tool integrated into this platform",
+                    Disabled = false,
                     Icon = @Icons.TwoTone.IntegrationInstructions
                 },
                 new SettingsItem()
@@ -79,15 +93,22 @@ public partial class SettingsList
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "In which license your Organization claimed.",
-                    Icon = @Icons.TwoTone.Stars
+                    Icon = @Icons.TwoTone.Stars,
+                    Disabled = false,
+                    Link = $"/SettingsView?viewId=License"
                 },
                 
             }
         };
         return companySettings;
     }
-    
-     private SettingsMenu TicketSettings()
+
+
+    #endregion
+   
+    #region Ticket Settings
+
+    private SettingsMenu TicketSettings()
     {
         SettingsMenu companySettings = new SettingsMenu()
         {
@@ -130,6 +151,11 @@ public partial class SettingsList
         };
         return companySettings;
     }
+
+
+    #endregion
+
+    #region Form & Payment Settings
      
      private SettingsMenu PaymentsSettings()
      {
@@ -158,7 +184,6 @@ public partial class SettingsList
          };
          return settings;
      }
-     
      private SettingsMenu FormsSettings()
      {
          SettingsMenu formSettings = new SettingsMenu()
@@ -210,7 +235,34 @@ public partial class SettingsList
          };
          return formSettings;
      }
+
+     #endregion
+   
+
+     private void PerformNavigation(SettingsItem selectedItem)
+     {
+         if (selectedItem.Title == "License")
+         {
+             OpenLicenseBox();
+         }
+         else
+         {
+             _navigationManager.NavigateTo(selectedItem.Link);
+         }
+         
+         //@(() => { _navigationManager.NavigateTo(menuItems.Link);  })
+     }
      
+     async Task OpenLicenseBox()
+     {
+         var result = DialogService.Show<LicenseDialog>("Prime Service License", _dialogOptions);
+         Console.WriteLine("License Loaded");
+
+         if (!result.Result.IsCanceled)
+         {
+             //some action.
+         }
+     }
 }
 
 public class SettingsMenu
@@ -226,5 +278,6 @@ public class SettingsItem
     public string Icon { get; set; }
     public Color ButtonColor { get; set; }
     public string ToolTip { get; set; }
-    public string Link { get; set; } = "#";
+    public string Link { get; set; } = "/SettingsView?viewId=ytb";
+    public bool Disabled { get; set; } = false;
 } 

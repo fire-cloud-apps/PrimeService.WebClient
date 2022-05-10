@@ -1,6 +1,4 @@
-﻿
-namespace FireCloud.WebClient.PrimeService.Helper;
-
+﻿namespace FireCloud.WebClient.PrimeService.Service.Helper;
 
 public class AppSettings
 {
@@ -9,6 +7,7 @@ public class AppSettings
     /// Application Version to be displayed in the Main title.
     /// </summary>
     public string? Version { get; set; }
+    public bool IsDev { get; set; }
 }
 
 public class App

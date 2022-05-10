@@ -1,4 +1,5 @@
-﻿using FireCloud.WebClient.PrimeService.Service.QueryString;
+﻿using FC.PrimeService.Common.Settings.Dialog;
+using FireCloud.WebClient.PrimeService.Service.QueryString;
 using MudBlazor;
 
 namespace FireCloud.WebClient.PrimeService.Pages.Settings;
@@ -7,7 +8,7 @@ public partial class SettingsView
 {
     private List<BreadcrumbItem> _items = null;
     string _viewId = string.Empty;
-    
+   
     protected override async Task OnInitializedAsync()
     {
         _navigationManager.TryGetQueryString<string>("viewId", out _viewId);
@@ -18,6 +19,5 @@ public partial class SettingsView
             new BreadcrumbItem("Settings", href: "/Settings", icon: Icons.Material.TwoTone.Settings),
             new BreadcrumbItem(_viewId, href: null, disabled: true, icon: Icons.Material.TwoTone.DoubleArrow)
         };
-
-    }
+    }    
 }

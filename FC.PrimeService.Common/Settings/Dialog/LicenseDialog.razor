@@ -1,0 +1,65 @@
+﻿@using System.Net
+@using System.Text
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            @if (Loading)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <MudPaper Class="ma-2 pa-2">
+                    <MudList Clickable="true">
+                        <MudListSubheader>
+                            Subscribed License
+                        </MudListSubheader>
+                        <MudListItem Icon="@Icons.Material.Filled.Contacts">
+                            Customers - Unlimited
+                        </MudListItem>
+                        <MudListItem Icon="@Icons.Material.Filled.Person">
+                            Employee - Unlimited
+                        </MudListItem>
+                        <MudListItem Icon="@Icons.Material.Filled.DesignServices" Text="Service" InitiallyExpanded="true">
+                            <NestedList>
+                                <MudListItem Icon="@Icons.Material.Filled.AirplaneTicket">
+                                    Tickets - $0.0015/record
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.Storage">
+                                    Inventory - $0.0015/record
+                                </MudListItem>
+                                <MudListItem Icon="@Icons.Material.Filled.DocumentScanner">
+                                    Documents - $0.0025/record
+                                </MudListItem>
+                            </NestedList>
+                        </MudListItem>
+                    </MudList>
+                </MudPaper>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Ok">Accept</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] 
+    MudDialogInstance MudDialog { get; set; }
+
+    [Inject] HttpClient HttpClient { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        await base.OnInitializedAsync();
+    }
+
+    private bool Loading = false;
+
+    private void Ok()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

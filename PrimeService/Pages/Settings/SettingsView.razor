@@ -1,5 +1,6 @@
 ﻿@page "/SettingsView"
 @using FC.PrimeService.Common.Settings
+@using FC.PrimeService.Common.Settings.Dialog
 @using FC.PrimeService.Common.Settings.ListItems
 @using FireCloud.WebClient.PrimeService.Service.QueryString
 
@@ -17,5 +18,7 @@
         <EmployeeList />
         break;
     default:
+        _navigationManager.NavigateTo("/ComingSoon");
+        
         break;
 }

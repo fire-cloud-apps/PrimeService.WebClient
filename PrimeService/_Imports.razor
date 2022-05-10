@@ -1,4 +1,5 @@
-﻿@using System.Net.Http
+﻿@using FireCloud.WebClient.PrimeService.Service.Helper
+@using System.Net.Http
 @using System.Net.Http.Json
 @using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Components.Forms
@@ -19,7 +20,8 @@
 @inject IConfiguration _configuration
 @inject HttpClient _httpClient
 @inject NavigationManager _navigationManager
-@inject Helper.AppSettings _appSettings
+@inject AppSettings _appSettings
+@inject IDialogService DialogService
 
 @*External Project Reference*@
 
