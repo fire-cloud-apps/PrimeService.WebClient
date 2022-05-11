@@ -25,7 +25,7 @@ public class PaymentTags
     /// <summary>
     /// Indicates that is the Income Type/Expense Type
     /// </summary>
-    public PaymentTagType PaymentTagType { get; set; }
+    public PaymentCategory Category { get; set; }
     
     /// <summary>
     /// Initial fund for the account that has invested.
@@ -34,7 +34,10 @@ public class PaymentTags
     
 }
 
-public enum PaymentTagType
+/// <summary>
+/// Income or Expense Account
+/// </summary>
+public enum PaymentCategory
 {
     Income,
     Expense

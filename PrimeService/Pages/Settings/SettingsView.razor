@@ -12,13 +12,22 @@
         <CompanyUx />
         break;
     case "Location":
-        <WorkLocationUx />
+        <WorkLocationList />
         break;
     case "Employee":
         <EmployeeList />
         break;
     case "Status":
         <StatusList />
+        break;
+    case "Services":
+        <ServiceTypeList />
+        break;
+    case  "Account":
+        <PaymentTagList />
+        break;
+    case  "PaymentMethod":
+        <PaymentMethodsList />
         break;
     default:
         _navigationManager.NavigateTo("/ComingSoon");

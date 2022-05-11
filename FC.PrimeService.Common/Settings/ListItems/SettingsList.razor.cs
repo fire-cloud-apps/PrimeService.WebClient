@@ -67,6 +67,7 @@ public partial class SettingsList
                     ToolTip = "Your Profile",
                     Disabled = false,
                     Icon =@Icons.TwoTone.AccountBox,
+                    Link = $"/SettingsView?viewId=Profile"
                 },
                 new SettingsItem()
                 {
@@ -140,11 +141,12 @@ public partial class SettingsList
                 },
                 new SettingsItem()
                 {
-                    Title = "Service",
+                    Title = "Services",
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
-                    ToolTip = "Service Provided by us",
-                    Icon = @Icons.TwoTone.HomeRepairService
+                    ToolTip = "Services Provided by us",
+                    Icon = @Icons.TwoTone.HomeRepairService,
+                    Link = $"/SettingsView?viewId=Services"
                 }
             }
         };
@@ -153,7 +155,7 @@ public partial class SettingsList
     
     #endregion
 
-    #region Form & Payment Settings
+    #region  Payment Settings
     private SettingsMenu PaymentsSettings()
     {
         SettingsMenu settings = new SettingsMenu()
@@ -163,11 +165,13 @@ public partial class SettingsList
             {
                 new SettingsItem()
                 {
-                    Title = "Tag",
+                    Title = "Account",
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "Payment Tags for ease of use",
-                    Icon = @Icons.TwoTone.MonetizationOn
+                    Icon = @Icons.TwoTone.MonetizationOn,
+                    Link = $"/SettingsView?viewId=Account"
+                    
                 },
                 new SettingsItem()
                 {
@@ -175,12 +179,17 @@ public partial class SettingsList
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
                     ToolTip = "Various ways of payments collected by the clients.",
-                    Icon = @Icons.TwoTone.CreditCard
+                    Icon = @Icons.TwoTone.CreditCard,
+                    Link = $"/SettingsView?viewId=PaymentMethod"
                 },
             }
         };
         return settings;
     }
+
+    #endregion
+
+    #region Forms
 
     private SettingsMenu FormsSettings()
      {
@@ -243,11 +252,31 @@ public partial class SettingsList
          switch (selectedItem.Title)
          {
              case "License":
-                 await InvokeDialogBox<LicenseDialog>("Prime Service License");
+                 await InvokeDialogBox<LicenseDialog>("Prime Service License", _dialogOptions);
                  break;
              case "Default":
-                 await InvokeDialogBox<DefaultSettingsDialog>("Ticket Default Settings");
+                 await InvokeDialogBox<DefaultSettingsDialog>("Ticket Default Settings", _dialogOptions);
                  break;
+             case "Profile":
+                 DialogOptions options = new DialogOptions()
+                 {
+                     MaxWidth = MaxWidth.Medium,
+                     FullWidth = false,
+                     CloseButton = true,
+                     CloseOnEscapeKey = true,
+                 };
+                 await InvokeDialogBox<UserProfileDialog>("User Profile", options );
+                 break;
+             // case "Account": //This is for testing should be removed it should call web page
+             //     options = new DialogOptions()
+             //     {
+             //         MaxWidth = MaxWidth.Large,
+             //         FullWidth = false,
+             //         CloseButton = true,
+             //         CloseOnEscapeKey = true,
+             //     };
+             //     await InvokeDialogBox<PaymentTagDialog>("Payment Tag", options );
+             //     break;
              default:
                  _navigationManager.NavigateTo(selectedItem.Link);
                  break;
@@ -255,9 +284,9 @@ public partial class SettingsList
         
      }
 
-     async Task InvokeDialogBox<T>(string title) where T : Microsoft.AspNetCore.Components.ComponentBase
+     async Task InvokeDialogBox<T>(string title, DialogOptions options) where T : Microsoft.AspNetCore.Components.ComponentBase
      {
-         var result = DialogService.Show<T>(title: title, _dialogOptions);
+         var result = DialogService.Show<T>(title: title, options);
          if (!result.Result.IsCanceled)
          {
              //some action.

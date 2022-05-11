@@ -1,0 +1,127 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Settings
+@using global::PrimeService.Utility.ValidationHelper
+@using System.Text.Json
+@using global::PrimeService.Model.Settings.Tickets
+@using Microsoft.JSInterop
+@inject ISnackbar Snackbar
+@inject IJSRuntime JsRuntime
+
+<MudForm @ref="form" Model="_inputMode">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.TwoTone.HomeRepairService" Class="mr-3 mb-n1"/>
+                @_title
+            </MudText>
+        
+        </TitleContent>
+   
+        <DialogContent >
+            <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+        
+            @if (_loading)
+            {
+                <MudSkeleton Class="my-2"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2"/>
+            }
+            else
+            {
+                <MudGrid Style="max-height: 450px; overflow-y: scroll; overflow-x: hidden;">
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudTextField Disabled="@_isReadOnly" Label="Title" HelperText="Max. 50 characters"
+                                      @bind-Value="_inputMode.Title"
+                                      For="@(() => _inputMode.Title)"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Price" HelperText="Max. 10 characters"
+                                         @bind-Value="_inputMode.Price"
+                                         For="@(() => _inputMode.Price)"
+                                         MaxLength="10"
+                                         Min="1"
+                                         Max="9999999999"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Cost" HelperText="Max. 10 characters"
+                                         @bind-Value="_inputMode.Cost"
+                                         For="@(() => _inputMode.Cost)"
+                                         MaxLength="10"
+                                         Min="1"
+                                         Max="9999999999"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Warranty" HelperText="Max. 3 characters"
+                                         @bind-Value="_inputMode.Warranty"
+                                         For="@(() => _inputMode.Warranty)"
+                                         MaxLength="3"
+                                         Min="1"
+                                         Max="999"
+                                         Immediate="true" />
+                    </MudItem>
+                </MudGrid>
+                    
+                <MudGrid>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudAutocomplete T="ServiceCategory" Label="Service Category"
+                                         HelperText="Select Service Category"
+                                         @bind-Value="_inputMode.Category"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.CategoryName}")"
+                                         Required="true"
+                                         RequiredError="Please Select Work Location"
+                                         SearchFunc="@ServiceCategory_SearchAsync" Immediate="true"
+                                         ResetValueOnEmptyText="true"
+                                         CloseIcon="@Icons.Material.Filled.Search"
+                                         AdornmentColor="Color.Tertiary"/>
+                        @* Validation="@(new Func<string, IEnumerable<string>>(Validate))" *@
+                    </MudItem>
+                   
+                </MudGrid>
+                    
+            }
+        
+        </DialogContent>
+        <DialogActions>
+
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Filled.Input"
+                       Color="Color.Primary" DisableElevation="true"
+                       OnClick="@(async () => await Submit())">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Submit</MudText>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
+                       StartIcon="@Icons.Outlined.Cancel"
+                       OnClick="Cancel">Cancel</MudButton>
+            
+            @if (_appSettings.IsDev)
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Warning" DisableElevation="true"
+                           OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary" DisableElevation="true"
+                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           DisableElevation="true"
+                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+            }
+            
+        </DialogActions>
+    </MudDialog>
+</MudForm>

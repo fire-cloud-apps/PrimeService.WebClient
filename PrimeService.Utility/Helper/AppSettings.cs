@@ -1,4 +1,6 @@
-﻿namespace FireCloud.WebClient.PrimeService.Service.Helper;
+﻿using System.Drawing;
+
+namespace FireCloud.WebClient.PrimeService.Service.Helper;
 
 public class AppSettings
 {
@@ -8,7 +10,9 @@ public class AppSettings
     /// </summary>
     public string? Version { get; set; }
     public bool IsDev { get; set; }
+   
 }
+
 
 public class App
 {

@@ -12,7 +12,7 @@ using PrimeService.Model.Settings;
 
 namespace FC.PrimeService.Common.Settings.ListItems;
 
-public partial class WorkLocationUx
+public partial class WorkLocationList
 {
 
     #region Variables

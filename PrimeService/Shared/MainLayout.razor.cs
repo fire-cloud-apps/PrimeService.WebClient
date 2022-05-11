@@ -8,11 +8,32 @@ namespace FireCloud.WebClient.PrimeService.Shared
         private MudTheme _theme = new();
         private bool _isDarkMode = true;
         bool _drawerOpen = true;
+        
         private MudText _mudHeaderText;
         private string _txtCompanyName;
         private string _title = "Prime Ser";
         private MudText _mudVersionText;
         private string _version;
+
+        #region Property
+
+        public bool DrawerOpen
+        {
+            get
+            {
+                return _drawerOpen;
+            }
+            set
+            {
+                _drawerOpen = value;
+                _txtCompanyName = _drawerOpen ? _title : string.Empty; // if, drawer open assign title, else set as empty.
+                _version = _drawerOpen ? _appSettings.Version : string.Empty; // if drawer is open, version is displayed, else version is not set.
+            }
+        }
+
+
+        #endregion
+        
         
         private SwitchTheme _switchTheme = new SwitchTheme()
         {
@@ -30,9 +51,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
 
         void DrawerToggle()
         {
-            _drawerOpen = !_drawerOpen;
-            _txtCompanyName = _drawerOpen ? _title : string.Empty; // "PS";
-            _version = _drawerOpen ? _appSettings.Version : string.Empty; // "PS";
+            DrawerOpen = !DrawerOpen;//To toggle.
         }
 
         #region Enable Dark Theme

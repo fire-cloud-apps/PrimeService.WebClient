@@ -25,11 +25,11 @@ public class ServiceType
     /// <summary>
     /// Price of the service type
     /// </summary>
-    public int Price { get; set; }
+    public double Price { get; set; }
     /// <summary>
     /// Charges for the existing Service
     /// </summary>
-    public int Cost { get; set; }
+    public double Cost { get; set; }
     /// <summary>
     /// Warranty can be applied or default Warranty will be applied.
     /// </summary>

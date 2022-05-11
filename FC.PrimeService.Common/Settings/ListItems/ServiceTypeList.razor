@@ -1,0 +1,81 @@
+﻿@using global::PrimeService.Model.Settings.Tickets
+@inject IDialogService DialogService
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            @* <img src="svg/location.svg" Height="45" Width="45" alt="client avatar"/> *@
+            <MudIcon Icon="@Icons.TwoTone.HomeRepairService" Style="font-size: 3.5rem;"></MudIcon>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Service Type </MudText>
+            <MudText Typo="Typo.caption">List of Services provided by the organization eg.'Repair', 'Support' etc.</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Outlined.AddBox" 
+                           Size="Size.Large"
+                           OnClick="OpenAddDialog"
+                           Color="Color.Info"/>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+    <MudCardContent>
+
+        <MudTable ServerData="@(new Func<TableState, Task<TableData<ServiceType>>>(ServerReload))"
+                  Dense="true" Hover="true" @ref="table">
+            <ToolBarContent>
+                @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
+                @* <MudSpacer /> *@
+                <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" 
+                              FullWidth="true"
+                              Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" 
+                              IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortLabel="Title" T="ServiceType">Title</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Price" T="ServiceType">Price</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="ServiceType">Cost</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="ServiceType">Warranty</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Category" T="ServiceType">Category</MudTableSortLabel></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">
+                    <MudTooltip Color="Color.Tertiary" Arrow="true">
+                        <ChildContent>
+                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                                @context.Title
+                            </MudButton>
+                        </ChildContent>
+                        
+                        <TooltipContent>
+                            <MudText Typo="Typo.body2"> Edit Status - '@context.Title' </MudText>
+                        </TooltipContent>
+                    </MudTooltip>
+                </MudTd>
+                <MudTd DataLabel="Price">
+                    @context.Price
+                </MudTd>
+                <MudTd DataLabel="Cost">
+                    @context.Cost
+                </MudTd>
+                <MudTd DataLabel="Warranty">
+                    @context.Warranty
+                </MudTd>
+                <MudTd DataLabel="Category">
+                    @context.Category.CategoryName
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+        
+    </MudCardContent>
+</MudCard>
