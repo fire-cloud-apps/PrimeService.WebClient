@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-
+@inject IJSRuntime jsRuntime
 
 @*
     Ref: Theme provider
@@ -10,7 +10,7 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="0">
+    <MudAppBar Elevation="2" Bottom="false">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" 
                        Color="Color.Inherit" Edge="Edge.Start" 
                        OnClick="@((e) => DrawerToggle())" />
@@ -57,7 +57,7 @@
     </MudAppBar>
     
     <MudDrawer @bind-Open="DrawerOpen" Elevation="2"
-                Fixed="true" Variant="@DrawerVariant.Mini"
+                Fixed="true" Variant="@DrawerVariant.Responsive"
                OpenMiniOnHover="false">
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">
@@ -78,6 +78,31 @@
             @Body
         </MudContainer>
     </MudMainContent>
+    
+    @* Active this bottom menu bar on mobile device *@
+    @* @if (mobile) *@
+    @* { *@
+    @*     <MudAppBar Bottom="true" Elevation="1" Style="scroll-behavior: auto;"> *@
+    @*         <MudContainer> *@
+    @*             <MudToolBar> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Menu"  *@
+    @*                                Href="" *@
+    @*                                Color="Color.Inherit" Class="mr-5"/> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Add"/> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Edit"/> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit"/> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Settings" Color="Color.Inherit"/> *@
+    @*                 <MudSpacer/> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Notifications"/> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.PushPin"/> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.PeopleAlt"/> *@
+    @*                 <MudIconButton Icon="@Icons.Material.Outlined.MoreVert" Color="Color.Inherit"/> *@
+    @*             </MudToolBar> *@
+    @*         </MudContainer> *@
+    @* *@
+    @*     </MudAppBar> *@
+    @* } *@
+    
 </MudLayout>
 
 @code {

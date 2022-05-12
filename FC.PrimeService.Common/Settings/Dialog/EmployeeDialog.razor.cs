@@ -71,12 +71,6 @@ public partial class EmployeeDialog
         _processing = false;
     }
     
-    public static IEnumerable<string> Max10Characters(string ch)
-    {
-        if (!string.IsNullOrEmpty(ch) && 10 < ch?.Length)
-            yield return "Max 10 characters";
-    }
-
     private async Task Submit()
     {
         await form.Validate();

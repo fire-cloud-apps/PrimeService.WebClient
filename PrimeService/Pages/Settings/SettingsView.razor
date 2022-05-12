@@ -1,8 +1,6 @@
 ﻿@page "/SettingsView"
 @using FC.PrimeService.Common.Settings
-@using FC.PrimeService.Common.Settings.Dialog
 @using FC.PrimeService.Common.Settings.ListItems
-@using FireCloud.WebClient.PrimeService.Service.QueryString
 
 <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
 
@@ -28,6 +26,9 @@
         break;
     case  "PaymentMethod":
         <PaymentMethodsList />
+        break;
+    case "Client-Type":
+        <ClientTypeList />
         break;
     default:
         _navigationManager.NavigateTo("/ComingSoon");

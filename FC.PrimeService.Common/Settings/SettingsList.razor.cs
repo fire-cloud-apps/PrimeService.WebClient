@@ -1,11 +1,12 @@
 ﻿using FC.PrimeService.Common.Settings.Dialog;
 using MudBlazor;
 
-namespace FC.PrimeService.Common.Settings.ListItems;
+namespace FC.PrimeService.Common.Settings;
 
 public partial class SettingsList
 {
     private IList<SettingsMenu> _settingsMenus;
+    private string _comingSoon = "Coming Soon";
     private DialogOptions _dialogOptions = new DialogOptions()
     {
         MaxWidth = MaxWidth.Small, 
@@ -71,24 +72,6 @@ public partial class SettingsList
                 },
                 new SettingsItem()
                 {
-                    Title = "Documents",
-                    ButtonColor = Color.Default,
-                    IconColor = Color.Default,
-                    ToolTip = "Document uploaded into the system",
-                    Disabled = false,
-                    Icon = @Icons.Filled.InsertDriveFile
-                },
-                new SettingsItem()
-                {
-                    Title = "Integration",
-                    ButtonColor = Color.Default,
-                    IconColor = Color.Default,
-                    ToolTip = "3rd Party tool integrated into this platform",
-                    Disabled = false,
-                    Icon = @Icons.TwoTone.IntegrationInstructions
-                },
-                new SettingsItem()
-                {
                     Title = "License",
                     ButtonColor = Color.Default,
                     IconColor = Color.Default,
@@ -97,6 +80,25 @@ public partial class SettingsList
                     Disabled = false,
                     Link = $"/SettingsView?viewId=License"
                 },
+
+                // new SettingsItem()
+                // {
+                //     Title = "Documents",
+                //     ButtonColor = Color.Default,
+                //     IconColor = Color.Default,
+                //     ToolTip = "Document uploaded into the system",
+                //     Disabled = true,
+                //     Icon = @Icons.Filled.InsertDriveFile
+                // },
+                // new SettingsItem()
+                // {
+                //     Title = "Integration",
+                //     ButtonColor = Color.Default,
+                //     IconColor = Color.Default,
+                //     ToolTip = "3rd Party tool integrated into this platform",
+                //     Disabled = true,
+                //     Icon = @Icons.TwoTone.IntegrationInstructions
+                // },
                 
             }
         };
@@ -200,44 +202,50 @@ public partial class SettingsList
              {
                  new SettingsItem()
                  {
-                     Title = "Ticket Type",
-                     ButtonColor = Color.Default,
-                     IconColor = Color.Default,
-                     ToolTip = "Ticket Categorization",
-                     Icon = @Icons.TwoTone.Article
-                 },
-                 new SettingsItem()
-                 {
-                     Title = "Fields",
-                     ButtonColor = Color.Default,
-                     IconColor = Color.Default,
-                     ToolTip = "Custom Field Enable/Disable",
-                     Icon = @Icons.TwoTone.TextFields
-                 },
-                 new SettingsItem()
-                 {
                      Title = "Client Type",
                      ButtonColor = Color.Default,
                      IconColor = Color.Default,
                      ToolTip = "Defining Client Types",
-                     Icon = @Icons.TwoTone.GroupWork
+                     Icon = @Icons.TwoTone.GroupWork,
+                     Link = $"/SettingsView?viewId=Client-Type"
                  },
-                 new SettingsItem()
-                 {
-                     Title = "Client Field",
-                     ButtonColor = Color.Default,
-                     IconColor = Color.Default,
-                     ToolTip = "Custom Field definition for Client",
-                     Icon = @Icons.TwoTone.DashboardCustomize
-                 },
-                 new SettingsItem()
-                 {
-                     Title = "Handbook",
-                     ButtonColor = Color.Default,
-                     IconColor = Color.Default,
-                     ToolTip = "A Handbook/Tag of information for tagging the device",
-                     Icon = @Icons.TwoTone.Book
-                 },
+                 
+                 // new SettingsItem()
+                 // {
+                 //     Title = "Handbook",
+                 //     ButtonColor = Color.Default,
+                 //     IconColor = Color.Default,
+                 //     ToolTip = "A Handbook/Tag of information for tagging the device",
+                 //     Icon = @Icons.TwoTone.Book,
+                 //     Disabled = true
+                 // },
+                 // new SettingsItem()
+                 // {
+                 //     Title = "Client Field",
+                 //     ButtonColor = Color.Default,
+                 //     IconColor = Color.Default,
+                 //     ToolTip = "Custom Field definition for Client",
+                 //     Icon = @Icons.TwoTone.DashboardCustomize,
+                 //     Disabled = true
+                 // },
+                 // new SettingsItem()
+                 // {
+                 //     Title = "Ticket Type",
+                 //     ButtonColor = Color.Default,
+                 //     IconColor = Color.Default,
+                 //     ToolTip = "Ticket Categorization",
+                 //     Icon = @Icons.TwoTone.Article,
+                 //     Disabled = true
+                 // },
+                 // new SettingsItem()
+                 // {
+                 //     Title = "Fields",
+                 //     ButtonColor = Color.Default,
+                 //     IconColor = Color.Default,
+                 //     ToolTip = "Custom Field Enable/Disable",
+                 //     Icon = @Icons.TwoTone.TextFields,
+                 //     Disabled = true
+                 // },
              }
          };
          return formSettings;
@@ -245,7 +253,7 @@ public partial class SettingsList
 
     #endregion
      
-     #region Helper Methods
+    #region Helper Methods
      
      private async  Task PerformNavigation(SettingsItem selectedItem)
      {
@@ -293,7 +301,7 @@ public partial class SettingsList
          }
      }
 
-     #endregion
+    #endregion
 }
 
 public class SettingsMenu

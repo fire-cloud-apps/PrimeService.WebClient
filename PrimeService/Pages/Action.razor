@@ -1,0 +1,17 @@
+﻿@page "/Action"
+@using FC.PrimeService.Shopping.Client.Component
+
+<MudBreadcrumbs Items="_items"></MudBreadcrumbs>
+
+@switch (_component)
+{
+    case "Client":
+        <ClientComponent Id="@_id" />
+        break;
+    case "Client-Type":
+        <ClientTypeList />
+        break;
+    default:
+        _navigationManager.NavigateTo("/");
+        break;
+}

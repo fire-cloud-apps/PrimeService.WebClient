@@ -1,6 +1,6 @@
 {
   "name": "PrimeService",
-  "short_name": "PS",
+  "short_name": "PrimeService",
   "start_url": "./",
   "display": "standalone",
   "description":"Fire Cloud - Prime Service web tool for service and inventory.",

@@ -1,0 +1,20 @@
+﻿@page "/View"
+
+@using FC.PrimeService.Shopping.Client.ListItems
+@using FC.PrimeService.Shopping.Client.Component
+
+<MudBreadcrumbs Items="_items"></MudBreadcrumbs>
+
+@switch (_viewId)
+{
+    case "Client":
+        <DynamicComponent Type="typeof(ClientList)"  />
+        @* <ClientList /> *@
+        break;
+    case "Client-Type":
+        <ClientTypeList />
+        break;
+    default:
+        _navigationManager.NavigateTo("/");
+        break;
+}

@@ -1,0 +1,96 @@
+﻿@using MudBlazor
+
+<MudCard>
+        
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudIcon  Icon="@Icons.Material.TwoTone.Settings" Color="Color.Default" />
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Settings </MudText>
+            <MudText Typo="Typo.caption">All Venture settings</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/>
+        </CardHeaderActions>
+    </MudCardHeader>
+
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+    
+    <MudCardContent>
+    
+        @foreach (var settings in _settingsMenus)
+        {
+            <MudCard Class="ma-2 pa-2">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.button">@settings.Title</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+                <MudCardContent>
+                    <MudGrid Justify="Justify.FlexStart">
+
+                        @foreach (var menuItems in settings.Items)
+                        {
+                            <MudItem>
+                                <MudTooltip Text="@menuItems.ToolTip" Arrow="true">
+                                    @if (menuItems.Disabled)
+                                    {
+                                        <MudBadge Content="@_comingSoon" 
+                                                  Color="Color.Secondary"
+                                                  Overlap="true" Class="mx-6 my-4">
+                                            <MudIconButton Class="pa-2 ma-2"
+                                                           Disabled="@menuItems.Disabled"
+                                                           Variant="Variant.Filled"
+                                                           Size="Size.Large" Color="Color.Default"
+                                                           OnClick="@(e => PerformNavigation(menuItems))"
+                                                           Title="@menuItems.Title" aria-label="github">
+                                                <MudIcon Icon="@menuItems.Icon"
+                                                         Color="@menuItems.IconColor"
+                                                         Style="font-size: 3rem;"/>
+                                                <MudText Typo="Typo.body1">
+                                                    @menuItems.Title
+                                                </MudText>
+                                            </MudIconButton>
+                                        </MudBadge>
+                                    }
+                                    else
+                                    {
+                                        <MudIconButton Class="pa-2 ma-2"
+                                                       Disabled="@menuItems.Disabled"
+                                                       Variant="Variant.Filled"
+                                                       Size="Size.Large" Color="Color.Default"
+                                                       OnClick="@(e => PerformNavigation(menuItems))"
+                                                       Title="@menuItems.Title" aria-label="github">
+                                            <MudIcon Icon="@menuItems.Icon"
+                                                     Color="@menuItems.IconColor"
+                                                     Style="font-size: 3rem;"/>
+                                            <MudText Typo="Typo.body1">
+                                                @menuItems.Title
+                                            </MudText>
+                                        </MudIconButton>
+                                    }
+                                </MudTooltip>
+                            </MudItem>
+                        }
+
+
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        }
+        
+    </MudCardContent>
+    
+
+    @* <MudCardActions Class="pa-4 mt-4 d-flex justify-end"> *@
+    @*     <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Default"/> *@
+    @*     <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Default"/> *@
+    @* </MudCardActions> *@
+
+</MudCard>
+
+@code {
+
+}

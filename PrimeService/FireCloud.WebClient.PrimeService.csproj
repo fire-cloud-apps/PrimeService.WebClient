@@ -20,6 +20,9 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\FC.PrimeService.Common\FC.PrimeService.Common.csproj" />
 	  <ProjectReference Include="..\PrimeService.Model\PrimeService.Model.csproj" />
+	  <ProjectReference Include="..\FC.PrimeService.Reports\FC.PrimeService.Reports.csproj" />
+	  <ProjectReference Include="..\FC.PrimeService.Shopping\FC.PrimeService.Shopping.csproj" />
+	  <ProjectReference Include="..\FC.PrimeService.Tickets\FC.PrimeService.Tickets.csproj" />
 	  <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
 	</ItemGroup>
 	
@@ -34,6 +37,7 @@
 	
 	<ItemGroup>
 	  <Folder Include="Dialogs" />
+	  <Folder Include="Pages\Shopping" />
 	</ItemGroup>
 	
 </Project>

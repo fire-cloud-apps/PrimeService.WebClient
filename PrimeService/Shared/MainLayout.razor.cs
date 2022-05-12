@@ -14,7 +14,8 @@ namespace FireCloud.WebClient.PrimeService.Shared
         private string _title = "Prime Ser";
         private MudText _mudVersionText;
         private string _version;
-
+        
+        
         #region Property
 
         public bool DrawerOpen
@@ -45,6 +46,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
         protected override void OnInitialized()
         {
             Console.WriteLine($"Dark Or Light : {_isDarkMode}");
+            FindDevice();
             _txtCompanyName = _title;
             _version = _appSettings.Version;
         }
@@ -88,6 +90,19 @@ namespace FireCloud.WebClient.PrimeService.Shared
             Console.WriteLine($"Is DarkMode {_isDarkMode}");
             Console.WriteLine($"{JsonSerializer.Serialize(_switchTheme)}");
         }
+        #endregion
+
+        #region Determine Device Type
+
+        private string isDevice { get; set; }
+        private bool mobile { get; set; }
+        public async Task FindDevice()
+        {
+            mobile = await jsRuntime.InvokeAsync<bool>("isDevice",null);
+            Console.WriteLine($"Device Type: {mobile}");
+            isDevice = mobile ? "Mobile" : "Desktop";
+        }
+
         #endregion
     }
     public class SwitchTheme

@@ -7,13 +7,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireCloud.WebClient.PrimeSe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{31331365-562F-4C53-9183-A19AEF4DF5DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.PrimeService.Common", "..\FC.PrimeService.Common\FC.PrimeService.Common.csproj", "{050ECE98-3353-467F-BB51-86A37DC14C7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FC.PrimeService.Common", "..\FC.PrimeService.Common\FC.PrimeService.Common.csproj", "{050ECE98-3353-467F-BB51-86A37DC14C7A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{129EEC7F-348C-4BAB-9F4A-678CC8B1D000}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeService.Model", "..\PrimeService.Model\PrimeService.Model.csproj", "{7E30C40C-E36C-48DA-BC2C-E6FBE2BB286D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrimeService.Model", "..\PrimeService.Model\PrimeService.Model.csproj", "{7E30C40C-E36C-48DA-BC2C-E6FBE2BB286D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeService.Utility", "..\PrimeService.Utility\PrimeService.Utility.csproj", "{574B6AE9-5988-4957-99B7-77A635C57A9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrimeService.Utility", "..\PrimeService.Utility\PrimeService.Utility.csproj", "{574B6AE9-5988-4957-99B7-77A635C57A9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.PrimeService.Shopping", "..\FC.PrimeService.Shopping\FC.PrimeService.Shopping.csproj", "{0B443A18-29BB-4E44-8508-16594C14168A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.PrimeService.Tickets", "..\FC.PrimeService.Tickets\FC.PrimeService.Tickets.csproj", "{7E8E8E69-C9CA-4C04-B20F-EBACEC4E1D18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.PrimeService.Reports", "..\FC.PrimeService.Reports\FC.PrimeService.Reports.csproj", "{B9411AD7-7972-4B59-A604-D6469F3844B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +43,18 @@ Global
 		{574B6AE9-5988-4957-99B7-77A635C57A9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{574B6AE9-5988-4957-99B7-77A635C57A9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{574B6AE9-5988-4957-99B7-77A635C57A9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B443A18-29BB-4E44-8508-16594C14168A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B443A18-29BB-4E44-8508-16594C14168A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B443A18-29BB-4E44-8508-16594C14168A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B443A18-29BB-4E44-8508-16594C14168A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E8E8E69-C9CA-4C04-B20F-EBACEC4E1D18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E8E8E69-C9CA-4C04-B20F-EBACEC4E1D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E8E8E69-C9CA-4C04-B20F-EBACEC4E1D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E8E8E69-C9CA-4C04-B20F-EBACEC4E1D18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9411AD7-7972-4B59-A604-D6469F3844B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9411AD7-7972-4B59-A604-D6469F3844B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9411AD7-7972-4B59-A604-D6469F3844B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9411AD7-7972-4B59-A604-D6469F3844B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,6 +63,9 @@ Global
 		{050ECE98-3353-467F-BB51-86A37DC14C7A} = {31331365-562F-4C53-9183-A19AEF4DF5DB}
 		{7E30C40C-E36C-48DA-BC2C-E6FBE2BB286D} = {129EEC7F-348C-4BAB-9F4A-678CC8B1D000}
 		{574B6AE9-5988-4957-99B7-77A635C57A9F} = {129EEC7F-348C-4BAB-9F4A-678CC8B1D000}
+		{0B443A18-29BB-4E44-8508-16594C14168A} = {31331365-562F-4C53-9183-A19AEF4DF5DB}
+		{7E8E8E69-C9CA-4C04-B20F-EBACEC4E1D18} = {31331365-562F-4C53-9183-A19AEF4DF5DB}
+		{B9411AD7-7972-4B59-A604-D6469F3844B3} = {31331365-562F-4C53-9183-A19AEF4DF5DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DE20F6B8-F0BF-4B9D-8C19-36A87CC6C33A}

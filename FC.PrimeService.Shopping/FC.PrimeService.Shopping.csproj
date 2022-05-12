@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>FC.PrimeService.Shopping</AssemblyName>
+    <RootNamespace>FC.PrimeService.Shopping</RootNamespace>
+    <Company>FC.PrimeService.Shopping</Company>
+    <Product>FC.PrimeService.Shopping</Product>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.4" />
+    <PackageReference Include="MudBlazor" Version="6.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Client\" />
+    <Folder Include="Client\Dialog" />
+    <Folder Include="Inventory\" />
+    <Folder Include="Payments\" />
+    <Folder Include="Shop\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FC.PrimeService.Common\FC.PrimeService.Common.csproj" />
+    <ProjectReference Include="..\PrimeService.Model\PrimeService.Model.csproj" />
+    <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
+  </ItemGroup>
+
+</Project>

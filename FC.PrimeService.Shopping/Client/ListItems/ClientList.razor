@@ -1,0 +1,92 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Shopping
+
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            @* <img src="svg/location.svg" Height="45" Width="45" alt="client avatar"/> *@
+            <MudIcon Icon="@Icons.TwoTone.EmojiPeople"
+                     Style="font-size: 3.5rem;"></MudIcon>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Clients </MudText>
+            <MudText Typo="Typo.caption">List of Clients, 'Person','Company' etc.</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Outlined.AddBox" 
+                           Size="Size.Large"
+                           OnClick="AddAction"
+                           Color="Color.Info"/>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+    <MudCardContent>
+
+        <MudTable ServerData="@(new Func<TableState, Task<TableData<Client>>>(ServerReload))"
+                  Dense="true" Hover="true" @ref="table"
+                  GroupBy="@_groupDefinition"
+                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                  GroupFooterClass="mb-4">
+            <ColGroup>
+                @if (_groupDefinition.Expandable)
+                    {
+                        <col style="width: 60px;" />
+                    }
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                </ColGroup>
+            <ToolBarContent>
+                @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
+                @* <MudSpacer /> *@
+                <MudTextField T="string" ValueChanged="@(s => OnSearch(s))"
+                              FullWidth="true"
+                              Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortLabel="Name" T="Client">Title</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Mobile" T="Client">Mobile</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Type" T="Client">Type</MudTableSortLabel></MudTh>
+            </HeaderContent>
+            <GroupHeaderTemplate>
+                <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
+            </GroupHeaderTemplate>
+            <RowTemplate>
+                <MudTd DataLabel="Title">
+                    <MudTooltip Color="Color.Tertiary" Arrow="true">
+                        <ChildContent>
+                            <MudLink Href=@($"/Action/?Component=Client&Id={@context.Id}") >
+                                @context.Name
+                            </MudLink>
+                        </ChildContent>
+
+                        <TooltipContent>
+                            <MudText Typo="Typo.body2"> Edit Status - '@context.Name' </MudText>
+                        </TooltipContent>
+                    </MudTooltip>
+                </MudTd>
+                <MudTd DataLabel="Mobile">
+                    @context.Mobile
+                </MudTd>
+                <MudTd DataLabel="Type">
+                    @context.Type.Title
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudTablePager/>
+            </PagerContent>
+        </MudTable>
+        
+    </MudCardContent>
+</MudCard>

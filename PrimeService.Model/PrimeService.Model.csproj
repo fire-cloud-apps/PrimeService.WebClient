@@ -8,6 +8,12 @@
 
     <ItemGroup>
       <PackageReference Include="MongoDB.Bson" Version="2.15.1" />
+      <PackageReference Include="MudBlazor" Version="6.0.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Reports" />
+      <Folder Include="Tickets" />
     </ItemGroup>
 
 </Project>
