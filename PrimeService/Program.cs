@@ -11,9 +11,11 @@ using Blazor.Extensions.Logging;
 using FireCloud.WebClient.PrimeService.Service.Helper;
 using App = FireCloud.WebClient.PrimeService.App;
 
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+
 
 //https://localhost:7086
 #region Dependency injection, Logging & Scope

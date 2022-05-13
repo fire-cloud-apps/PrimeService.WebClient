@@ -1,5 +1,9 @@
 ﻿@using FireCloud.WebClient.PrimeService.Service.Helper
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@using MudBlazor
 
 @inject AppSettings _appSettings
 @inject NavigationManager _navigationManager
+@inject IJSRuntime _jsRuntime
+@inject IDialogService DialogService

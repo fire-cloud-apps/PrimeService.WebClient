@@ -1,0 +1,257 @@
+﻿@using MudBlazor
+@using Microsoft.AspNetCore.Components
+@using global::PrimeService.Utility.ValidationHelper
+@using global::PrimeService.Model.Settings.Forms
+@using global::PrimeService.Model.Shopping
+@using FC.PrimeService.Shopping.Inventory.Dialog
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudIcon Icon="@Icons.TwoTone.ProductionQuantityLimits"
+                     Style="font-size: 3.5rem;"></MudIcon>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Product</MudText>
+            <MudText Typo="Typo.caption">Product's Sold by the company.</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            @* <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/> *@
+            <MudToolBar>
+                    
+                <MudTooltip Text="Increase the Stock Count" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Add"
+                                   OnClick="AddStock"/>
+                </MudTooltip>
+                <MudTooltip Text="Reduce the Stock Count" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Remove" />
+                </MudTooltip>
+                <MudTooltip Text="Edit the Product Data" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Outlined.EditNote" />
+                    @* On click of edit visible the button bar *@
+                </MudTooltip>
+                
+                <MudTooltip Text="Actions to be Performed" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Outlined.TaskAlt" />
+                </MudTooltip>
+                <MudTooltip Text="Print the 'Product' details & History" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Print" />
+                </MudTooltip>
+                   
+                </MudToolBar>
+        </CardHeaderActions>
+    </MudCardHeader>
+
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+
+    <MudCardContent>
+        @if (_loading)
+        {
+            <MudSkeleton Class="my-2"/>
+            <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+            <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+            <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+            <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+            <MudSkeleton Class="my-2"/>
+        }
+        else
+        {
+            <MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
+                     @bind-Errors="@errors">
+                <MudGrid>
+                     
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly" Label="Name" HelperText="Max. 50 characters"
+                                      Required="true"
+                                      Placeholder="Name of the Product"
+                                      @bind-Value="_inputMode.Name"
+                                      For="@(() => _inputMode.Name)"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly"
+                                      Label="BarCode" HelperText="Max. 15 characters"
+                                      Placeholder="Product BarCode/SKU"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.TwoTone.QrCode2"
+                                      @bind-Value="_inputMode.Barcode"
+                                      For="@(() => _inputMode.Barcode)"
+                                      Counter="15" MaxLength="15"
+                                      Immediate="true"
+                        />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudAutocomplete T="ProductCategory" Label="Product Category"
+                                         HelperText="Select Service Category"
+                                         @bind-Value="_inputMode.Category"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.CategoryName}")"
+                                         Required="true"
+                                         RequiredError="Please Select Client Type"
+                                         SearchFunc="@ProductCategory_SearchAsync" Immediate="true"
+                                         ResetValueOnEmptyText="true"
+                                         CloseIcon="@Icons.Material.Filled.Search"
+                                         AdornmentColor="Color.Tertiary"/>
+                        @* Validation="@(new Func<string, IEnumerable<string>>(Validate))" *@
+                    </MudItem>
+                     
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Quantity" 
+                                         AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                         HelperText="Max. 1000 characters. Quantity in Hand"
+                                         @bind-Value="_inputMode.Quantity"
+                                         For="@(() => _inputMode.Quantity)"
+                                         MaxLength="4"
+                                         Min="0"
+                                         Max="1000"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Min Quantity" 
+                                         AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                         HelperText="Max. 1000 characters."
+                                         @bind-Value="_inputMode.MinQuantity"
+                                         For="@(() => _inputMode.MinQuantity)"
+                                         MaxLength="4"
+                                         Min="0"
+                                         Max="1000"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Max Quantity" 
+                                         AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                         HelperText="Max. 1000 characters."
+                                         @bind-Value="_inputMode.MaxQuantity"
+                                         For="@(() => _inputMode.MaxQuantity)"
+                                         MaxLength="4"
+                                         Min="0"
+                                         Max="1000"
+                                         Immediate="true" />
+                    </MudItem>
+                     
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Selling Price" 
+                                         AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                         HelperText="Max 10 Character Allowed"
+                                         @bind-Value="_inputMode.SellingPrice"
+                                         For="@(() => _inputMode.SellingPrice)"
+                                         MaxLength="10"
+                                         Min="0"
+                                         Max="9999999999"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Supplier Price" 
+                                         AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                         HelperText="Max 10 Character Allowed"
+                                         @bind-Value="_inputMode.SupplierPrice"
+                                         For="@(() => _inputMode.SupplierPrice)"
+                                         MaxLength="10"
+                                         Min="0"
+                                         Max="9999999999"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Additional Cost" 
+                                         AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                         HelperText="Max 5 Character Allowed"
+                                         @bind-Value="_inputMode.Cost"
+                                         For="@(() => _inputMode.Cost)"
+                                         MaxLength="5"
+                                         Min="0"
+                                         Max="99999"
+                                         Immediate="true" />
+                    </MudItem>
+                     
+                    <MudItem xs="12">
+                        <MudTextField Disabled="@_isReadOnly" Label="Other Detailed notes"
+                                      HelperText="Max. 300 characters"
+                                      Variant="Variant.Filled"
+                                      @bind-Value="_inputMode.Notes"
+                                      For="@(() => _inputMode.Notes)"
+                                      Lines="3"
+                                      Counter="300"
+                                      MaxLength="300"
+                                      Immediate="true"/>
+                    </MudItem>
+
+
+                </MudGrid>
+                 
+                <MudPaper Class="pa-4 mt-4 d-flex justify-end">
+                    <MudButton Variant="Variant.Filled"
+                               StartIcon="@Icons.Filled.Input"
+                               Color="Color.Primary" DisableElevation="true"
+                               OnClick="@(async () => await Submit())">
+                        @if (_processing)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                            <MudText Class="ms-2">Processing</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Submit</MudText>
+                        }
+                    </MudButton>
+                                              
+                    @if (_appSettings.IsDev)
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Warning" DisableElevation="true"
+                                   OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Secondary" DisableElevation="true"
+                                   OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
+                        <MudButton Variant="Variant.Filled"
+                                   DisableElevation="true"
+                                   OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+                    }
+                </MudPaper>
+                  
+            </MudForm>
+        }
+    </MudCardContent>
+</MudCard>
+
+<br />
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudIcon Icon="@Icons.TwoTone.History"
+                     Style="font-size: 3.5rem;"></MudIcon>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Last 10 Transaction History</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+           <MudIconButton Icon="@Icons.TwoTone.ReadMore" Color="Color.Default"/> 
+        </CardHeaderActions>
+    </MudCardHeader>
+     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+    <MudCardContent>
+
+        <MudTable Items="@_productTransactions"
+                  Elevation="0"
+                  Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+
+            <HeaderContent>
+                <MudTh>Date</MudTh>
+                <MudTh>Staff</MudTh>
+                <MudTh>Reason</MudTh>
+                <MudTh>Quantity</MudTh>
+                <MudTh>Price</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="Date">@context.TransactionDate</MudTd>
+                <MudTd DataLabel="Staff">@context.Who.User.Name</MudTd>
+                <MudTd DataLabel="Reason">@context.Reason</MudTd>
+                <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
+                <MudTd DataLabel="Price">@context.Price</MudTd>
+            </RowTemplate>
+        </MudTable>
+
+    </MudCardContent>
+</MudCard>

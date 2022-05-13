@@ -2,19 +2,20 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Common.Settings.Dialog;
 
-public partial class StatusDialog
+public partial class ProductCategoryDialog
 {
     #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
     private string _title = string.Empty;
-    [Parameter] public Status _status { get; set; } //This comes from 'Dialog' invoker.
+    [Parameter] public ProductCategory _ProductCategory { get; set; } //This comes from 'Dialog' invoker.
     private bool _processing = false;
     MudForm form;
-    private Status _inputMode;
+    private ProductCategory _inputMode;
     string _outputJson;
     bool success;
     string[] errors = { };
@@ -25,17 +26,17 @@ public partial class StatusDialog
     #region Component Initialization
     protected override async Task OnInitializedAsync()
     {
-        if (_status == null)
+        if (_ProductCategory == null)
         {
             //Dialog box opened in "Add" mode
-            _inputMode = new Status();//Initializes an empty object.
-            _title = "Status";
+            _inputMode = new ProductCategory();//Initializes an empty object.
+            _title = "Add Product Category";
         }
         else
         {
             //Dialog box opened in "Edit" mode
-            _inputMode = _status;
-            _title = "Status";
+            _inputMode = _ProductCategory;
+            _title = "Edit Product Category";
         }
     }
     #endregion

@@ -209,6 +209,15 @@ public partial class SettingsList
                      Icon = @Icons.TwoTone.GroupWork,
                      Link = $"/SettingsView?viewId=Client-Type"
                  },
+                 new SettingsItem()
+                 {
+                     Title = "Product Category",
+                     ButtonColor = Color.Default,
+                     IconColor = Color.Default,
+                     ToolTip = "Product Category",
+                     Icon = @Icons.TwoTone.Category,
+                     Link = $"/SettingsView?viewId=PCategory"
+                 },
                  
                  // new SettingsItem()
                  // {

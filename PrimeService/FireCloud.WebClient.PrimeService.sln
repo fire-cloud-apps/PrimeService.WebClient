@@ -15,11 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrimeService.Model", "..\Pr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrimeService.Utility", "..\PrimeService.Utility\PrimeService.Utility.csproj", "{574B6AE9-5988-4957-99B7-77A635C57A9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.PrimeService.Shopping", "..\FC.PrimeService.Shopping\FC.PrimeService.Shopping.csproj", "{0B443A18-29BB-4E44-8508-16594C14168A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FC.PrimeService.Shopping", "..\FC.PrimeService.Shopping\FC.PrimeService.Shopping.csproj", "{0B443A18-29BB-4E44-8508-16594C14168A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.PrimeService.Tickets", "..\FC.PrimeService.Tickets\FC.PrimeService.Tickets.csproj", "{7E8E8E69-C9CA-4C04-B20F-EBACEC4E1D18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FC.PrimeService.Tickets", "..\FC.PrimeService.Tickets\FC.PrimeService.Tickets.csproj", "{7E8E8E69-C9CA-4C04-B20F-EBACEC4E1D18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FC.PrimeService.Reports", "..\FC.PrimeService.Reports\FC.PrimeService.Reports.csproj", "{B9411AD7-7972-4B59-A604-D6469F3844B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FC.PrimeService.Reports", "..\FC.PrimeService.Reports\FC.PrimeService.Reports.csproj", "{B9411AD7-7972-4B59-A604-D6469F3844B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
