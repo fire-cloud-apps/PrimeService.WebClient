@@ -12,11 +12,11 @@ namespace FC.PrimeService.Shopping.Inventory.Component;
 
 public partial class ProductComponent
 {
-        #region Initialization
+    #region Initialization
     [Inject] ISnackbar Snackbar { get; set; }
     MudForm form;
     private bool _loading = false;
-
+    private string _display = "d-none";//Display 'none' during loading.
     public Model.Product _inputMode;
    
     /// <summary>
@@ -27,7 +27,7 @@ public partial class ProductComponent
     string[] errors = { };
     string _outputJson;
     private bool _processing = false;
-    private bool _isReadOnly = false;
+    private bool _isReadOnly = true;
     public List<Model.ProductCategory> _productCategory = new List<Model.ProductCategory>()
     {
         new Model.ProductCategory() { CategoryName = "Mobile" },
@@ -42,7 +42,8 @@ public partial class ProductComponent
         new Model.ProductTransaction()
         {
             TransactionDate = DateTime.Now,
-            Reason = "Sales Order",
+            Reason = "Stock In",
+            Action = Model.StockAction.Out,
             Quantity = -5,
             Price = 5 * 2500,
             Who = new Employee()
@@ -57,6 +58,7 @@ public partial class ProductComponent
         {
             TransactionDate = DateTime.Now,
             Reason = "Purchase Order",
+            Action = Model.StockAction.In,
             Quantity = 15,
             Price = 15 * 2500,
             Who = new Employee()
@@ -79,6 +81,7 @@ public partial class ProductComponent
         //for now it is filled as Static value
         _inputMode = new Model.Product ()
         {
+            Id = "6270d1cce5452d9169e86c50",
             Name = "Samsung M31",
             Barcode = "SKI78596KLL",
             Category = new Model.ProductCategory()
@@ -96,10 +99,12 @@ public partial class ProductComponent
         if (Id == null)
         {
             Console.WriteLine("Add Mode");
+            _display = "d-flex";
         }
         else
         {
             Console.WriteLine("Edit Mode");
+            _display = "d-none";
             //Do ajax call and assign it to _inputMode
         }
         _loading = false;
@@ -170,9 +175,31 @@ public partial class ProductComponent
     #endregion
 
 
+    #region Tool Bar Action Dialogs
+
+    
+    private async Task EditToggle(bool toggled)
+    {
+        _isReadOnly = !toggled;
+        Console.WriteLine(_isReadOnly);
+        if (_isReadOnly)
+        {
+            _display = "d-none";
+        }
+        else
+        {
+            _display = "d-flex";
+        }
+        //d-flex or d-none
+    }
     private async Task AddStock(MouseEventArgs arg)
     {
-        await InvokeDialog("_Product","Product", _inputMode);
+        await InvokeDialog("_Product","Product", _inputMode, ActionType.AddStock);
+    }
+
+    private async Task ReduceStock(MouseEventArgs arg)
+    {
+        await InvokeDialog("_Product","Product", _inputMode, ActionType.ReduceStock);
     }
     private DialogOptions _dialogOptions = new DialogOptions()
     {
@@ -181,16 +208,36 @@ public partial class ProductComponent
         CloseButton = true,
         CloseOnEscapeKey = true,
     };
-    private async Task InvokeDialog(string parameter, string title, Model.Product model)
+    private async Task InvokeDialog(string parameter, string title, Model.Product model, ActionType actionType)
     {
         var parameters = new DialogParameters
             { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
-        var dialog = DialogService.Show<AddStockDialog>(title, parameters, _dialogOptions);
+        IDialogReference dialog;
+        if (actionType == ActionType.AddStock)
+        {
+            dialog = DialogService.Show<AddStockDialog>(title, parameters, _dialogOptions);
+        }
+        else
+        {
+            dialog = DialogService.Show<DecreaseStockDialog>(title, parameters, _dialogOptions);
+        }
         var result = await dialog.Result;
-
         if (!result.Cancelled)
         {
             Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
         }
+    }
+
+    enum ActionType
+    {
+        AddStock,
+        ReduceStock
+    }    
+
+    #endregion
+
+    private async Task LoadMore()
+    {
+        _navigationManager.NavigateTo($"/Inventory?viewId=PT&Id={_inputMode.Id}");
     }
 }

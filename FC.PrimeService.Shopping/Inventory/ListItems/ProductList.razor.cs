@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using FC.PrimeService.Common.Settings.Dialog;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
@@ -22,6 +23,30 @@ public partial class ProductList
     private MudTable<Model.Product> table;
     private int totalItems;
     private string searchString = null;
+
+    #region Category Selection
+
+    private MudListItem _selectedCategory;
+    public MudListItem SelectedCategory
+    {
+        get
+        {
+            return _selectedCategory;
+        }
+        set
+        {
+            _selectedCategory = value;
+            if (_selectedCategory != null)
+            {
+                Console.WriteLine($"Selected Item Category {_selectedCategory.Text}");
+            }
+        }
+    }
+
+    
+    #endregion
+    
+    
     IEnumerable<Model.Product> _data = new List<Model.Product>()
     {
         new Model.Product()
@@ -144,4 +169,21 @@ public partial class ProductList
         _navigationManager.NavigateTo("/Action/?Component=Product");
     }
     #endregion
+
+    private async Task AddProductCategory()
+    {
+        await InvokeDialog("_ProductCategory","Product Category", null);//Null indicates its an 'Add' Mode.
+    }
+    private async Task InvokeDialog(string parameter, string title, Model.ProductCategory model)
+    {
+        var parameters = new DialogParameters
+            { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
+        var dialog = DialogService.Show<ProductCategoryDialog>(title, parameters, _dialogOptions);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+        }
+    }
 }

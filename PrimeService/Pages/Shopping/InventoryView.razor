@@ -1,6 +1,4 @@
-﻿@page "/View"
-@page "/View-Client"
-@page "/View-PT"
+﻿@page "/Inventory"
 
 @using FC.PrimeService.Shopping.Client.ListItems
 @using FC.PrimeService.Shopping.Inventory.ListItems
@@ -9,10 +7,6 @@
 
 @switch (_viewId)
 {
-    case "Client":
-        @* <DynamicComponent Type="typeof(ClientList)"  /> *@
-        <ClientList />
-        break;
     case "Product":
         <ProductList />
         break;

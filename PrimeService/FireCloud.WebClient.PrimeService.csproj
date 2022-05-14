@@ -37,7 +37,6 @@
 	
 	<ItemGroup>
 	  <Folder Include="Dialogs" />
-	  <Folder Include="Pages\Shopping" />
 	</ItemGroup>
 	
 </Project>

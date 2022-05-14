@@ -1,0 +1,97 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Shopping
+
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            @* <img src="svg/location.svg" Height="45" Width="45" alt="client avatar"/> *@
+            <MudIcon Icon="@Icons.TwoTone.Category"
+                     Style="font-size: 3.5rem;"></MudIcon>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Products Transactions </MudText>
+            <MudText Typo="Typo.caption">Transaction History Report.</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Outlined.Print" 
+                           Size="Size.Large"
+                           OnClick="PrintIt"
+                           Color="Color.Info"/>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+    <MudCardContent>
+
+        <MudTable ServerData="@(new Func<TableState, Task<TableData<ProductTransaction>>>(ServerReload))"
+                  Dense="true" Hover="true" @ref="table"
+                  GroupBy="@_groupDefinition"
+                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                  GroupFooterClass="mb-4">
+            <ColGroup>
+                @if (_groupDefinition.Expandable)
+                    {
+                        <col style="width: 60px;" />
+                    }
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                </ColGroup>
+            <ToolBarContent>
+                @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
+                @* <MudSpacer /> *@
+                <MudTextField T="string" ValueChanged="@(s => OnSearch(s))"
+                              FullWidth="true"
+                              Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortLabel="Date" T="ProductTransaction">Date</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Staff" T="ProductTransaction">Staff</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Quantity" T="ProductTransaction">Quantity</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Price" T="ProductTransaction">Price</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Reason" T="ProductTransaction">Reason</MudTableSortLabel></MudTh>
+                
+            </HeaderContent>
+            <GroupHeaderTemplate>
+                <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
+            </GroupHeaderTemplate>
+            <RowTemplate>
+                <MudTd DataLabel="Date">
+                    <MudTooltip Color="Color.Tertiary" Arrow="true">
+                        <ChildContent>
+                            <MudLink Href="#" >
+                                @context.TransactionDate
+                            </MudLink>
+                        </ChildContent>
+                    </MudTooltip>
+                </MudTd>
+                <MudTd DataLabel="Staff">
+                    @context.Who.User.Name
+                </MudTd>
+                <MudTd DataLabel="Quantity">
+                    @context.Quantity
+                </MudTd>
+                <MudTd DataLabel="Price">
+                    @context.Price
+                </MudTd>
+                <MudTd DataLabel="Reason">
+                    @context.Reason
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudTablePager/>
+            </PagerContent>
+        </MudTable>
+        
+    </MudCardContent>
+</MudCard>

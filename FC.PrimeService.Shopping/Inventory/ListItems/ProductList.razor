@@ -22,76 +22,100 @@
     </MudCardHeader>
     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
     <MudCardContent>
-
-        <MudTable ServerData="@(new Func<TableState, Task<TableData<Product>>>(ServerReload))"
-                  Dense="true" Hover="true" @ref="table"
-                  GroupBy="@_groupDefinition"
-                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
-                  GroupFooterClass="mb-4">
-            <ColGroup>
-                @if (_groupDefinition.Expandable)
-                    {
-                        <col style="width: 60px;" />
-                    }
-                    <col />
-                    <col />
-                    <col />
-                    <col />
-                    <col />
-                </ColGroup>
-            <ToolBarContent>
-                @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
-                @* <MudSpacer /> *@
-                <MudTextField T="string" ValueChanged="@(s => OnSearch(s))"
-                              FullWidth="true"
-                              Placeholder="Search" Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search"
-                              IconSize="Size.Medium" Class="mt-0"></MudTextField>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh><MudTableSortLabel SortLabel="Name" T="Product">Title</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortLabel="Barcode" T="Product">Barcode</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortLabel="Quantity" T="Product">Quantity</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortLabel="SellingPrice" T="Product">Price</MudTableSortLabel></MudTh>
+        <MudGrid>
+            <MudItem xs="12" sm="4" md="3">
+                <MudPaper>
+                    <MudList Color="Color.Primary" Clickable="true"
+                             @bind-SelectedItem="SelectedCategory">
+                        <MudListItem Text="Add Category" Icon="@Icons.TwoTone.AddBox" 
+                                     OnClick="AddProductCategory"
+                                     IconColor="Color.Success"/>
+                        <MudListItem Value="0" Text="All" Icon="@Icons.TwoTone.DoneAll"/>
+                        <MudDivider/>
+                        <MudListItem Icon="@Icons.Material.Filled.Inbox" Text="Category"
+                                     InitiallyExpanded="true">
+                            <NestedList>
+                                <MudListItem Value="1" Text="Mobile" Icon="@Icons.Material.Outlined.MobileFriendly"/>
+                                <MudListItem Value="2" Text="Laptop" Icon="@Icons.Material.TwoTone.Laptop"/>
+                                <MudListItem Value="3" Text="TV" Icon="@Icons.Material.TwoTone.Tv"/>
+                            </NestedList>
+                        </MudListItem>
+                    </MudList>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="8" md="9">
+                <MudTable ServerData="@(new Func<TableState, Task<TableData<Product>>>(ServerReload))"
+                                  Dense="true" Hover="true" @ref="table"
+                                  GroupBy="@_groupDefinition"
+                                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                                  GroupFooterClass="mb-4">
+                            <ColGroup>
+                                @if (_groupDefinition.Expandable)
+                                {
+                                    <col style="width: 60px;"/>
+                                }
+                                <col/>
+                                <col/>
+                                <col/>
+                                <col/>
+                                <col/>
+                            </ColGroup>
+                            <ToolBarContent>
+                                @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
+                                @* <MudSpacer /> *@
+                                <MudTextField T="string" ValueChanged="@(s => OnSearch(s))"
+                                              FullWidth="true"
+                                              Placeholder="Search" Adornment="Adornment.Start"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh><MudTableSortLabel SortLabel="Name" T="Product">Title</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel SortLabel="Barcode" T="Product">Barcode</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel SortLabel="Quantity" T="Product">Quantity</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel SortLabel="SellingPrice" T="Product">Price</MudTableSortLabel></MudTh>
                 
-            </HeaderContent>
-            <GroupHeaderTemplate>
-                <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
-            </GroupHeaderTemplate>
-            <RowTemplate>
-                <MudTd DataLabel="Title">
-                    <MudTooltip Color="Color.Tertiary" Arrow="true">
-                        <ChildContent>
-                            <MudLink Href=@($"/Action/?Component=Product&Id={@context.Id}") >
-                                @context.Name
-                            </MudLink>
-                        </ChildContent>
+                            </HeaderContent>
+                            <GroupHeaderTemplate>
+                                <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
+                            </GroupHeaderTemplate>
+                            <RowTemplate>
+                                <MudTd DataLabel="Title">
+                                    <MudTooltip Color="Color.Tertiary" Arrow="true">
+                                        <ChildContent>
+                                            <MudLink Href=@($"/Action/?Component=Product&Id={@context.Id}")>
+                                                @context.Name
+                                            </MudLink>
+                                        </ChildContent>
+                
+                                        <TooltipContent>
+                                            <MudText Typo="Typo.body2"> Edit - '@context.Name' </MudText>
+                                        </TooltipContent>
+                                    </MudTooltip>
+                                </MudTd>
+                                <MudTd DataLabel="Barcode">
+                                    @context.Barcode
+                                </MudTd>
+                                <MudTd DataLabel="Quantity">
+                                    @context.Quantity
+                                </MudTd>
+                                <MudTd DataLabel="SellingPrice">
+                                    @context.SellingPrice
+                                </MudTd>
+                            </RowTemplate>
+                            <NoRecordsContent>
+                                <MudText>No matching records found</MudText>
+                            </NoRecordsContent>
+                            <LoadingContent>
+                                <MudText>Loading...</MudText>
+                            </LoadingContent>
+                            <PagerContent>
+                                <MudTablePager/>
+                            </PagerContent>
+                        </MudTable>
 
-                        <TooltipContent>
-                            <MudText Typo="Typo.body2"> Edit - '@context.Name' </MudText>
-                        </TooltipContent>
-                    </MudTooltip>
-                </MudTd>
-                <MudTd DataLabel="Barcode">
-                    @context.Barcode
-                </MudTd>
-                <MudTd DataLabel="Quantity">
-                    @context.Quantity
-                </MudTd>
-                <MudTd DataLabel="SellingPrice">
-                    @context.SellingPrice
-                </MudTd>
-            </RowTemplate>
-            <NoRecordsContent>
-                <MudText>No matching records found</MudText>
-            </NoRecordsContent>
-            <LoadingContent>
-                <MudText>Loading...</MudText>
-            </LoadingContent>
-            <PagerContent>
-                <MudTablePager/>
-            </PagerContent>
-        </MudTable>
+            </MudItem>
+        </MudGrid>
         
     </MudCardContent>
 </MudCard>

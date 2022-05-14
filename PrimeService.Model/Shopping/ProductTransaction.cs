@@ -26,6 +26,7 @@ public class ProductTransaction
     public DateTime TransactionDate { get; set; }
     [Required]
     public Employee? Who { get; set; }
+    public StockAction Action { get; set; }
     
     /// <summary>
     /// Quantity Involved during the transaction, if 'SOLD', the value will be in '-' if 'PURCHASED' value will be in '+'.
@@ -38,4 +39,11 @@ public class ProductTransaction
     /// </summary>
     [Required]
     public double Price { get; set; }
+}
+
+public enum StockAction
+{
+    In,
+    Out,
+    Nill
 }

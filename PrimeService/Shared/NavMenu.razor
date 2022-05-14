@@ -1,4 +1,5 @@
-﻿<MudNavMenu>
+﻿
+<MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
     @* *@
     @* <MudNavGroup Title="Form Validation" Expanded="false" IconColor="Color.Secondary" *@
@@ -29,8 +30,11 @@
     @* </MudNavGroup> *@
 
     
-    <MudNavLink Href="/View?viewId=Product" Match="NavLinkMatch.Prefix" Icon="@Icons.TwoTone.Inventory2">Inventory</MudNavLink>
-    <MudNavLink Href="/View?viewId=Client" Match="NavLinkMatch.Prefix" Icon="@Icons.TwoTone.PeopleAlt">Clients</MudNavLink>
+    <MudNavLink Href= "/Inventory?viewId=Product"
+         Match="NavLinkMatch.Prefix"  Icon="@Icons.TwoTone.Inventory2">Inventory</MudNavLink>
+    <MudNavLink Href= "/View-Client?viewId=Client"
+                Match="NavLinkMatch.Prefix" 
+                Icon="@Icons.TwoTone.PeopleAlt">Clients</MudNavLink>
     
     <MudNavLink Href="/Settings" Match="NavLinkMatch.Prefix" Icon="@Icons.TwoTone.Settings">Settings</MudNavLink>
     

@@ -5,8 +5,9 @@ using PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Shopping.Inventory.Dialog;
 
-public partial class AddStockDialog
+public  partial class DecreaseStockDialog
 {
+    
     #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
@@ -29,13 +30,13 @@ public partial class AddStockDialog
         {
             //Dialog box opened in "Add" mode
             _inputMode = new Product();//Initializes an empty object.
-            _title = "Add Stock";
+            _title = "Decrease Stock";
         }
         else
         {
             //Dialog box opened in "Edit" mode
             _inputMode = _Product;
-            _title = $"Add Stock - {_inputMode.Name}";
+            _title = $"Decrease Stock - {_inputMode.Name}";
         }
     }
     #endregion
