@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
+using PrimeService.Model.Settings;
 
 namespace PrimeService.Model.Shopping;
 
@@ -36,6 +37,17 @@ public class Product
     /// </summary>
     public string? Barcode { get; set; } = string.Empty;
     
+    /// <summary>
+    /// To easily understand we should use this code.
+    /// </summary>
+    public string? Code { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Applied Tax Category for this product
+    /// </summary>
+    [Required]
+    public Tax TaxGroup { get; set; }
+    
     #endregion
 
     #region Quantity or Inventory Control
@@ -54,6 +66,11 @@ public class Product
     #endregion
 
     #region Price
+    /// <summary>
+    /// Its an optional if discount is available for the product this will have some numbers.
+    /// This should be in percentage
+    /// </summary>
+    public int Discount { get; set; }
     /// <summary>
     /// Selling price is also called as 'Retail Price', This price will be used to sell to the customer. 'Selling' price should be always greater then the 'Supplier' price.
     /// </summary>

@@ -2,22 +2,24 @@
 using FC.PrimeService.Shopping.Inventory.Dialog;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Win32.SafeHandles;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
-using PrimeService.Model.Settings.Forms;
 using Model = PrimeService.Model.Shopping;
 
-namespace FC.PrimeService.Shopping.Inventory.Component;
+namespace FC.PrimeService.Shopping.Shop.Component;
 
-public partial class ProductComponent
+public partial class POSComponent
 {
+    
     #region Initialization
     [Inject] ISnackbar Snackbar { get; set; }
     MudForm form;
     private bool _loading = false;
     private string _display = "d-none";//Display 'none' during loading.
-    public Model.Product _inputMode;
+    public Model.Sales _inputMode;
    
     /// <summary>
     /// Client unique Id to get load the data.
@@ -29,48 +31,6 @@ public partial class ProductComponent
     private bool _processing = false;
     private bool _isReadOnly = true;
     private bool _editToggle = false;
-    public List<Model.ProductCategory> _productCategory = new List<Model.ProductCategory>()
-    {
-        new Model.ProductCategory() { CategoryName = "Mobile" },
-        new Model.ProductCategory() { CategoryName = "Computer" },
-        new Model.ProductCategory() { CategoryName = "Laptop" },
-        new Model.ProductCategory() { CategoryName = "TV" },
-        
-    };
-
-    private IList<Model.ProductTransaction> _productTransactions = new List<Model.ProductTransaction>()
-    {
-        new Model.ProductTransaction()
-        {
-            TransactionDate = DateTime.Now,
-            Reason = "Stock In",
-            Action = Model.StockAction.Out,
-            Quantity = -5,
-            Price = 5 * 2500,
-            Who = new Employee()
-            {
-                User = new User()
-                {
-                    Name = "SRG"
-                }
-            },
-        },
-        new Model.ProductTransaction()
-        {
-            TransactionDate = DateTime.Now,
-            Reason = "Purchase Order",
-            Action = Model.StockAction.In,
-            Quantity = 15,
-            Price = 15 * 2500,
-            Who = new Employee()
-            {
-                User = new User()
-                {
-                    Name = "Ram"
-                }
-            },
-        }
-    };
     
     #endregion
     
@@ -80,27 +40,13 @@ public partial class ProductComponent
         await  Task.Delay(2000);
         //An Ajax call to get company details
         //for now it is filled as Static value
-        _inputMode = new Model.Product ()
+        _inputMode = new Model.Sales ()
         {
             Id = "6270d1cce5452d9169e86c50",
-            Name = "Samsung M31",
-            Barcode = "SKI78596KLL",
-            Category = new Model.ProductCategory()
+            Client = new Model.Client()
             {
-                CategoryName = "Mobile"
-            },
-            Cost = 200,
-            Quantity = 5,
-            SellingPrice = 17800,
-            SupplierPrice = 14000,
-            Warranty = 730,
-            TaxGroup = new Tax()
-            {
-                Title = "5% - Tax",
-                TaxRate = 5.0f,
-                Description = "Household necessities such as edible oil, sugar, spices, tea, and coffee (except instant) are included. Coal, Mishti/Mithai (Indian Sweets) and Life-saving drugs are also covered under this GST slab."
-            },
-            Notes = "Samsung M31 Released 2021 Latest mobile phone",
+                Name = "Guest", Mobile = "1234567890"
+            }
         };
         Console.WriteLine($"Id Received: {Id}"); //Use this id and get the values from 'API'
         if (Id == null)
@@ -120,23 +66,6 @@ public partial class ProductComponent
         _loading = false;
         StateHasChanged();
     }
-    
-    #region Product Category Search - Autocomplete
-
-    private async Task<IEnumerable<Model.ProductCategory>> ProductCategory_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _productCategory;
-        }
-        return _productCategory.Where(x => x.CategoryName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
-
-    #endregion
     
     #region Submit Button with Animation
     async Task ProcessSomething()
@@ -204,12 +133,12 @@ public partial class ProductComponent
     }
     private async Task AddStock(MouseEventArgs arg)
     {
-        await InvokeDialog("_Product","Product", _inputMode, ActionType.AddStock);
+        //await InvokeDialog("_Product","Product", _inputMode, ActionType.AddStock);
     }
 
     private async Task ReduceStock(MouseEventArgs arg)
     {
-        await InvokeDialog("_Product","Product", _inputMode, ActionType.ReduceStock);
+        //await InvokeDialog("_Product","Product", _inputMode, ActionType.ReduceStock);
     }
     private DialogOptions _dialogOptions = new DialogOptions()
     {
@@ -246,8 +175,111 @@ public partial class ProductComponent
 
     #endregion
 
+    #region Client Search - Autocomplete
+    public List<Model.Client> _clients = new List<Model.Client>()
+    {
+        new Model.Client() { Name = "SRG", Mobile = "8596963"},
+        new Model.Client() { Name = "Alam", Mobile = "96936"},
+        new Model.Client() { Name = "Pritish", Mobile = "74512"},
+        new Model.Client() { Name = "Joshmitha", Mobile = "556326"},
+        
+    };
+    private async Task<IEnumerable<Model.Client>> Client_SearchAsync(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+        Console.WriteLine($"Find Client : '{value}'" );
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+        {
+            return _clients;
+        }
+        var result = _clients.Where(x => x.Mobile.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        if (result.FirstOrDefault() == null)
+        {
+            result = new List<Model.Client>()
+            {
+                new Model.Client() { Name = "Customer Not found", Mobile = "" }
+            };
+        }
+        return result;
+    }
+
+    #endregion
     
-    #region ServiceCategory Search - Autocomplete
+    #region Product Search - Autocomplete
+
+    private Model.Product _selectedProduct = new Model.Product();
+    public List<Model.Product> _productList = new List<Model.Product>()
+    {
+        new Model.Product()
+        {
+            Id = "6270d1cce5452d9169e86c50",
+            Barcode = "52LL909LKLKD",
+            Name = "Samsung Mobile M31",
+            Notes = "Some Data",
+            Quantity = 5,
+            SellingPrice = 18000,
+            Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
+        },
+        new Model.Product()
+        {
+            Id = "6270d1cce5452d9169e86c51",
+            Barcode = "96LL909LKLKD",
+            Name = "Samsung Mobile M32",
+            Notes = "Some Data",
+            Quantity = 15,
+            SellingPrice = 19000,
+            Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
+        },
+        new Model.Product()
+        {
+            Id = "6270d1cce5452d9169e86c52",
+            Barcode = "85LL909LKLKD",
+            Name = "Samsung Mobile M33",
+            Notes = "Some Data",
+            Quantity = 10,
+            SellingPrice = 22800,
+            Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
+        },
+        new Model.Product()
+        {
+            Id = "6270d1cce5452d9169e86c60",
+            Barcode = "4759645KLLD",
+            Name = "Lenovo L67",
+            Notes = "Some Data",
+            Quantity = 25,
+            SellingPrice = 48500,
+            Category = new Model.ProductCategory(){ CategoryName = "Laptop"}
+        },
+        
+    }; // In reality it should come from API.
+    
+    private async Task<IEnumerable<Model.Product>> Product_SearchAsync(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+        {
+            return _productList;
+        }
+        return _productList.Where(x => x.Barcode.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task ProductSelected_Changed(Model.Product selectedProduct)
+    {
+        if (selectedProduct != null)
+        {
+            Console.WriteLine($"Selected Product - Name: {selectedProduct.Name} | BarCode: {selectedProduct.Barcode}");
+        }
+        
+    }
+    
+    #endregion
+    
+    #region Tax Search - Autocomplete
     public List<Tax> _taxList = new List<Tax>()
     {
         new Tax()
@@ -305,6 +337,9 @@ public partial class ProductComponent
     
     private async Task LoadMore()
     {
-        _navigationManager.NavigateTo($"/Inventory?viewId=PT&Id={_inputMode.Id}");
+        _navigationManager.NavigateTo($"/Sales?viewId=POS&Id={_inputMode.Id}");
     }
+
+
+    
 }

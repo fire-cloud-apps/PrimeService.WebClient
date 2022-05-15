@@ -26,7 +26,6 @@
     <Folder Include="Inventory\" />
     <Folder Include="Payments\" />
     <Folder Include="Shop\" />
-    <Folder Include="Shop\Component" />
     <Folder Include="Shop\Dialog" />
     <Folder Include="Shop\ListItems" />
   </ItemGroup>

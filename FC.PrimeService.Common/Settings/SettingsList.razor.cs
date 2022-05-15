@@ -218,6 +218,15 @@ public partial class SettingsList
                      Icon = @Icons.TwoTone.Category,
                      Link = $"/SettingsView?viewId=PCategory"
                  },
+                 new SettingsItem()
+                 {
+                     Title = "Tax",
+                     ButtonColor = Color.Default,
+                     IconColor = Color.Default,
+                     ToolTip = "Tax",
+                     Icon = @Icons.TwoTone.Percent,
+                     Link = $"/SettingsView?viewId=Tax"
+                 },
                  
                  // new SettingsItem()
                  // {

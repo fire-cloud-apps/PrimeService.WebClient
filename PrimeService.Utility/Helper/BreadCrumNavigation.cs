@@ -34,6 +34,14 @@ public class BreadCrumNavigation
                 ParentLink = "/View?viewId=Client"
             }
         },
+        {
+            "POS",
+            new BreadCrumSettings()
+            {
+                Parent = "Sales", Child = "Quick Sales", ParentIcon = Icons.TwoTone.PointOfSale,
+                ParentLink = "/Sales?viewId=POS"
+            }
+        },
     };
 
     public static BreadCrumSettings GetData(string componentId)

@@ -4,6 +4,7 @@
 @using global::PrimeService.Model.Settings.Forms
 @using global::PrimeService.Model.Shopping
 @using FC.PrimeService.Shopping.Inventory.Dialog
+@using global::PrimeService.Model.Settings
 
 <MudCard>
     <MudCardHeader>
@@ -27,21 +28,14 @@
                 </MudTooltip>
            
                 <MudTooltip Text="Edit the Product Data" Arrow="true" Placement="Placement.Bottom">
-                    @* <MudIconButton Icon="@Icons.Material.Outlined.EditNote" /> *@
-                    <MudToggleIconButton 
+                    <MudToggleIconButton
                         ToggledChanged="EditToggle"
+                        Disabled="@_editToggle"
                         Icon="@Icons.Outlined.EditOff" 
                         Color="@Color.Warning" Title="Enable Edit"
                         ToggledIcon="@Icons.Material.Outlined.EditNote" 
                         ToggledColor="@Color.Success" ToggledTitle="On"/>
                 </MudTooltip>
-                
-                @* <MudTooltip Text="Actions to be Performed" Arrow="true" Placement="Placement.Bottom"> *@
-                @*     <MudIconButton Icon="@Icons.Material.Outlined.TaskAlt" /> *@
-                @* </MudTooltip> *@
-                @* <MudTooltip Text="Print the 'Product' details & History" Arrow="true" Placement="Placement.Bottom"> *@
-                @*     <MudIconButton Icon="@Icons.Material.Outlined.Print" /> *@
-                @* </MudTooltip> *@
             </MudToolBar>
         </CardHeaderActions>
     </MudCardHeader>
@@ -88,13 +82,25 @@
                     />
                 </MudItem>
                 <MudItem xs="12" sm="6" md="4">
+                    <MudTextField Disabled="@_isReadOnly"
+                                  Label="Product Code" HelperText="Max. 10 characters"
+                                  Placeholder="Product BarCode/SKU"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.TwoTone.Code"
+                                  @bind-Value="_inputMode.Code"
+                                  For="@(() => _inputMode.Code)"
+                                  Counter="10" MaxLength="10"
+                                  Immediate="true"
+                    />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
                     <MudAutocomplete T="ProductCategory" Label="Product Category"
                                      Disabled="@_isReadOnly"
                                      HelperText="Select Service Category"
                                      @bind-Value="_inputMode.Category"
                                      ToStringFunc="@(e => e == null ? null : $"{e.CategoryName}")"
                                      Required="true"
-                                     RequiredError="Please Select Client Type"
+                                     RequiredError="Please Select Category"
                                      SearchFunc="@ProductCategory_SearchAsync" Immediate="true"
                                      ResetValueOnEmptyText="true"
                                      CloseIcon="@Icons.Material.Filled.Search"
@@ -169,7 +175,19 @@
                                      Max="99999"
                                      Immediate="true" />
                 </MudItem>
-                     
+                <MudItem xs="12" sm="6" md="4">
+                    <MudAutocomplete T="Tax" Label="Service Tax Group"
+                                     HelperText="Select Tax Group"
+                                     @bind-Value="_inputMode.TaxGroup"
+                                     ToStringFunc="@(e => e == null ? null : $"{e.Title}")"
+                                     Required="true"
+                                     RequiredError="Please Select Tax Group"
+                                     SearchFunc="@Tax_SearchAsync" Immediate="true"
+                                     ResetValueOnEmptyText="true"
+                                     CloseIcon="@Icons.Material.Filled.Search"
+                                     AdornmentColor="Color.Tertiary"/>
+                    @* Validation="@(new Func<string, IEnumerable<string>>(Validate))" *@
+                </MudItem>
                 <MudItem xs="12">
                     <MudTextField Disabled="@_isReadOnly" Label="Other Detailed notes"
                                   HelperText="Max. 300 characters"
