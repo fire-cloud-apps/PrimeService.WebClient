@@ -71,6 +71,11 @@ public class Product
     /// This should be in percentage
     /// </summary>
     public int Discount { get; set; }
+    
+    /// <summary>
+    /// Maximum Retail Price
+    /// </summary>
+    public double? MRP { get; set; }
     /// <summary>
     /// Selling price is also called as 'Retail Price', This price will be used to sell to the customer. 'Selling' price should be always greater then the 'Supplier' price.
     /// </summary>

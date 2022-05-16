@@ -7,6 +7,7 @@ using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
+using PrimeService.Model.Settings.Payments;
 using Model = PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Shopping.Shop.Component;
@@ -20,6 +21,9 @@ public partial class POSComponent
     private bool _loading = false;
     private string _display = "d-none";//Display 'none' during loading.
     public Model.Sales _inputMode;
+
+    private string _termsCondition = "1. Goods once sold will not be taken back or Exchanged \n" +
+                                     "2. A late fee of 5% of due amount will be added for delayed payments";
    
     /// <summary>
     /// Client unique Id to get load the data.
@@ -40,14 +44,16 @@ public partial class POSComponent
         await  Task.Delay(2000);
         //An Ajax call to get company details
         //for now it is filled as Static value
-        _inputMode = new Model.Sales ()
+        _inputMode = new Model.Sales()
         {
             Id = "6270d1cce5452d9169e86c50",
             Client = new Model.Client()
             {
                 Name = "Guest", Mobile = "1234567890"
-            }
+            },
+            PaymentMethod = new PaymentMethods() { Id = "125", Title = "Cash" }
         };
+        
         Console.WriteLine($"Id Received: {Id}"); //Use this id and get the values from 'API'
         if (Id == null)
         {
@@ -207,7 +213,7 @@ public partial class POSComponent
 
     #endregion
     
-    #region Product Search - Autocomplete
+    #region Product Search & BarCode Search - Autocomplete
 
     private Model.Product _selectedProduct = new Model.Product();
     public List<Model.Product> _productList = new List<Model.Product>()
@@ -215,7 +221,7 @@ public partial class POSComponent
         new Model.Product()
         {
             Id = "6270d1cce5452d9169e86c50",
-            Barcode = "52LL909LKLKD",
+            Barcode = "0002671908",
             Name = "Samsung Mobile M31",
             Notes = "Some Data",
             Quantity = 5,
@@ -225,7 +231,7 @@ public partial class POSComponent
         new Model.Product()
         {
             Id = "6270d1cce5452d9169e86c51",
-            Barcode = "96LL909LKLKD",
+            Barcode = "0002687419",
             Name = "Samsung Mobile M32",
             Notes = "Some Data",
             Quantity = 15,
@@ -235,7 +241,7 @@ public partial class POSComponent
         new Model.Product()
         {
             Id = "6270d1cce5452d9169e86c52",
-            Barcode = "85LL909LKLKD",
+            Barcode = "0002671930" ,
             Name = "Samsung Mobile M33",
             Notes = "Some Data",
             Quantity = 10,
@@ -245,7 +251,7 @@ public partial class POSComponent
         new Model.Product()
         {
             Id = "6270d1cce5452d9169e86c60",
-            Barcode = "4759645KLLD",
+            Barcode = "0002671901" ,
             Name = "Lenovo L67",
             Notes = "Some Data",
             Quantity = 25,
@@ -277,6 +283,43 @@ public partial class POSComponent
         
     }
     
+    /// <summary>
+    /// Search the exact value of the barcode.
+    /// </summary>
+    /// <param name="value">BarCode value</param>
+    /// <returns>returns Product</returns>
+    private async Task<IEnumerable<Model.Product>> ProductBar_SearchAsync(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+        {
+            return _productList;
+        }
+        return _productList.Where(x => x.Barcode == value);
+    }
+
+    private string? _barCode = string.Empty;
+    private MudTextField<string> _barcodeMudTextField;
+    private string? GetBarCode
+    {
+        get => _barCode;
+        set
+        {
+            _barCode = value;
+            AddProductToSales(_barCode);
+            Console.WriteLine($"Bind BarCode: {_barCode}");
+        }
+    }
+    private async Task BarCode_ValueChanged(string arg)
+    {
+        //ValueChanged="BarCode_ValueChanged"
+        Console.WriteLine($"BarCode : {arg}");
+        Console.WriteLine($"Bind BarCode: {_barCode}");
+    }
+
     #endregion
     
     #region Tax Search - Autocomplete
@@ -340,6 +383,132 @@ public partial class POSComponent
         _navigationManager.NavigateTo($"/Sales?viewId=POS&Id={_inputMode.Id}");
     }
 
+    #region Payment Methods
+
+    /// <summary>
+    /// Assume that this comes from Ajax call.
+    /// </summary>
+    private IList<PaymentMethods> _paymentMethods = new List<PaymentMethods>()
+    {
+        new PaymentMethods()
+        {
+            Id = "123",
+            Title = "Cash"
+        },
+        new PaymentMethods()
+        {
+            Id = "452",
+            Title = "Card"
+        },
+        new PaymentMethods()
+        {
+            Id = "7896",
+            Title = "QR"
+        },
+        new PaymentMethods()
+        {
+            Id = "969",
+            Title = "Cashless"
+        },
+    };
+    
+
+    #endregion
+    #region Sales Transaction
+
+    private double _total = 0;
+    private double _tax = 0;
+    private string _currency = "₹";
+    private int _totalQty = 0;
+    private List<Model.PurchasedProduct> _salesTransaction = new List<Model.PurchasedProduct>();
+    private void AddProductToSales(string barcode)
+    {
+        var product = _productList?.Where(code => code.Barcode == barcode).FirstOrDefault();
+        if (product == null) return;
+        
+        Model.PurchasedProduct purchased = new Model.PurchasedProduct()
+        {
+            ProductId = product?.Id,
+            Discount = product.Discount,
+            Price = product.SellingPrice,
+            Quantity = 1,
+            ProductName = product.Name,
+            AppliedTax = _taxList[1],
+        };
+        purchased.SubTotal = product.Quantity * product.SellingPrice;
+        var isProductExists = _salesTransaction.FirstOrDefault(prd => prd.ProductId == purchased.ProductId);
+        
+        if (isProductExists == null)
+        {
+            _salesTransaction.Add(purchased);//If product does not exists in the invoice list add it.
+        }
+        else
+        {
+            isProductExists.Quantity++;//Add the Quantity if the product already exists
+        }
+
+        foreach (var item in _salesTransaction)
+        {
+            _totalQty = _totalQty + item.Quantity;
+            _total = _total + item.Price;
+            _tax = _tax + (item.AppliedTax.TaxRate / 100) * item.Price;
+        }
+        //_total = _total + purchased.SubTotal;
+        _total = Math.Round(_total, 2);//Show only '2' decimal points.
+        //_tax = _tax + (purchased.AppliedTax.TaxRate / 100) * purchased.Price;
+        _tax = Math.Round(_tax, 2);//Show only '2' decimal points.
+
+    }
 
     
+    public List<Model.PurchasedProduct> _purchasedProduct = new List<Model.PurchasedProduct>()
+    {
+        new Model.PurchasedProduct()
+        {
+            ProductId = "6270d1cce5452d9169e86c50",
+            ProductName = "Samsung Mobile M31",
+            Quantity = 2,
+            Discount = 2,
+            AppliedTax = new Tax()
+            {
+                TaxRate = 5,
+                Description = "5% Tax",
+                Title = "5% Tax"
+            },
+            Price = 21568,
+        },
+        new Model.PurchasedProduct()
+        {
+            ProductId = "6270d1cce5452d9169e86c511",
+            ProductName = "Samsung Mobile M21",
+            Quantity = 1,
+            Discount = 2,
+            AppliedTax = new Tax()
+            {
+                TaxRate = 5,
+                Description = "5% Tax",
+                Title = "5% Tax"
+            },
+            Price = 16060,
+        },
+        new Model.PurchasedProduct()
+        {
+            ProductId = "6270d1cce5452d9169e86c600",
+            ProductName = "Samsung Mobile M11",
+            Quantity = 1,
+            Discount = 2,
+            AppliedTax = new Tax()
+            {
+                TaxRate = 18,
+                Description = "18% Tax",
+                Title = "18% Tax"
+            },
+            Price = 10060,
+        },
+    }; // In reality it should come from API.
+    
+
+    #endregion
+
+
 }

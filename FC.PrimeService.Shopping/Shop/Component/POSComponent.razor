@@ -1,5 +1,6 @@
 ﻿@using global::PrimeService.Utility.ValidationHelper
 @using global::PrimeService.Model.Shopping
+@using global::PrimeService.Model.Settings.Payments
 
 <MudCard>
     <MudCardHeader>
@@ -133,24 +134,160 @@
                     </MudPaper>
                 </MudItem>
                 
-                <MudItem xs="12">
-                    <MudItem xs="12" sm="12" md="12">
-                        <MudAutocomplete T="Product" Label="Find Product By Barcode"
-                                         FullWidth="true"
-                                         Disabled="@_isReadOnly"
-                                         HelperText="Find Product By Barcode"
-                                         ValueChanged="ProductSelected_Changed"
-                                         ToStringFunc="@(e => e == null ? null : $"{e.Name} | {e.Barcode} | Quantity :{e.Quantity}")"
-                                         SearchFunc="@Product_SearchAsync" 
-                                         Immediate="true"
-                                         ResetValueOnEmptyText="true"
-                                         CloseIcon="@Icons.Material.Filled.Search"
-                                         AdornmentColor="Color.Tertiary"/>
-                        @* Validation="@(new Func<string, IEnumerable<string>>(Validate))" *@
-                    </MudItem>
+                <MudItem xs="12" sm="12" md="12">
+                    <MudPaper Class="pa-2 ma-2" Outlined="true">
+                        <MudGrid>
+                            <MudItem xs="12" sm="12" md="12">
+                                <MudText Typo="Typo.h6">Find Product</MudText>
+                            </MudItem>
+                            <MudItem xs="12" sm="12" md="12">
+                                <MudDivider />
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="6">
+                                <MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
+                                    <MudTextField @ref="_barcodeMudTextField"
+                                                  Clearable="true"
+                                                  AutoFocus="true"
+                                                  @bind-Value="GetBarCode"
+                                                  T="string" Class="rounded-pill" Variant="Variant.Outlined"
+                                                  OnKeyDown="() => { _barcodeMudTextField.Reset(); }"
+                                                  FullWidth="true" Adornment="Adornment.End"
+                                                  Placeholder="Search Product by BarCode"
+                                                  AdornmentIcon="@Icons.Filled.Search"
+                                                  AdornmentColor="Color.Secondary"/>
+                                </MudFocusTrap>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="6">
+                                <MudAutocomplete T="Product" Label="Find Product by Name"
+                                                 HelperText="Find Product by Name"
+                                                 FullWidth="true"
+                                                 Disabled="@_isReadOnly"
+                                                 ValueChanged="ProductSelected_Changed"
+                                                 ToStringFunc="@(e => e == null ? null : $"{e.Name} | {e.Barcode} | Quantity :{e.Quantity}")"
+                                                 SearchFunc="@Product_SearchAsync" 
+                                                 Immediate="true"
+                                                 ResetValueOnEmptyText="true"
+                                                 CloseIcon="@Icons.Material.Filled.Search"
+                                                 AdornmentColor="Color.Tertiary"/>
+                                @* Validation="@(new Func<string, IEnumerable<string>>(Validate))" *@
+                            </MudItem>
+                            
+                        </MudGrid>
+                    </MudPaper>
                 </MudItem>
                 
-                
+            <MudItem xs="12">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.body1">Sales Order</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+                    <MudCardContent>
+                    
+                        <MudTable Items="@_salesTransaction"
+                                  Elevation="0" Height="280px"
+                                  Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+                            <HeaderContent>
+                                <MudTh>Name</MudTh>
+                                <MudTh>Price</MudTh>
+                                <MudTh>Quantity</MudTh>
+                                <MudTh>Discount</MudTh>
+                                <MudTh>Tax</MudTh>
+                                <MudTh>Amount</MudTh>
+                            </HeaderContent>
+                             
+                            <RowTemplate>
+                                <MudTd DataLabel="Name">@context.ProductName</MudTd>
+                                <MudTd DataLabel="Price">@context.Price</MudTd>
+                                <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
+                                <MudTd DataLabel="Discount">@context.Discount</MudTd>
+                                <MudTd DataLabel="Tax">@context.AppliedTax.TaxRate</MudTd>
+                                <MudTd DataLabel="Amount">@context.SubTotal</MudTd>
+                            </RowTemplate>
+                             	
+                        </MudTable>
+                        
+                        <MudDivider />
+                        
+                        <MudGrid>
+                            <MudItem xs="6">
+                                <MudPaper Class="pa-2 ma-2" Outlined="true">
+                                    <MudGrid>
+                                        <MudItem xs="12" sm="12" md="12">
+                                            <MudNumericField Disabled="@_isReadOnly" Label="Additional Cost" 
+                                                             AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                                             @bind-Value="_inputMode.AdditonalCost"
+                                                             For="@(() => _inputMode.AdditonalCost)"
+                                                             MaxLength="4" Min="0" Max="9999" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="12" md="12">
+                                            <MudNumericField Disabled="@_isReadOnly" Label="Quantity" 
+                                                             AdornmentIcon="@Icons.Material.TwoTone.Countertops"
+                                                             @bind-Value="_inputMode.Quantity"
+                                                             For="@(() => _inputMode.Quantity)"
+                                                             MaxLength="3" Min="0" Max="999" />
+                                        </MudItem>
+                                                                
+                                        <MudItem xs="12" sm="12" md="12">
+                                        @* @bind-Value="_inputMode.PaymentMethod"  *@
+                                            <MudSelect T="string"
+                                                       Label="Select Payment Type" 
+                                                       OpenIcon="@Icons.Material.Filled.Money" AdornmentColor="Color.Secondary">
+                                                @foreach (PaymentMethods item in _paymentMethods)
+                                                {
+                                                    <MudSelectItem Value="@item.Title" >@item.Title</MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                        </MudItem>
+                                            
+                                    </MudGrid>
+                                </MudPaper>
+                            </MudItem>
+                                 
+                            <MudItem xs="6">
+                                <MudPaper Class="pa-2 ma-2" Outlined="true">
+                                    <MudGrid>
+                                        <MudItem xs="12" sm="12" md="12">
+                                            <MudNumericField Label="Tax" ReadOnly="true"
+                                                             AdornmentIcon="@Icons.Material.TwoTone.Percent"
+                                                             @bind-Value="_inputMode.TotalTax"
+                                                             For="@(() => _inputMode.TotalTax)" />
+                                        </MudItem>     
+                                        <MudItem xs="12" sm="12" md="12">
+                                            <MudNumericField Label="Discount" ReadOnly="true"
+                                                             AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                                             @bind-Value="_inputMode.TotalDiscount"
+                                                             For="@(() => _inputMode.TotalDiscount)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="12" md="12">
+                                            <MudNumericField Label="Sub Total" ReadOnly="true"
+                                                             AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                                             @bind-Value="_inputMode.Total"
+                                                             For="@(() => _inputMode.Total)" />
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                                                              
+                        <MudPaper Outlined="true" Class="@($"pa-2 mt-2 d-flex justify-end")">
+                            <MudGrid>
+                                <MudItem Class="d-flex justify-end" xs="12" sm="8" md="8">
+                                    <MudText Typo="Typo.h5">Total</MudText>
+                                </MudItem>
+                                <MudItem Class="d-flex justify-end" xs="12" sm="4" md="4">
+                                    <MudText Color="Color.Warning" Typo="Typo.h5">@($"{_total} {_currency}")</MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </MudPaper>
+                             
+                    </MudCardContent>
+                         
+                </MudCard>
+            </MudItem>
+            
                 <MudItem xs="12">
                     <MudTextField Disabled="@_isReadOnly" Label="Other Detailed notes"
                                   HelperText="Max. 300 characters"
@@ -161,6 +298,13 @@
                                   Counter="300"
                                   MaxLength="300"
                                   Immediate="true"/>
+                </MudItem>
+                <MudItem xs="12" sm="12" md="12">
+                    <MudTextField Disabled="true" Label="Terms & Condition"
+                                  Variant="Variant.Filled"
+                                  Value="@_termsCondition"
+                                  Lines="3" Counter="300"
+                                  MaxLength="300" Immediate="true"/>
                 </MudItem>
             </MudGrid>
                  

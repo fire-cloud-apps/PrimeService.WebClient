@@ -35,6 +35,11 @@ public class Sales
     /// </summary>
     [Required]
     public Employee? BilledBy { get; set; } 
+    
+    /// <summary>
+    /// Total Quantity purchased.
+    /// </summary>
+    public int Quantity { get; set; }
     public Client Client { get; set; }
     /// <summary>
     /// Some General Description of the Sales if any
@@ -55,6 +60,7 @@ public class Sales
     public PaymentTags? PaymentAccount { get; set; }
     public PaymentMethods? PaymentMethod { get; set; }
     public PaymentStatus PaymentStatus { get; set; }
+    public double TotalTax { get; set; }
     #endregion
     
 }

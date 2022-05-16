@@ -57,7 +57,8 @@
                     
                 <MudGrid>
                     <MudItem xs="12" sm="12" md="12">
-                        <MudSelect @bind-Value="_inputMode.Category" Label="Select Category" HelperText="Select Payment Category" 
+                        <MudSelect @bind-Value="_inputMode.Category" 
+                                   Label="Select Category" HelperText="Select Payment Category" 
                                    OpenIcon="@Icons.Material.Filled.Money" AdornmentColor="Color.Secondary">
                             @foreach (PaymentCategory item in Enum.GetValues(typeof(PaymentCategory)))
                             {
