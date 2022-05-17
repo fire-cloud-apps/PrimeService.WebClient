@@ -39,28 +39,36 @@ public class Sales
     /// <summary>
     /// Total Quantity purchased.
     /// </summary>
-    public int Quantity { get; set; }
+    public int TotalQuantity { get; set; }
     public Client Client { get; set; }
     /// <summary>
     /// Some General Description of the Sales if any
     /// </summary>
     public string? Notes { get; set; } = string.Empty;
+    
     #region Product
-    public double Total { get; set; }
-    public double TotalDiscount { get; set; }
+    
     public IList<PurchasedProduct>? Products { get; set; }
     
     #endregion
 
     #region Payments
+    public double AdditonalCost { get; set; }
+    public double TotalTax { get; set; }
+    /// <summary>
+    /// Total Discount in Amount/Rupees
+    /// </summary>
+    public double TotalDiscount { get; set; }
+    public double SubTotal { get; set; }
+    public double GrandTotal { get; set; }
     /// <summary>
     /// Additional cost if any. Eg for Gift wrapping or other services.
     /// </summary>
-    public double AdditonalCost { get; set; }
+    
     public PaymentTags? PaymentAccount { get; set; }
     public PaymentMethods? PaymentMethod { get; set; }
     public PaymentStatus PaymentStatus { get; set; }
-    public double TotalTax { get; set; }
+    
     #endregion
     
 }

@@ -186,6 +186,7 @@
                     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
                     <MudCardContent>
                     
+                        <!-- Sales Item Table Start -->
                         <MudTable Items="@_salesTransaction"
                                   Elevation="0" Height="280px"
                                   Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
@@ -196,6 +197,7 @@
                                 <MudTh>Discount</MudTh>
                                 <MudTh>Tax</MudTh>
                                 <MudTh>Amount</MudTh>
+                                <MudTh><MudIcon Icon="@Icons.TwoTone.CompareArrows"></MudIcon></MudTh>
                             </HeaderContent>
                              
                             <RowTemplate>
@@ -205,39 +207,44 @@
                                 <MudTd DataLabel="Discount">@context.Discount</MudTd>
                                 <MudTd DataLabel="Tax">@context.AppliedTax.TaxRate</MudTd>
                                 <MudTd DataLabel="Amount">@context.SubTotal</MudTd>
+                                <MudTd>
+                                    <MudIconButton
+                                        @onclick="() => SalesItemProductAction(context)"
+                                        Icon="@Icons.TwoTone.DoneOutline" />
+                                </MudTd>
                             </RowTemplate>
                              	
                         </MudTable>
                         
                         <MudDivider />
-                        
+                         <!-- Sales Item Table End -->
                         <MudGrid>
                             <MudItem xs="6">
                                 <MudPaper Class="pa-2 ma-2" Outlined="true">
                                     <MudGrid>
                                         <MudItem xs="12" sm="12" md="12">
+                                            <MudNumericField Disabled="@_isReadOnly" Label="Total Items (Qty)"
+                                                             AdornmentIcon="@Icons.Material.TwoTone.Countertops"
+                                                             @bind-Value="_inputMode.TotalQuantity"
+                                                             For="@(() => _inputMode.TotalQuantity)"
+                                                             MaxLength="3" Min="0" Max="999" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="12" md="12">
                                             <MudNumericField Disabled="@_isReadOnly" Label="Additional Cost" 
                                                              AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                                             OnBlur="AdditionalCost_LostFocus"
                                                              @bind-Value="_inputMode.AdditonalCost"
                                                              For="@(() => _inputMode.AdditonalCost)"
                                                              MaxLength="4" Min="0" Max="9999" />
                                         </MudItem>
+
                                         <MudItem xs="12" sm="12" md="12">
-                                            <MudNumericField Disabled="@_isReadOnly" Label="Quantity" 
-                                                             AdornmentIcon="@Icons.Material.TwoTone.Countertops"
-                                                             @bind-Value="_inputMode.Quantity"
-                                                             For="@(() => _inputMode.Quantity)"
-                                                             MaxLength="3" Min="0" Max="999" />
-                                        </MudItem>
-                                                                
-                                        <MudItem xs="12" sm="12" md="12">
-                                        @* @bind-Value="_inputMode.PaymentMethod"  *@
-                                            <MudSelect T="string"
-                                                       Label="Select Payment Type" 
-                                                       OpenIcon="@Icons.Material.Filled.Money" AdornmentColor="Color.Secondary">
+                                            <MudSelect @bind-Value="_inputMode.PaymentMethod.Title"
+                                                       Label="Select Payment Type"
+                                                        OpenIcon="@Icons.Material.Filled.Money" AdornmentColor="Color.Secondary">
                                                 @foreach (PaymentMethods item in _paymentMethods)
                                                 {
-                                                    <MudSelectItem Value="@item.Title" >@item.Title</MudSelectItem>
+                                                    <MudSelectItem Value="@item.Title">@item.Title</MudSelectItem>
                                                 }
                                             </MudSelect>
                                         </MudItem>
@@ -250,23 +257,39 @@
                                 <MudPaper Class="pa-2 ma-2" Outlined="true">
                                     <MudGrid>
                                         <MudItem xs="12" sm="12" md="12">
-                                            <MudNumericField Label="Tax" ReadOnly="true"
-                                                             AdornmentIcon="@Icons.Material.TwoTone.Percent"
-                                                             @bind-Value="_inputMode.TotalTax"
-                                                             For="@(() => _inputMode.TotalTax)" />
-                                        </MudItem>     
+                                            <MudNumericField Label="Item Total" ReadOnly="true"
+                                                             Format="N2"
+                                                             AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                                             @bind-Value="_inputMode.SubTotal"
+                                                             For="@(() => _inputMode.SubTotal)" />
+                                        </MudItem>
+                                        
+                                        <MudItem xs="12" sm="12" md="12">
+                                            <MudExpansionPanels>
+                                                <MudExpansionPanel @bind-IsExpanded="isTaxOpen" HideIcon="true">
+                                                    <TitleContent>
+                                                        <div class="d-flex">
+                                                            <MudText Typo="Typo.button">Total Tax: @_inputMode.TotalTax</MudText>
+                                                            <MudIcon Icon="@(isTaxOpen ? Icons.Material.Filled.Close : Icons.Material.Filled.Add)" class="ml-auto"></MudIcon>
+                                                        </div>
+                                                    </TitleContent>
+                                                    <ChildContent>
+                                                        <MudText Typo="Typo.button">CGST : @(_inputMode.TotalTax / 2) </MudText>
+                                                        <MudDivider/>
+                                                        <MudText Typo="Typo.button">SGST : @(_inputMode.TotalTax / 2) </MudText>
+                                                    </ChildContent>
+                                                </MudExpansionPanel>
+                                            </MudExpansionPanels>
+                                        </MudItem>
+                                        
                                         <MudItem xs="12" sm="12" md="12">
                                             <MudNumericField Label="Discount" ReadOnly="true"
+                                                             Format="N2"
                                                              AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
                                                              @bind-Value="_inputMode.TotalDiscount"
-                                                             For="@(() => _inputMode.TotalDiscount)" />
+                                                             For="@(() => _inputMode.TotalDiscount)"/>
                                         </MudItem>
-                                        <MudItem xs="12" sm="12" md="12">
-                                            <MudNumericField Label="Sub Total" ReadOnly="true"
-                                                             AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
-                                                             @bind-Value="_inputMode.Total"
-                                                             For="@(() => _inputMode.Total)" />
-                                        </MudItem>
+
                                     </MudGrid>
                                 </MudPaper>
                             </MudItem>
@@ -275,10 +298,10 @@
                         <MudPaper Outlined="true" Class="@($"pa-2 mt-2 d-flex justify-end")">
                             <MudGrid>
                                 <MudItem Class="d-flex justify-end" xs="12" sm="8" md="8">
-                                    <MudText Typo="Typo.h5">Total</MudText>
+                                    <MudText Typo="Typo.h5">Grand Total</MudText>
                                 </MudItem>
                                 <MudItem Class="d-flex justify-end" xs="12" sm="4" md="4">
-                                    <MudText Color="Color.Warning" Typo="Typo.h5">@($"{_total} {_currency}")</MudText>
+                                    <MudText Color="Color.Warning" Typo="Typo.h5">@($"{_inputMode.GrandTotal} {_currency}")</MudText>
                                 </MudItem>
                             </MudGrid>
                         </MudPaper>

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using FC.PrimeService.Shopping.Inventory.Dialog;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -24,6 +25,9 @@ public partial class POSComponent
 
     private string _termsCondition = "1. Goods once sold will not be taken back or Exchanged \n" +
                                      "2. A late fee of 5% of due amount will be added for delayed payments";
+
+    private bool isTaxOpen;
+    
    
     /// <summary>
     /// Client unique Id to get load the data.
@@ -271,7 +275,7 @@ public partial class POSComponent
         {
             return _productList;
         }
-        return _productList.Where(x => x.Barcode.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        return _productList.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task ProductSelected_Changed(Model.Product selectedProduct)
@@ -279,6 +283,7 @@ public partial class POSComponent
         if (selectedProduct != null)
         {
             Console.WriteLine($"Selected Product - Name: {selectedProduct.Name} | BarCode: {selectedProduct.Barcode}");
+            AddAndCalculate(selectedProduct);
         }
         
     }
@@ -414,6 +419,7 @@ public partial class POSComponent
     
 
     #endregion
+    
     #region Sales Transaction
 
     private double _total = 0;
@@ -426,6 +432,55 @@ public partial class POSComponent
         var product = _productList?.Where(code => code.Barcode == barcode).FirstOrDefault();
         if (product == null) return;
         
+        AddAndCalculate(product);
+
+    }
+
+    void AddAndCalculate(Model.Product product)
+    {
+        AddProductForSales(product);//Adds the product to the "_salesTransaction"
+       
+        CalculateSales();//Uses '_salesTransaction" to calculate the discount/Tax/SubTotal/Additional Charges etc.
+    }
+
+    /// <summary>
+    /// SubTotal Price, Tax, Discount, Additional Charges were Calculated.
+    /// </summary>
+    private void CalculateSales()
+    {
+        #region Price, Tax, Discount Calculation
+        int totQty = 0; //Total Item (Qty)
+        double totDiscount = 0d;
+        foreach (var item in _salesTransaction)
+        {
+            _totalQty = _totalQty + item.Quantity;
+            _total = _total + item.Price;
+            _tax = _tax + (item.AppliedTax.TaxRate / 100) * item.Price;
+            totDiscount = totDiscount + (item.Discount / 100) * item.Price;
+
+            //Calculate Total Quantity
+            totQty = totQty + item.Quantity;
+        }
+
+        _inputMode.TotalQuantity = totQty;
+        //Discount calculation. Before applying Tax/Additional cost we should calculate discount.
+        _total = _total - totDiscount;
+        //Item Total/Sub Total of all items
+        _inputMode.SubTotal = _total;
+        //Additional Cost Calculation
+        _total = _total + _inputMode.AdditonalCost;
+        //Total Tax
+        _tax = Math.Round(_tax, 2); //Show only '2' decimal points.
+        _inputMode.TotalTax = _tax;
+        //Grand Total
+        _total = Math.Round(_total, 2); //Show only '2' decimal points.
+        _inputMode.GrandTotal = _total;
+        #endregion
+    }
+
+    private void AddProductForSales(Model.Product product)
+    {
+        #region Add Product for Sales
         Model.PurchasedProduct purchased = new Model.PurchasedProduct()
         {
             ProductId = product?.Id,
@@ -437,30 +492,20 @@ public partial class POSComponent
         };
         purchased.SubTotal = product.Quantity * product.SellingPrice;
         var isProductExists = _salesTransaction.FirstOrDefault(prd => prd.ProductId == purchased.ProductId);
-        
+
         if (isProductExists == null)
         {
-            _salesTransaction.Add(purchased);//If product does not exists in the invoice list add it.
+            _salesTransaction.Add(purchased); //If product does not exists in the invoice list add it.
         }
         else
         {
-            isProductExists.Quantity++;//Add the Quantity if the product already exists
+            isProductExists.Quantity++; //Add the Quantity if the product already exists
         }
-
-        foreach (var item in _salesTransaction)
-        {
-            _totalQty = _totalQty + item.Quantity;
-            _total = _total + item.Price;
-            _tax = _tax + (item.AppliedTax.TaxRate / 100) * item.Price;
-        }
-        //_total = _total + purchased.SubTotal;
-        _total = Math.Round(_total, 2);//Show only '2' decimal points.
-        //_tax = _tax + (purchased.AppliedTax.TaxRate / 100) * purchased.Price;
-        _tax = Math.Round(_tax, 2);//Show only '2' decimal points.
+        #endregion
 
     }
 
-    
+
     public List<Model.PurchasedProduct> _purchasedProduct = new List<Model.PurchasedProduct>()
     {
         new Model.PurchasedProduct()
@@ -511,4 +556,17 @@ public partial class POSComponent
     #endregion
 
 
+    #region Sales Item Adjust stock/price/discount any action in the Dialog
+
+    private async Task SalesItemProductAction(Model.PurchasedProduct purchasedProduct)
+    {
+        Console.WriteLine($"Product: { purchasedProduct.ProductName}");
+    }
+
+    #endregion
+
+    private async Task AdditionalCost_LostFocus()
+    {
+        CalculateSales();
+    }
 }
