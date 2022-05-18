@@ -1,0 +1,121 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Settings
+@using global::PrimeService.Utility.ValidationHelper
+@using System.Text.Json
+@using global::PrimeService.Model.Settings.Payments
+@using global::PrimeService.Model.Settings.Tickets
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@inject ISnackbar Snackbar
+@inject IJSRuntime JsRuntime
+
+<MudForm @ref="form" Model="_inputMode">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.TwoTone.EmojiPeople" Class="mr-3 mb-n1"/>
+                @_title
+            </MudText>
+        
+        </TitleContent>
+   
+        <DialogContent >
+            <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+        
+            @if (_loading)
+            {
+                <MudSkeleton Class="my-2"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2"/>
+            }
+            else
+            {
+                <MudGrid Style="max-height: 450px; overflow-y: scroll; overflow-x: hidden;">
+                    <MudItem xs="12" sm="8" md="8">
+                        <MudTextField Label="Product Name" HelperText="Selected Product"
+                                      ReadOnly="true"
+                                      Disabled="@_isReadOnly"
+                                      Placeholder="Name of the Product"
+                                      @bind-Value="_inputMode.ProductName"
+                                      For="@(() => _inputMode.ProductName)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Quantity" 
+                                         AutoFocus="true"
+                                         AdornmentIcon="@Icons.Material.TwoTone.Countertops"
+                                         HelperText="Max. 100 characters."
+                                         @bind-Value="_inputMode.Quantity"
+                                         For="@(() => _inputMode.Quantity)"
+                                         MaxLength="3"
+                                         Min="0"
+                                         Max="100"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Product Price" 
+                                         AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
+                                         @bind-Value="_inputMode.Price"
+                                         For="@(() => _inputMode.Price)"
+                                         MaxLength="10"  Min="0"  Max="9999999999"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Percentage Of Discount " 
+                                         AdornmentIcon="@Icons.Material.TwoTone.Percent"
+                                         @bind-Value="_inputMode.Discount"
+                                         For="@(() => _inputMode.Discount)"
+                                         MaxLength="2"  Min="0"  Max="99"
+                                         Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Percentage Of Tax" 
+                                         AdornmentIcon="@Icons.TwoTone.ContentCut"
+                                         @bind-Value="_inputMode.AppliedTax.TaxRate"
+                                         For="@(() => _inputMode.AppliedTax.TaxRate)"
+                                         MaxLength="2"  Min="0"  Max="99"
+                                         Immediate="true" />
+                    </MudItem>
+                   
+                </MudGrid>
+            }
+        
+        </DialogContent>
+        <DialogActions>
+
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Filled.Input"
+                       Color="Color.Primary" DisableElevation="true"
+                       OnClick="@(async () => await Submit())">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Submit</MudText>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
+                       StartIcon="@Icons.Outlined.Cancel"
+                       OnClick="Cancel">Cancel</MudButton>
+            
+            @if (_appSettings.IsDev)
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Warning" DisableElevation="true"
+                           OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary" DisableElevation="true"
+                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           DisableElevation="true"
+                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+            }
+            
+        </DialogActions>
+    </MudDialog>
+</MudForm>

@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using FC.PrimeService.Shopping.Inventory.Dialog;
+using FC.PrimeService.Shopping.Shop.Dialog;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Win32.SafeHandles;
@@ -141,47 +142,9 @@ public partial class POSComponent
         }
         //d-flex or d-none
     }
-    private async Task AddStock(MouseEventArgs arg)
-    {
-        //await InvokeDialog("_Product","Product", _inputMode, ActionType.AddStock);
-    }
-
-    private async Task ReduceStock(MouseEventArgs arg)
-    {
-        //await InvokeDialog("_Product","Product", _inputMode, ActionType.ReduceStock);
-    }
-    private DialogOptions _dialogOptions = new DialogOptions()
-    {
-        MaxWidth = MaxWidth.Small,
-        FullWidth = true,
-        CloseButton = true,
-        CloseOnEscapeKey = true,
-    };
-    private async Task InvokeDialog(string parameter, string title, Model.Product model, ActionType actionType)
-    {
-        var parameters = new DialogParameters
-            { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
-        IDialogReference dialog;
-        if (actionType == ActionType.AddStock)
-        {
-            dialog = DialogService.Show<AddStockDialog>(title, parameters, _dialogOptions);
-        }
-        else
-        {
-            dialog = DialogService.Show<DecreaseStockDialog>(title, parameters, _dialogOptions);
-        }
-        var result = await dialog.Result;
-        if (!result.Cancelled)
-        {
-            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
-        }
-    }
-
-    enum ActionType
-    {
-        AddStock,
-        ReduceStock
-    }    
+    
+    
+  
 
     #endregion
 
@@ -228,8 +191,9 @@ public partial class POSComponent
             Barcode = "0002671908",
             Name = "Samsung Mobile M31",
             Notes = "Some Data",
+            Discount = 0.5d,
             Quantity = 5,
-            SellingPrice = 18000,
+            SellingPrice = 100,
             Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
         },
         new Model.Product()
@@ -238,8 +202,9 @@ public partial class POSComponent
             Barcode = "0002687419",
             Name = "Samsung Mobile M32",
             Notes = "Some Data",
+            Discount = 0.8d,
             Quantity = 15,
-            SellingPrice = 19000,
+            SellingPrice = 200,
             Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
         },
         new Model.Product()
@@ -248,8 +213,9 @@ public partial class POSComponent
             Barcode = "0002671930" ,
             Name = "Samsung Mobile M33",
             Notes = "Some Data",
+            Discount = 5.0d,
             Quantity = 10,
-            SellingPrice = 22800,
+            SellingPrice = 300,
             Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
         },
         new Model.Product()
@@ -258,8 +224,9 @@ public partial class POSComponent
             Barcode = "0002671901" ,
             Name = "Lenovo L67",
             Notes = "Some Data",
+            Discount = 6.5d,
             Quantity = 25,
-            SellingPrice = 48500,
+            SellingPrice = 500,
             Category = new Model.ProductCategory(){ CategoryName = "Laptop"}
         },
         
@@ -422,18 +389,15 @@ public partial class POSComponent
     
     #region Sales Transaction
 
-    private double _total = 0;
-    private double _tax = 0;
+    
     private string _currency = "₹";
-    private int _totalQty = 0;
+    
     private List<Model.PurchasedProduct> _salesTransaction = new List<Model.PurchasedProduct>();
     private void AddProductToSales(string barcode)
     {
         var product = _productList?.Where(code => code.Barcode == barcode).FirstOrDefault();
         if (product == null) return;
-        
         AddAndCalculate(product);
-
     }
 
     void AddAndCalculate(Model.Product product)
@@ -443,40 +407,6 @@ public partial class POSComponent
         CalculateSales();//Uses '_salesTransaction" to calculate the discount/Tax/SubTotal/Additional Charges etc.
     }
 
-    /// <summary>
-    /// SubTotal Price, Tax, Discount, Additional Charges were Calculated.
-    /// </summary>
-    private void CalculateSales()
-    {
-        #region Price, Tax, Discount Calculation
-        int totQty = 0; //Total Item (Qty)
-        double totDiscount = 0d;
-        foreach (var item in _salesTransaction)
-        {
-            _totalQty = _totalQty + item.Quantity;
-            _total = _total + item.Price;
-            _tax = _tax + (item.AppliedTax.TaxRate / 100) * item.Price;
-            totDiscount = totDiscount + (item.Discount / 100) * item.Price;
-
-            //Calculate Total Quantity
-            totQty = totQty + item.Quantity;
-        }
-
-        _inputMode.TotalQuantity = totQty;
-        //Discount calculation. Before applying Tax/Additional cost we should calculate discount.
-        _total = _total - totDiscount;
-        //Item Total/Sub Total of all items
-        _inputMode.SubTotal = _total;
-        //Additional Cost Calculation
-        _total = _total + _inputMode.AdditonalCost;
-        //Total Tax
-        _tax = Math.Round(_tax, 2); //Show only '2' decimal points.
-        _inputMode.TotalTax = _tax;
-        //Grand Total
-        _total = Math.Round(_total, 2); //Show only '2' decimal points.
-        _inputMode.GrandTotal = _total;
-        #endregion
-    }
 
     private void AddProductForSales(Model.Product product)
     {
@@ -490,7 +420,8 @@ public partial class POSComponent
             ProductName = product.Name,
             AppliedTax = _taxList[1],
         };
-        purchased.SubTotal = product.Quantity * product.SellingPrice;
+        //SubTotal - Calculated at the method 'CalculateSales' 
+        //If we calculate here then it will wont calculate total quantity. also all calculations should be in one place.
         var isProductExists = _salesTransaction.FirstOrDefault(prd => prd.ProductId == purchased.ProductId);
 
         if (isProductExists == null)
@@ -505,6 +436,50 @@ public partial class POSComponent
 
     }
 
+
+    /// <summary>
+    /// SubTotal Price, Tax, Discount, Additional Charges were Calculated.
+    /// </summary>
+    private void CalculateSales()
+    {
+        #region Price, Tax, Discount Calculation
+        int totQty = 0; //Total Item (Qty)
+        double totDiscount = 0d;
+        double tax = 0;
+        double total = 0;
+        foreach (var item in _salesTransaction)
+        {
+            tax = tax + (item.AppliedTax.TaxRate / 100) * item.Price;
+            //Calculate Total Quantity
+            totQty = totQty + item.Quantity;
+            item.SubTotal = item.Price * item.Quantity;
+            total = total + item.SubTotal;
+            //Calculate Discount
+            item.DiscountPrice = Math.Round((item.Discount / 100) * item.SubTotal, 2);
+            totDiscount = item.DiscountPrice;
+        }
+        //Total Quantity bought by customer.
+        _inputMode.TotalQuantity = totQty;
+        //Discount calculation. Before applying Tax/Additional cost we should calculate discount.
+        total = total - totDiscount;
+        _inputMode.TotalDiscount = totDiscount;
+        
+        //Item Total/Sub Total of all items
+        _inputMode.SubTotal = total;
+        
+        //Additional Cost Calculation
+        double grandTotal = total + _inputMode.AdditonalCost;
+        
+        //Total Tax
+        tax = Math.Round(tax, 2); //Show only '2' decimal points.
+        _inputMode.TotalTax = tax;
+        
+        //Grand Total
+        grandTotal = grandTotal + tax; //Tax Added in th GrandTotal
+        grandTotal = Math.Round(grandTotal, 2); //Show only '2' decimal points.
+        _inputMode.GrandTotal = grandTotal;
+        #endregion
+    }
 
     public List<Model.PurchasedProduct> _purchasedProduct = new List<Model.PurchasedProduct>()
     {
@@ -560,6 +535,7 @@ public partial class POSComponent
 
     private async Task SalesItemProductAction(Model.PurchasedProduct purchasedProduct)
     {
+        await InvokeDialog("_PurchasedProduct", "Edit Product", purchasedProduct);
         Console.WriteLine($"Product: { purchasedProduct.ProductName}");
     }
 
@@ -569,4 +545,30 @@ public partial class POSComponent
     {
         CalculateSales();
     }
+
+    #region Sales Content Edit Dialog - During sales
+    private DialogOptions _dialogOptions = new DialogOptions()
+    {
+        MaxWidth = MaxWidth.Medium,
+        FullWidth = true,
+        CloseButton = true,
+        CloseOnEscapeKey = true,
+    };
+    private async Task InvokeDialog(string parameter, string title, Model.PurchasedProduct model)
+    {
+        var parameters = new DialogParameters
+            { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
+        IDialogReference dialog;
+
+        dialog = DialogService.Show<POSSalesItemDialog>(title, parameters, _dialogOptions);
+        
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+        }
+    }
+    
+
+    #endregion
 }

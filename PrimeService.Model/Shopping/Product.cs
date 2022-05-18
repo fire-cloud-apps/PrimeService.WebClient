@@ -70,7 +70,7 @@ public class Product
     /// Its an optional if discount is available for the product this will have some numbers.
     /// This should be in percentage
     /// </summary>
-    public int Discount { get; set; }
+    public double Discount { get; set; }
     
     /// <summary>
     /// Maximum Retail Price

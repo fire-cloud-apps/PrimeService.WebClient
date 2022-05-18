@@ -93,7 +93,12 @@ public class PurchasedProduct
     /// <summary>
     /// This percentage value, comes from the Product itself.
     /// </summary>
-    public int Discount { get; set; }
+    public double Discount { get; set; }
+    
+    /// <summary>
+    /// Discount, price calculation
+    /// </summary>
+    public double DiscountPrice { get; set; }
     
     public Tax? AppliedTax { get; set; }
     
