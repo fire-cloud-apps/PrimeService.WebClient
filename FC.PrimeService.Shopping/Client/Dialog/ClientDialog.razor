@@ -1,0 +1,20 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Settings
+@using global::PrimeService.Utility.ValidationHelper
+@using System.Text.Json
+@using global::PrimeService.Model
+@using global::PrimeService.Model.Settings.Payments
+@using global::PrimeService.Model.Settings.Tickets
+@using Microsoft.AspNetCore.Components
+@using FC.PrimeService.Shopping.Client.Component
+@using Microsoft.JSInterop
+@inject ISnackbar Snackbar
+@inject IJSRuntime JsRuntime
+
+<MudForm @ref="form" Model="_inputMode">
+    <MudDialog>
+        <DialogContent >
+            <ClientComponent />
+        </DialogContent>
+    </MudDialog>
+</MudForm>

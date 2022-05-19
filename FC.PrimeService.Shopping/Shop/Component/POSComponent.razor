@@ -10,27 +10,14 @@
         </CardHeaderAvatar>
         <CardHeaderContent>
             <MudText Typo="Typo.h6">Quick Sales</MudText>
-            <MudText Typo="Typo.caption">Product Sales.</MudText>
+            <MudText Typo="Typo.caption">Product Sales to Customer.</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-           <MudToolBar>
-                <MudTooltip Text="Increase the Stock Count" Arrow="true" Placement="Placement.Bottom">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Add"
-                                   />
-                </MudTooltip>
-                <MudTooltip Text="Reduce the Stock Count" Arrow="true" Placement="Placement.Bottom">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Remove"
-                                   />
-                </MudTooltip>
-           
-                <MudTooltip Text="Edit the Product Data" Arrow="true" Placement="Placement.Bottom">
-                    <MudToggleIconButton
-                        ToggledChanged="EditToggle"
-                        Disabled="@_editToggle"
-                        Icon="@Icons.Outlined.EditOff" 
-                        Color="@Color.Warning" Title="Enable Edit"
-                        ToggledIcon="@Icons.Material.Outlined.EditNote" 
-                        ToggledColor="@Color.Success" ToggledTitle="On"/>
+            <MudToolBar>
+                <MudTooltip Text="Expand & Open in new window" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.TwoTone.NorthEast"
+                                   Color="Color.Primary"
+                                   OnClick="OpenExpandPOS"/>
                 </MudTooltip>
             </MudToolBar>
         </CardHeaderActions>
@@ -39,6 +26,9 @@
     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
 
 <MudCardContent>
+
+
+
     @if (_loading)
     {
         <MudSkeleton Class="my-2"/>
@@ -75,8 +65,8 @@
                                 <MudTextField Label="Bill Date"
                                               ReadOnly ="true"
                                               Placeholder="Auto Billing Date"
-                                              @bind-Value="_inputMode.BillNumber"
-                                              For="@(() => _inputMode.BillNumber)"
+                                              @bind-Value="_inputMode.TransactionDate"
+                                              For="@(() => _inputMode.TransactionDate)"
                                               Counter="50" MaxLength="50"
                                 />
                             </MudItem>
@@ -112,6 +102,7 @@
                                 <MudFab  Icon="@Icons.Material.TwoTone.Add"
                                          Title="Add Customer"
                                          Size="Size.Small"
+                                         OnClick="AddClientDialog"
                                          Color="Color.Primary" />
                             </MudItem>
                             
@@ -139,7 +130,7 @@
                     <MudPaper Class="pa-2 ma-2" Outlined="true">
                         <MudGrid>
                             <MudItem xs="12" sm="12" md="12">
-                                <MudText Typo="Typo.h6">Find Product</MudText>
+                                <MudText Typo="Typo.h6">Find & Add Product</MudText>
                             </MudItem>
                             <MudItem xs="12" sm="12" md="12">
                                 <MudDivider />
@@ -179,48 +170,49 @@
                 
             <MudItem xs="12">
                 <MudCard>
-                    <MudCardHeader>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.body1">Sales Order</MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
                     <MudCardContent>
-                    
-                        <!-- Sales Item Table Start -->
-                        <MudTable Items="@_salesTransaction"
-                                  Elevation="0" Height="280px"
-                                  Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-                            <HeaderContent>
-                                <MudTh>Name</MudTh>
-                                <MudTh>Price</MudTh>
-                                <MudTh>Quantity</MudTh>
-                                <MudTh>Discount %</MudTh>
-                                <MudTh>Tax %</MudTh>
-                                <MudTh>Amount</MudTh>
-                                <MudTh><MudIcon Icon="@Icons.TwoTone.CompareArrows"></MudIcon></MudTh>
-                            </HeaderContent>
-                             
-                            <RowTemplate>
-                                <MudTd DataLabel="Name">@context.ProductName</MudTd>
-                                <MudTd DataLabel="Price">@context.Price</MudTd>
-                                <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
-                                <MudTd DataLabel="Discount">@context.DiscountPrice</MudTd>
-                                <MudTd DataLabel="Tax">@context.AppliedTax.TaxRate</MudTd>
-                                <MudTd DataLabel="Amount">@context.SubTotal</MudTd>
-                                <MudTd>
-                                    <MudIconButton
-                                        @onclick="() => SalesItemProductAction(context)"
-                                        Icon="@Icons.TwoTone.DoneOutline" />
-                                </MudTd>
-                            </RowTemplate>
-                             	
-                        </MudTable>
+                        <MudPaper Class="pa-0 ma-0" Outlined="true">
+                            <!-- Sales Item Table Start -->
+                            <MudTable Items="@_salesTransaction"
+                                      Bordered="true"
+                                      Elevation="0" Height="280px"
+                                      Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+                                <HeaderContent>
+                                    <MudTh>Name</MudTh>
+                                    <MudTh>Price</MudTh>
+                                    <MudTh>Quantity</MudTh>
+                                    <MudTh>Discount %</MudTh>
+                                    <MudTh>Tax %</MudTh>
+                                    <MudTh>Amount</MudTh>
+                                    <MudTh><MudIcon Icon="@Icons.TwoTone.CompareArrows"></MudIcon></MudTh>
+                                    <MudTh><MudIcon Icon="@Icons.TwoTone.Delete"></MudIcon></MudTh>
+                                </HeaderContent>
+                                                         
+                                <RowTemplate>
+                                    <MudTd DataLabel="Name">@context.ProductName</MudTd>
+                                    <MudTd DataLabel="Price">@context.Price</MudTd>
+                                    <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
+                                    <MudTd DataLabel="Discount">@context.DiscountPrice</MudTd>
+                                    <MudTd DataLabel="Tax">@context.AppliedTax.TaxRate</MudTd>
+                                    <MudTd DataLabel="Amount">@context.SubTotal</MudTd>
+                                    <MudTd>
+                                        <MudIconButton
+                                            @onclick="() => SalesItemProductAction(context)"
+                                            Icon="@Icons.TwoTone.DoneOutline" />
+                                    </MudTd>
+                                    <MudTd>
+                                        <MudIconButton Color="Color.Error" 
+                                                       @onclick="() => RemoveSalesItem(context)"
+                                                       Icon="@Icons.TwoTone.Delete" />
+                                    </MudTd>
+                                </RowTemplate>
+                                                         	
+                            </MudTable>
+                            <!-- Sales Item Table End -->
+                        </MudPaper>
                         
-                        <MudDivider />
-                         <!-- Sales Item Table End -->
                         <MudGrid>
-                            <MudItem xs="6">
+                            <MudItem xs="12" sm="6" md="6">
                                 <MudPaper Class="pa-2 ma-2" Outlined="true">
                                     <MudGrid>
                                         <MudItem xs="12" sm="12" md="12">
@@ -243,19 +235,28 @@
                                         <MudItem xs="12" sm="12" md="12">
                                             <MudSelect @bind-Value="_inputMode.PaymentMethod.Title"
                                                        Label="Select Payment Type"
-                                                        OpenIcon="@Icons.Material.Filled.Money" AdornmentColor="Color.Secondary">
+                                                       OpenIcon="@Icons.Material.Filled.Money" AdornmentColor="Color.Secondary">
                                                 @foreach (PaymentMethods item in _paymentMethods)
                                                 {
                                                     <MudSelectItem Value="@item.Title">@item.Title</MudSelectItem>
                                                 }
                                             </MudSelect>
                                         </MudItem>
+                                        <MudItem xs="12" sm="12" md="12">
+                                            <MudSelect @bind-Value="_selectedStatus" Label="Select Status"  >
+                                                @foreach (SalesStatus status in Enum.GetValues(typeof(SalesStatus)))
+                                                {
+                                                    <MudSelectItem Value="@status">@status</MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                        </MudItem>
+                                       
                                             
                                     </MudGrid>
                                 </MudPaper>
                             </MudItem>
                                  
-                            <MudItem xs="6">
+                            <MudItem xs="12" sm="6" md="6">
                                 <MudPaper Class="pa-2 ma-2" Outlined="true">
                                     <MudGrid>
                                         <MudItem xs="12" sm="12" md="12">
@@ -291,23 +292,19 @@
                                                              @bind-Value="_inputMode.TotalDiscount"
                                                              For="@(() => _inputMode.TotalDiscount)"/>
                                         </MudItem>
+                                        <MudDivider  />
+                                        <MudItem xs="12" sm="12" md="12">
+                                            <MudText Class="d-flex align-content-start justify-end"
+                                                     Color="Color.Warning" Typo="Typo.h5">
+                                              Grand Total :  @($"{_inputMode.GrandTotal} {_currency}")
+                                            </MudText>
+                                        </MudItem>
 
                                     </MudGrid>
                                 </MudPaper>
                             </MudItem>
                         </MudGrid>
-                                                              
-                        <MudPaper Outlined="true" Class="@($"pa-2 mt-2 d-flex justify-end")">
-                            <MudGrid>
-                                <MudItem Class="d-flex justify-end" xs="12" sm="8" md="8">
-                                    <MudText Typo="Typo.h5">Grand Total</MudText>
-                                </MudItem>
-                                <MudItem Class="d-flex justify-end" xs="12" sm="4" md="4">
-                                    <MudText Color="Color.Warning" Typo="Typo.h5">@($"{_inputMode.GrandTotal} {_currency}")</MudText>
-                                </MudItem>
-                            </MudGrid>
-                        </MudPaper>
-                             
+                                   
                     </MudCardContent>
                          
                 </MudCard>
@@ -378,3 +375,13 @@
 </MudCardActions>
 
 </MudCard>
+
+<MudMessageBox @ref="mbox" Title="Delete?" CancelText="Cancel">
+    <MessageContent>
+        Attention, are you sure?. <b><i>'Delete'</i></b>
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error"
+                   StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+    </YesButton>
+</MudMessageBox>

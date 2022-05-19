@@ -2,19 +2,20 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PrimeService.Model.Settings.Forms;
-using PrimeService.Model.Settings.Payments;
-namespace FC.PrimeService.Common.Settings.Dialog;
+using Model = PrimeService.Model.Shopping;
 
-public partial class ClientTypeDialog
+namespace FC.PrimeService.Shopping.Client.Dialog;
+
+public partial class ClientDialog
 {
     #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
-    private string _title = string.Empty;
-    [Parameter] public ClientType _ClientType { get; set; } 
+    
+    [Parameter] public Model.Client _Client { get; set; } 
     private bool _processing = false;
     MudForm form;
-    private ClientType _inputMode;
+    private Model.Client _inputMode;
     string _outputJson;
     bool success;
     string[] errors = { };
@@ -24,20 +25,18 @@ public partial class ClientTypeDialog
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_ClientType == null)
+        if (_Client == null)
         {
             //Dialog box opened in "Add" mode
-            _inputMode = new ClientType()
+            _inputMode = new Model.Client()
             {
-                Title = "Person",
+                Name = string.Empty
             };
-            _title = "Add Client Type";
         }
         else
         {
             //Dialog box opened in "Edit" mode
-            _inputMode = _ClientType;
-            _title = "Edit Client Type";
+            _inputMode = _Client;
         }
     }
     #endregion

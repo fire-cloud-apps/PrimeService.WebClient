@@ -24,6 +24,11 @@ public class Sales
     public string? BillNumber { get; set; }
     
     /// <summary>
+    /// Status (Draft, Void, OnHold, Closed, Confirmed)
+    /// </summary>
+    public SalesStatus Status { get; set; }
+    
+    /// <summary>
     /// Sales Tag name for ease of identify , can be auto generated.
     /// </summary>
     public string? SalesTag { get; set; }
@@ -71,6 +76,29 @@ public class Sales
     
     #endregion
     
+}
+public enum SalesStatus
+{
+    /// <summary>
+    /// Draft - This indicates that a SO has been created successfully, but is yet to be sent to the customer.
+    /// </summary>
+    Draft,
+    /// <summary>
+    /// Confirmed - This indicates that the SO created has been sent to the customer.
+    /// </summary>
+    Confirmed,
+    /// <summary>
+    /// Closed - The SO becomes Closed when you either raise an Invoice or when a Shipment is fulfilled (or both, depending on what you’ve chosen in the Sales Order Preferences.)
+    /// </summary>
+    Closed,
+    /// <summary>
+    /// Void/Cancelled - The SO status becomes Void, when you decide to freeze/nullify the SO and make it void.
+    /// </summary>
+    Void,
+    /// <summary>
+    /// On Hold - The status is set as On Hold, when there’s an un-billed backordered PO raised for the Sales Order. Once the PO has been billed, the SO will revert back to its previous status.
+    /// </summary>
+    OnHold,
 }
 
 public enum PaymentStatus

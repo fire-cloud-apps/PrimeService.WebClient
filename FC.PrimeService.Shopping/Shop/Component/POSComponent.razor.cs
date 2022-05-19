@@ -1,5 +1,7 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using FC.PrimeService.Shopping.Client.Dialog;
 using FC.PrimeService.Shopping.Inventory.Dialog;
 using FC.PrimeService.Shopping.Shop.Dialog;
 using Microsoft.AspNetCore.Components;
@@ -38,8 +40,9 @@ public partial class POSComponent
     string[] errors = { };
     string _outputJson;
     private bool _processing = false;
-    private bool _isReadOnly = true;
+    private bool _isReadOnly = false;
     private bool _editToggle = false;
+    private Model.SalesStatus _selectedStatus { get; set; } = Model.SalesStatus.Draft;
     
     #endregion
     
@@ -47,11 +50,24 @@ public partial class POSComponent
     {
         _loading = true;
         await  Task.Delay(2000);
-        //An Ajax call to get company details
-        //for now it is filled as Static value
+        //An Ajax call to get company details for now it is filled as Static value
+        int serialNo = 1; //should come from DB
+        var datetime = DateTime.Now;
+        var formatInfo = new CultureInfo("en-US").DateTimeFormat;
+        formatInfo.DateSeparator = ".";
+        var billNumber = 
+            string.Concat(
+            "SL",
+            "#",
+            datetime.ToString("d", formatInfo), 
+            ".", 
+            serialNo);
         _inputMode = new Model.Sales()
         {
             Id = "6270d1cce5452d9169e86c50",
+            
+            BillNumber = billNumber,
+            TransactionDate = DateTime.Now,
             Client = new Model.Client()
             {
                 Name = "Guest", Mobile = "1234567890"
@@ -127,6 +143,13 @@ public partial class POSComponent
 
     #region Tool Bar Action Dialogs
 
+    private async Task OpenExpandPOS()
+    {
+        var url = $"/SalesFullView?Id={_inputMode.Id}";
+        //Navigate and open in new tab.
+        await  JSRuntime.InvokeAsync<object>("open", 
+            new object[2] { url, "_blank" });
+    }
     
     private async Task EditToggle(bool toggled)
     {
@@ -423,16 +446,20 @@ public partial class POSComponent
         //SubTotal - Calculated at the method 'CalculateSales' 
         //If we calculate here then it will wont calculate total quantity. also all calculations should be in one place.
         var isProductExists = _salesTransaction.FirstOrDefault(prd => prd.ProductId == purchased.ProductId);
-
+        string msg = string.Empty;
         if (isProductExists == null)
         {
             _salesTransaction.Add(purchased); //If product does not exists in the invoice list add it.
+            msg = string.Concat(purchased.ProductName, " Added ", " 1 Quantity.");
         }
         else
         {
             isProductExists.Quantity++; //Add the Quantity if the product already exists
+            msg = string.Concat(purchased.ProductName, " Added ", isProductExists.Quantity, " Quantity.");
         }
+        Snackbar.Add(msg, Severity.Success);
         #endregion
+        
 
     }
 
@@ -539,6 +566,30 @@ public partial class POSComponent
         Console.WriteLine($"Product: { purchasedProduct.ProductName}");
     }
 
+    private string state;
+    private async Task RemoveSalesItem(Model.PurchasedProduct purchasedProduct)
+    {
+        bool? result = await mbox.Show();
+        state = result == null ? "Cancelled" : "Deleted!";
+        int? itemIndex = 0;
+        if (state == "Deleted!")
+        {
+            foreach (Model.PurchasedProduct product in _salesTransaction)
+            {
+                if (product.ProductId == purchasedProduct.ProductId)
+                {
+                    itemIndex =  _salesTransaction.IndexOf(product);
+                    break;
+                }
+            }
+            _salesTransaction.RemoveAt(itemIndex.Value);
+            CalculateSales();
+            Snackbar.Add("Item Removed", Severity.Error);
+        }
+        StateHasChanged();
+    }
+    MudMessageBox mbox { get; set; }
+    
     #endregion
 
     private async Task AdditionalCost_LostFocus()
@@ -568,7 +619,24 @@ public partial class POSComponent
             Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
         }
     }
-    
-
     #endregion
+
+
+    private async Task AddClientDialog()
+    {
+        var parameters = new DialogParameters
+            { ["_Client"] = null }; 
+        IDialogReference dialog;
+        
+        dialog = DialogService.Show<ClientDialog>(
+            string.Empty, 
+            parameters,
+            _dialogOptions);
+        
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+        }
+    }
 }
