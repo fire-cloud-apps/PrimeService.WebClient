@@ -1,17 +1,17 @@
 ﻿@page "/Sales"
 
-@using FC.PrimeService.Shopping.Client.ListItems
 @using FC.PrimeService.Shopping.Shop.Component
+@using FC.PrimeService.Shopping.Shop.ListItems
 
 <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
 
 @switch (_viewId)
 {
     case "POS":
-        <POSComponent />
+        <ShopList />
         break;
-    case "PT"://Product Transaction
-        <ProductTransactionList Id="@_id" />
+    case "POList":
+        <POSComponent Id="@_id" />
         break;
     default:
         _navigationManager.NavigateTo("/");

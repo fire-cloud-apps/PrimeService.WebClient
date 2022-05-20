@@ -1,11 +1,27 @@
 ﻿using System.Text.Json;
 using MudBlazor;
+using MudBlazor.Utilities;
 
 namespace FireCloud.WebClient.PrimeService.Shared
 {
     public partial class MainLayout
     {
-        private MudTheme _theme = new();
+        private MudTheme _theme = new MudTheme()
+        {
+            //Ref: https://mudblazor.com/features/colors#material-colors-list-of-material-colors
+            //Lite Palette
+            // Palette = new Palette()
+            // {
+            //     Primary = Colors.Amber.Default,
+            //     AppbarBackground = Colors.Amber.Default,
+            // },
+            //Dark Palette
+            // PaletteDark = new Palette()
+            // {
+            //     Primary = Colors.Amber.Default,
+            //     AppbarBackground = Colors.Amber.Default,
+            // },
+        };
         private bool _isDarkMode = true;
         bool _drawerOpen = true;
         
@@ -49,6 +65,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
             FindDevice();
             _txtCompanyName = _title;
             _version = _appSettings.Version;
+            StateHasChanged();
         }
 
         void DrawerToggle()
@@ -102,6 +119,26 @@ namespace FireCloud.WebClient.PrimeService.Shared
             Console.WriteLine($"Device Type: {mobile}");
             isDevice = mobile ? "Mobile" : "Desktop";
         }
+
+        #endregion
+
+        #region MudTheme Manager
+        //Not in use currently
+        // private ThemeManagerTheme _themeManager = new ThemeManagerTheme();
+        // public bool _themeManagerOpen = false;
+        //
+        // void OpenThemeManager(bool value)
+        // {
+        //     _themeManagerOpen = value;
+        // }
+        //
+        // void UpdateTheme(ThemeManagerTheme value)
+        // {
+        //     _themeManager = value;
+        //     StateHasChanged();
+        // }
+
+        
 
         #endregion
     }

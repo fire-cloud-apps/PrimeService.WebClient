@@ -312,13 +312,11 @@
             
                 <MudItem xs="12">
                     <MudTextField Disabled="@_isReadOnly" Label="Other Detailed notes"
-                                  HelperText="Max. 300 characters"
+                                  ReadOnly="true"
                                   Variant="Variant.Filled"
                                   @bind-Value="_inputMode.Notes"
                                   For="@(() => _inputMode.Notes)"
                                   Lines="3"
-                                  Counter="300"
-                                  MaxLength="300"
                                   Immediate="true"/>
                 </MudItem>
                 <MudItem xs="12" sm="12" md="12">

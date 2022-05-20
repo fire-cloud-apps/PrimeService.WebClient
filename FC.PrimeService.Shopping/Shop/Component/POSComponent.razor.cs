@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.Json;
 using FC.PrimeService.Shopping.Client.Dialog;
 using FC.PrimeService.Shopping.Inventory.Dialog;
@@ -88,6 +89,7 @@ public partial class POSComponent
             Console.WriteLine("Edit Mode");
             _display = "d-none";
             _editToggle = false;
+            Console.WriteLine($"Id: {Id}");
             //Do ajax call and assign it to _inputMode
         }
         _loading = false;
@@ -447,6 +449,7 @@ public partial class POSComponent
         //If we calculate here then it will wont calculate total quantity. also all calculations should be in one place.
         var isProductExists = _salesTransaction.FirstOrDefault(prd => prd.ProductId == purchased.ProductId);
         string msg = string.Empty;
+        
         if (isProductExists == null)
         {
             _salesTransaction.Add(purchased); //If product does not exists in the invoice list add it.
@@ -474,6 +477,7 @@ public partial class POSComponent
         double totDiscount = 0d;
         double tax = 0;
         double total = 0;
+        StringBuilder sbNotes = new StringBuilder();
         foreach (var item in _salesTransaction)
         {
             tax = tax + (item.AppliedTax.TaxRate / 100) * item.Price;
@@ -484,7 +488,11 @@ public partial class POSComponent
             //Calculate Discount
             item.DiscountPrice = Math.Round((item.Discount / 100) * item.SubTotal, 2);
             totDiscount = item.DiscountPrice;
+            sbNotes.AppendLine(string.Concat(item.ProductName, " - ", item.Quantity));
         }
+        //Notes
+        _inputMode.Notes = sbNotes.ToString();
+        
         //Total Quantity bought by customer.
         _inputMode.TotalQuantity = totQty;
         //Discount calculation. Before applying Tax/Additional cost we should calculate discount.

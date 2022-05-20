@@ -1,60 +1,72 @@
-﻿@inherits LayoutComponentBase
+﻿
+@inherits LayoutComponentBase
 @inject IJSRuntime jsRuntime
 
 @*
     Ref: Theme provider
     https://mudblazor.com/customization/overview#custom-themes
 *@
+
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+@* <MudThemeProvider Theme="_themeManager.Theme" /> *@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="2" Bottom="false">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" 
-                       Color="Color.Inherit" Edge="Edge.Start" 
-                       OnClick="@((e) => DrawerToggle())" />
-        <MudSpacer />
 
-        <MudTextField  T="string" Style="height: 45px;"
-                       Class="rounded-pill" Variant="Variant.Outlined" 
-                       FullWidth="true" Adornment="Adornment.End"
-                       Placeholder="Search any" AdornmentIcon="@Icons.Filled.Search"
-                       AdornmentColor="Color.Secondary" />
 
-        <MudMenu>
-            <ActivatorContent>
-                <MudAvatar Square="false" Color="Color.Info"
-                           Class="ma-2"
-                           Image="img/male-profile.png"
-                           Variant="Variant.Outlined"></MudAvatar>
-                @* <MudAvatar Image="img/male-profile.png" /> *@
-                @* <MudIconButton Icon="@Icons.Material.Filled.Person"  *@
-                @*                Color="Color.Secondary" aria-label="add to favorite"></MudIconButton> *@
-            </ActivatorContent>
-            <ChildContent>
-                <MudMenuItem>Profile</MudMenuItem>
-                <MudMenuItem>Theme</MudMenuItem>
-                <MudMenuItem>Usage</MudMenuItem>
-                <MudMenuItem>Sign Out</MudMenuItem>
-            </ChildContent>
-        </MudMenu>
-        
-        <MudToggleIconButton   
-            Toggled="@ThemeChanged" 
-            ToggledChanged="OnToggledChanged"
-            Icon="@Icons.Rounded.WbSunny" 
-            Color="@_switchTheme.Color" 
-            Title="@_switchTheme.Title"
-            ToggledIcon="@Icons.TwoTone.WbSunny" 
-            ToggledColor="@_switchTheme.IconColor" 
-            ToggledTitle="@_switchTheme.Title"/>
-        
-        <MudIconButton Icon="@Icons.TwoTone.Logout" 
-                       Color="Color.Error"
-                       Link="/Logout" />
-        
-    </MudAppBar>
+@* <MudThemeManager Open="_themeManagerOpen" OpenChanged="OpenThemeManager" Theme="_themeManager" ThemeChanged="UpdateTheme" /> *@
+@*  <MudThemeManagerButton OnClick="@(() => OpenThemeManager(true))" /> *@
+@*  Elevation="_themeManager.AppBarElevation" -to be added in appBar *@
+
+<MudAppBar Elevation="2" Bottom="false"> 
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" 
+                   Color="Color.Inherit" Edge="Edge.Start" 
+                   OnClick="@((e) => DrawerToggle())" />
+    <MudSpacer />
+
+    <MudTextField  T="string" Style="height: 45px;"
+                   Class="rounded-pill" Variant="Variant.Outlined" 
+                   FullWidth="true" Adornment="Adornment.End"
+                   Placeholder="Search any" AdornmentIcon="@Icons.Filled.Search"
+                   AdornmentColor="Color.Secondary" />
+
+    <MudMenu>
+        <ActivatorContent>
+            <MudAvatar Square="false" Color="Color.Info"
+                       Class="ma-2"
+                       Image="img/male-profile.png"
+                       Variant="Variant.Outlined"></MudAvatar>
+            @* <MudAvatar Image="img/male-profile.png" /> *@
+            @* <MudIconButton Icon="@Icons.Material.Filled.Person"  *@
+            @*                Color="Color.Secondary" aria-label="add to favorite"></MudIconButton> *@
+        </ActivatorContent>
+        <ChildContent>
+            <MudMenuItem>Profile</MudMenuItem>
+            <MudMenuItem>Theme</MudMenuItem>
+            <MudMenuItem>Usage</MudMenuItem>
+            <MudMenuItem>Sign Out</MudMenuItem>
+        </ChildContent>
+    </MudMenu>
+            
+    <MudToggleIconButton   
+        Toggled="@ThemeChanged" 
+        ToggledChanged="OnToggledChanged"
+        Icon="@Icons.Rounded.WbSunny" 
+        Color="@_switchTheme.Color" 
+        Title="@_switchTheme.Title"
+        ToggledIcon="@Icons.TwoTone.WbSunny" 
+        ToggledColor="@_switchTheme.IconColor" 
+        ToggledTitle="@_switchTheme.Title"/>
+            
+    <MudIconButton Icon="@Icons.TwoTone.Logout" 
+                   Color="Color.Error"
+                   Link="/Logout" />
+   
+            
+</MudAppBar>
+@* <MudDrawer @bind-Open="_drawerOpen" ClipMode="_themeManager.DrawerClipMode"  *@
+@*            Elevation="_themeManager.DrawerElevation"></MudDrawer> *@
     
     <MudDrawer @bind-Open="DrawerOpen" Elevation="2"
                 Fixed="true" Variant="@DrawerVariant.Responsive"
@@ -79,35 +91,6 @@
         </MudContainer>
     </MudMainContent>
     
-    @* Active this bottom menu bar on mobile device *@
-    @* @if (mobile) *@
-    @* { *@
-    @*     <MudAppBar Bottom="true" Elevation="1" Style="scroll-behavior: auto;"> *@
-    @*         <MudContainer> *@
-    @*             <MudToolBar> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Menu"  *@
-    @*                                Href="" *@
-    @*                                Color="Color.Inherit" Class="mr-5"/> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Add"/> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Edit"/> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit"/> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Settings" Color="Color.Inherit"/> *@
-    @*                 <MudSpacer/> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.Notifications"/> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.PushPin"/> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.PeopleAlt"/> *@
-    @*                 <MudIconButton Icon="@Icons.Material.Outlined.MoreVert" Color="Color.Inherit"/> *@
-    @*             </MudToolBar> *@
-    @*         </MudContainer> *@
-    @* *@
-    @*     </MudAppBar> *@
-    @* } *@
+   
     
 </MudLayout>
-
-@code {
-    
-
-    
-}
-

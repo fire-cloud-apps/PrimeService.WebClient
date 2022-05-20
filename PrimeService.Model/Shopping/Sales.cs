@@ -47,7 +47,7 @@ public class Sales
     public int TotalQuantity { get; set; }
     public Client Client { get; set; }
     /// <summary>
-    /// Some General Description of the Sales if any
+    /// Some General Description of the Sales if any.
     /// </summary>
     public string? Notes { get; set; } = string.Empty;
     
