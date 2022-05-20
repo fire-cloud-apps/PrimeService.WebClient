@@ -27,7 +27,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
         
         private MudText _mudHeaderText;
         private string _txtCompanyName;
-        private string _title = "PRIME-S";
+        private string _title = "PrImEs";
         private MudText _mudVersionText;
         private string _version;
         
