@@ -1,0 +1,373 @@
+﻿@using MudBlazor
+@using Microsoft.AspNetCore.Components
+@using global::PrimeService.Utility.ValidationHelper
+@using global::PrimeService.Model.Settings.Forms
+@using global::PrimeService.Model.Shopping
+@using global::PrimeService.Model.Tickets
+@using MudBlazor.Extensions
+@using global::PrimeService.Model.Settings
+
+@if (_loading)
+{
+    <MudSkeleton Class="my-2"/>
+    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+    <MudSkeleton Class="my-2"/>
+}
+else
+{
+    <MudCard>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudIcon Icon="@Icons.TwoTone.Tag"
+                     Color="@((Color)SelectedStatus.ColorCode)" 
+                     Style="font-size: 3.5rem;"></MudIcon>
+        </CardHeaderAvatar>
+        
+        <CardHeaderContent>
+            <MudGrid >
+                <MudItem xs="12" sm="4" md="4">
+                    <MudText Typo="Typo.h6" Color="@((Color)SelectedStatus.ColorCode)" >
+                        @(_inputMode?.TicketNo)
+                    </MudText>
+                    <MudText Typo="Typo.caption">
+                        @(_subTitle)
+                    </MudText>
+                </MudItem>
+                           
+                <MudItem xs="12" sm="4" md="4">
+                    <MudSelect Variant="Variant.Outlined"
+                               Label="Service/Ticket Type" class="pa-0"
+                               @bind-Value="_inputMode.TicketType"
+                               OpenIcon="@Icons.Material.TwoTone.Tab" AdornmentColor="Color.Secondary">
+                        @foreach (TicketType item in Enum.GetValues(typeof(TicketType)))
+                        {
+                            <MudSelectItem Value="@item">@item</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="4" md="4">
+                    <MudAutocomplete T="Employee" Label="Select Staff"
+                                     Variant="Variant.Outlined"
+                                     Disabled="@_isReadOnly"
+                                     @bind-Value="_inputMode.AssignedTo"
+                                     OpenIcon="@Icons.Material.TwoTone.Search"
+                                     ToStringFunc="@(e => e == null ? null : $"{e.User.Name}")"
+                                     SearchFunc="@Employee_SearchAsync" Immediate="true" Required="true"
+                                     RequiredError="Please Select Staff" ResetValueOnEmptyText="false"
+                                     CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
+                </MudItem>
+            </MudGrid>
+                        
+        </CardHeaderContent>
+            
+        <CardHeaderActions>
+                        
+            <MudToolBar>
+                <MudTooltip Text="Expand & Open in new window" Arrow="true" 
+                            Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.TwoTone.NorthEast"
+                                   Color="Color.Primary"
+                    />
+                </MudTooltip>
+            </MudToolBar>
+                       
+        </CardHeaderActions>
+        
+    </MudCardHeader>
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+    <MudCardContent>
+    <MudTabs Elevation="2" Rounded="true" Centered="false">
+    <MudTabPanel Text="Tickets" Icon="@Icons.Material.TwoTone.Tag" BadgeColor="Color.Info">
+    <MudForm class="mt-2" @ref="form" Model="_inputMode" @bind-IsValid="@success"
+             @bind-Errors="@errors">
+    <MudPaper Class="mb-2" Outlined="true" >
+        <MudGrid Class="pa-2">
+            <MudItem xs="12" sm="12" md="12">
+                <MudText Typo="Typo.button">Client</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudAutocomplete T="Client" Label="Find Customer"
+                                 Disabled="@_isReadOnly" HelperText="Find Customer by Mobile"
+                                 @bind-Value="_inputMode.Client"
+                                 OpenIcon="@Icons.Material.TwoTone.Search"
+                                 ToStringFunc="@(e => e == null ? null : $"{e.Mobile}")"
+                                 SearchFunc="@Client_SearchAsync" Immediate="true" Required="true"
+                                 RequiredError="Please Select Customer" ResetValueOnEmptyText="false"
+                                 CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Customer Name"
+                              ReadOnly="true"
+                              Placeholder="Customer Name"
+                              @bind-Value="_inputMode.Client.Name"
+                              For="@(() => _inputMode.Client.Name)"/>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Mobile Number"
+                              ReadOnly="true"
+                              Placeholder="Mobile Number"
+                              @bind-Value="_inputMode.Client.Mobile"
+                              For="@(() => _inputMode.Client.Mobile)"/>
+            </MudItem>
+                                                                   
+        </MudGrid>
+    </MudPaper>
+                        
+    <MudPaper Class="mb-2" Outlined="true">
+        <MudContainer Class="d-flex justify-center" >
+                           
+            <MudRadioGroup @bind-SelectedOption="@SelectedStatus">
+                @foreach (var item in _ticketStatus)
+                {
+                    Color color = (Color)item.ColorCode;
+                    <MudRadio Option="item" Color="color">@item.Name</MudRadio>
+                }
+            </MudRadioGroup>
+                                
+                           
+
+        </MudContainer>
+                        
+    </MudPaper>
+                    
+    <MudPaper Class="mb-2" Outlined="true" >
+        <MudGrid Class="pa-2">
+            <MudItem xs="12" sm="12" md="12">
+                <MudText Typo="Typo.button">Service Details</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField @bind-Value="_inputMode.Appearance"
+                              T="string"
+                              Label="Appearance"
+                              Placeholder="Product Appearance" />
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Reason of Service"
+                              @bind-Value="_inputMode.Reasons"
+                              T="string"
+                              Placeholder="Reason of Service"
+                />
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudDatePicker Label="Target Date" 
+                               PickerVariant="PickerVariant.Dialog"
+                               DisableToolbar="true"
+                               @bind-Date="_inputMode.TargetDate"/>
+            </MudItem>
+                                                                      
+            <MudItem xs="12" sm="12" md="12">
+                <MudDivider/>
+            </MudItem>   
+            @foreach (var item in TicketProperty.GetDetails(_inputMode.TicketType))
+            {
+                var fields = item.Value;
+                foreach (var field in fields)
+                {
+                    <MudItem xs="12" sm="12" md="4">
+                        <MudTextField Label="@field.Key"
+                                      T="string"
+                                      Placeholder="@field.Key"
+                        />
+                    </MudItem>
+                }
+            }
+                                                                     
+        </MudGrid>
+    </MudPaper>
+                        
+    <MudPaper Class="mb-2" Outlined="true" >
+        <MudGrid Class="pa-2">
+            <MudItem xs="6" sm="6" md="6">
+                <MudText Typo="Typo.button" >Payments</MudText>
+            </MudItem>
+            <MudItem Class="d-flex justify-end"  xs="6" sm="6" md="6">
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           @onclick="() => InvokeAddPaymentDialog()"
+                           StartIcon="@Icons.Material.TwoTone.PostAdd"
+                >Add Payments</MudButton>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="12">
+                <MudTable Items="@_paymentDetails"
+                          Elevation="0"
+                          FixedFooter="true"
+                          Height="250px;"
+                          FixedHeader="true"
+                          Hover="true" Breakpoint="Breakpoint.Sm" 
+                          Loading="@_loading" 
+                          LoadingProgressColor="Color.Info">
+                                                                          
+                    <HeaderContent>
+                        <MudTh>Reference Number</MudTh>
+                        <MudTh>Date</MudTh>
+                        <MudTh>Payment Method</MudTh>
+                        <MudTh>Payed Amount</MudTh>
+                        <MudTh>Payment Status</MudTh>
+                                                                                          
+                    </HeaderContent>
+                                                                          
+                    <RowTemplate>
+                        <MudTd DataLabel="ReferenceNumber">@context.ReferenceNumber</MudTd>
+                        <MudTd DataLabel="TransactionDate">@context.TransactionDate</MudTd>
+                        <MudTd DataLabel="PaymentMethod">@context.PaymentMethod.Title </MudTd>
+                        <MudTd DataLabel="PayedAmount">@context.PayedAmount</MudTd>
+                        <MudTd DataLabel="PaymentStatus">@context.PaymentStatus</MudTd>
+                                                                                           
+                    </RowTemplate>
+                </MudTable>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="12">
+                <MudDivider/>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Advance Amount"
+                              Placeholder="Advance Amount"
+                              @bind-Value="_inputMode.AdvanceAmount"
+                              For="@(() => _inputMode.AdvanceAmount)"/>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Balance Amount"
+                              Placeholder="Balance Amount"
+                              ReadOnly="true"
+                              @bind-Value="_inputMode.BalanceAmount"
+                              For="@(() => _inputMode.BalanceAmount)"/>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Total Amount"
+                              ReadOnly="true"
+                              Placeholder="Total Amount"
+                              @bind-Value="_inputMode.TotalAmount"
+                              For="@(() => _inputMode.TotalAmount)"/>
+            </MudItem>
+                                                                                   
+        </MudGrid>
+    </MudPaper>
+                        
+    <MudTextField Disabled="@_isReadOnly" Label="User notes"
+                  HelperText="Max. 300 characters"
+                  Variant="Variant.Filled"
+                  @bind-Value="_userComments"
+                  For="@(() => _userComments)"
+                  Lines="3"
+                  Counter="300"
+                  MaxLength="300"
+                  Immediate="true" />
+                        
+    <MudPaper Elevation="0" Class="@($"pa-1 mt-1 d-flex justify-end ")">
+                        
+        <MudButton Variant="Variant.Filled"
+                   Class="ma-2"
+                   StartIcon="@Icons.TwoTone.WatchLater"
+                   Color="Color.Primary" DisableElevation="true"
+                   OnClick="@(async () => await Submit())">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                <MudText Class="ms-2">Processing</MudText>
+            }
+            else
+            {
+                <MudText>Save & Pay-later</MudText>
+            }
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Class="ma-2"
+                   StartIcon="@Icons.Filled.CurrencyRupee"
+                   Color="Color.Success" DisableElevation="true"
+                   OnClick="@(async () => await Submit())">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                <MudText Class="ms-2">Processing</MudText>
+            }
+            else
+            {
+                <MudText>Pay & Save</MudText>
+            }
+        </MudButton>
+
+        @if (_appSettings.IsDev)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Warning" DisableElevation="true"
+                       OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Secondary" DisableElevation="true"
+                       OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       DisableElevation="true"
+                       OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+        }
+    </MudPaper>
+    
+    </MudForm>
+    </MudTabPanel>
+                
+    <MudTabPanel Text="Activity" Icon="@Icons.Material.TwoTone.History" BadgeData='"99+"'>
+        <MudPaper Class="mt-2" Outlined="true">
+            <MudGrid>
+                <MudItem xs="12" sm="12" md="12">
+                    <MudTimeline Class="ma-2 pa-2"
+                                 DisableModifiers="false"
+                                 TimelineOrientation="TimelineOrientation.Vertical"
+                                 TimelinePosition="TimelinePosition.Alternate"
+                                 Reverse="false">
+                                
+                        <MudTimelineItem Size="Size.Medium" Color="Color.Info"
+                                         Elevation="25">
+                            <MudCard Outlined="true" Elevation="25">
+                                <MudCardContent>
+                                    <MudText Typo="Typo.h6">SR GaneshRam</MudText>
+                                    <MudText Typo="Typo.body2">Ticket created and asigned to 
+                                        <MudChip Variant="Variant.Text" Color="Color.Primary">Alam</MudChip>
+                                    </MudText>
+                                    <MudText Typo="Typo.body2">Ticket Status
+                                        <MudChip Variant="Variant.Text" Color="Color.Info">Init</MudChip>
+                                    </MudText>
+                                    <MudText Typo="Typo.body2">DeadLine set to 
+                                        <MudChip Variant="Variant.Text" Color="Color.Error">Saturday, 31 May 2022.</MudChip>
+                                    </MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudTimelineItem>
+
+                        <MudTimelineItem Color="Color.Success" Variant="Variant.Filled">
+                            <ItemContent>
+                                <MudAlert Severity="Severity.Success">The reactor is running at optimum temperature</MudAlert>
+                            </ItemContent>
+                            <ItemOpposite>
+                                <MudText Color="Color.Success">13:37</MudText>
+                            </ItemOpposite>
+                        </MudTimelineItem>
+                        <MudTimelineItem Color="Color.Warning" Variant="Variant.Filled">
+                            <ItemContent>
+                                <MudAlert Severity="Severity.Warning">The reactor temperature exceeds the optimal range</MudAlert>
+                            </ItemContent>
+                            <ItemOpposite>
+                                <MudText Color="Color.Warning">14:08</MudText>
+                            </ItemOpposite>
+                        </MudTimelineItem>
+                        <MudTimelineItem Color="Color.Error" Variant="Variant.Filled">
+                            <ItemContent>
+                                <MudAlert Severity="Severity.Error">Meltdown is imminent</MudAlert>
+                            </ItemContent>
+                            <ItemOpposite>
+                                <MudText Color="Color.Error">15:00</MudText>
+                            </ItemOpposite>
+                        </MudTimelineItem>
+                    </MudTimeline>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+        
+    </MudTabPanel>
+           
+    </MudTabs>
+    </MudCardContent>
+        
+   
+    </MudCard>
+}

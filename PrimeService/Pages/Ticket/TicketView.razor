@@ -1,0 +1,22 @@
+﻿@page "/Ticket"
+
+
+@using FC.PrimeService.Shopping.Shop.Component
+@using FC.PrimeService.Tickets.Ticket
+
+<MudBreadcrumbs Items="_items"></MudBreadcrumbs>
+
+@switch (_viewId)
+{
+    case "Ticket":
+        <TicketComponent /> 
+        @* <MudText>@_viewId</MudText> *@
+        @* <MudText>@_id</MudText> *@
+        break;
+    case "POList":
+        <POSComponent Id="@_id" />
+        break;
+    default:
+        _navigationManager.NavigateTo("/");
+        break;
+}

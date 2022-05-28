@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -21,4 +22,22 @@ public class Status
     /// </summary>
     [Required(ErrorMessage = "Name is required.")]
     public string? Name { get; set; }
+    
+    public StatusColor ColorCode { get; set; }
+}
+
+public enum StatusColor
+{
+    [Description("default")] Default,
+    [Description("primary")] Primary,
+    [Description("secondary")] Secondary,
+    [Description("tertiary")] Tertiary,
+    [Description("info")] Info,
+    [Description("success")] Success,
+    [Description("warning")] Warning,
+    [Description("error")] Error,
+    [Description("dark")] Dark,
+    [Description("transparent")] Transparent,
+    [Description("inherit")] Inherit,
+    [Description("surface")] Surface,
 }

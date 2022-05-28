@@ -30,8 +30,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
         private string _title = "PrImEs";
         private MudText _mudVersionText;
         private string _version;
-        
-        
+
         #region Property
 
         public bool DrawerOpen
@@ -50,7 +49,6 @@ namespace FireCloud.WebClient.PrimeService.Shared
 
 
         #endregion
-        
         
         private SwitchTheme _switchTheme = new SwitchTheme()
         {

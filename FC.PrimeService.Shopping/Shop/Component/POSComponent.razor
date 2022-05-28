@@ -175,6 +175,7 @@
                             <!-- Sales Item Table Start -->
                             <MudTable Items="@_salesTransaction"
                                       Bordered="true"
+                                      FixedHeader="true"
                                       Elevation="0" Height="280px"
                                       Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
                                 <HeaderContent>
@@ -184,8 +185,14 @@
                                     <MudTh>Discount %</MudTh>
                                     <MudTh>Tax %</MudTh>
                                     <MudTh>Amount</MudTh>
-                                    <MudTh><MudIcon Icon="@Icons.TwoTone.CompareArrows"></MudIcon></MudTh>
-                                    <MudTh><MudIcon Icon="@Icons.TwoTone.Delete"></MudIcon></MudTh>
+                                    <MudTh>
+                                        <MudIcon Size="Size.Small"
+                                                 Icon="@Icons.TwoTone.CompareArrows" />
+                                    </MudTh>
+                                    <MudTh>
+                                        <MudIcon Size="Size.Small"
+                                                 Icon="@Icons.TwoTone.Delete" />
+                                    </MudTh>
                                 </HeaderContent>
                                                          
                                 <RowTemplate>
@@ -197,11 +204,13 @@
                                     <MudTd DataLabel="Amount">@context.SubTotal</MudTd>
                                     <MudTd>
                                         <MudIconButton
+                                            Size="Size.Small"
                                             @onclick="() => SalesItemProductAction(context)"
                                             Icon="@Icons.TwoTone.DoneOutline" />
                                     </MudTd>
                                     <MudTd>
                                         <MudIconButton Color="Color.Error" 
+                                                       Size="Size.Small"
                                                        @onclick="() => RemoveSalesItem(context)"
                                                        Icon="@Icons.TwoTone.Delete" />
                                     </MudTd>
@@ -330,7 +339,8 @@
                  
             <MudPaper Class="@($"pa-4 mt-4 {_display} justify-end ")">
                 <MudButton Variant="Variant.Filled"
-                           StartIcon="@Icons.Filled.Input"
+                           Class="ml-4"
+                           StartIcon="@Icons.TwoTone.WatchLater"
                            Color="Color.Primary" DisableElevation="true"
                            OnClick="@(async () => await Submit())">
                     @if (_processing)
@@ -340,7 +350,21 @@
                     }
                     else
                     {
-                        <MudText>Submit</MudText>
+                        <MudText>Save & Pay-later</MudText>
+                    }
+                </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           StartIcon="@Icons.Filled.CurrencyRupee"
+                           Color="Color.Success" DisableElevation="true"
+                           OnClick="@(async () => await Submit())">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                        <MudText Class="ms-2">Processing</MudText>
+                    }
+                    else
+                    {
+                        <MudText>Pay & Save</MudText>
                     }
                 </MudButton>
 
@@ -363,8 +387,8 @@
 </MudCardContent>
 <MudCardActions Class="@($"pa-0 mt-0 d-flex justify-end")">
     <MudToolBar>
-        <MudTooltip Text="Actions to be Performed" Arrow="true" Placement="Placement.Bottom">
-            <MudIconButton Icon="@Icons.Material.Outlined.TaskAlt"/>
+        <MudTooltip Text="Mark as Paid" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Outlined.TaskAlt" Color="Color.Success"/>
         </MudTooltip>
         <MudTooltip Text="Print the 'Product' details & History" Arrow="true" Placement="Placement.Bottom">
             <MudIconButton Icon="@Icons.Material.Outlined.Print"/>
