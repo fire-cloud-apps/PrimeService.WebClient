@@ -14,7 +14,7 @@
     <MudDialog>
         <TitleContent>
             <MudText Typo="Typo.h6">
-                <MudIcon Icon="@Icons.TwoTone.Money" Class="mr-3 mb-n1"/>
+                <MudIcon Icon="@Icons.TwoTone.CheckBox" Class="mr-3 mb-n1"/>
                 @_title
             </MudText>
         
@@ -34,47 +34,32 @@
             }
             else
             {
-                <MudGrid Style="max-height: 450px; overflow-y: scroll; overflow-x: hidden;">
-                    <MudItem xs="12" sm="4" md="4">
-                        <MudAutocomplete T="PaymentTags" Label="Select Account"
-                                         Variant="Variant.Outlined"
+                <MudGrid>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudTextField Disabled="@_isReadOnly"
+                                      Label="What Action to be performed?"
+                                      Placeholder="Task Name"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@Icons.TwoTone.AddCircle"
+                                      @bind-Value="_inputMode.Title"
+                                      For="@(() => _inputMode.Title)"
+                                      Immediate="true"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudAutocomplete T="Employee" Label="Assigned To"
                                          Disabled="@_isReadOnly"
-                                         @bind-Value="_inputMode.PaymentAccount"
+                                         @bind-Value="_inputMode.AssignedTo"
                                          OpenIcon="@Icons.Material.TwoTone.Search"
-                                         ToStringFunc="@(e => e == null ? null : $"{e.Title}")"
-                                         SearchFunc="@PaymentAccount_SearchAsync" Immediate="true" Required="true"
-                                         RequiredError="Please Select Account" ResetValueOnEmptyText="false"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.User.Name}")"
+                                         SearchFunc="@Employee_SearchAsync" Immediate="true" Required="true"
+                                         RequiredError="Assigned To" ResetValueOnEmptyText="false"
                                          CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
                     </MudItem>
-                    <MudItem xs="12" sm="4" md="4">
-                        <MudSelect Variant="Variant.Outlined"
-                                   Label="Payment Status" class="pa-0"
-                                   @bind-Value="_inputMode.PaymentStatus"
-                                   OpenIcon="@Icons.Material.TwoTone.Tab" AdornmentColor="Color.Secondary">
-                            @foreach (PaymentStatus item in Enum.GetValues(typeof(PaymentStatus)))
-                            {
-                                <MudSelectItem Value="@item">@item</MudSelectItem>
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="12" sm="4" md="4">
-                        <MudAutocomplete T="PaymentMethods" Label="Select Payment Method"
-                                         Variant="Variant.Outlined"
-                                         Disabled="@_isReadOnly"
-                                         @bind-Value="_inputMode.PaymentMethod"
-                                         OpenIcon="@Icons.Material.TwoTone.Search"
-                                         ToStringFunc="@(e => e == null ? null : $"{e.Title}")"
-                                         SearchFunc="@PaymentMethods_SearchAsync" Immediate="true" Required="true"
-                                         RequiredError="Please Select Account" ResetValueOnEmptyText="false"
-                                         CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
-                    </MudItem>
-                    <MudItem xs="12" sm="4" md="4">
-                        <MudNumericField Disabled="@_isReadOnly" Label="Payed Amount" 
-                                         AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
-                                         @bind-Value="_inputMode.PayedAmount"
-                                         For="@(() => _inputMode.PayedAmount)"
-                                         MaxLength="10"  Min="0"  Max="9999999999"
-                                         Immediate="true" />
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudDatePicker Label="Target Date"
+                                       PickerVariant="PickerVariant.Dialog"
+                                       DisableToolbar="true"
+                                       @bind-Date="_inputMode.TargetDate"/>
                     </MudItem>
                     
                 </MudGrid>
@@ -93,7 +78,7 @@
                 }
                 else
                 {
-                    <MudText>Add Payment</MudText>
+                    <MudText>Add Task</MudText>
                 }
             </MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
@@ -116,3 +101,6 @@
         </DialogActions>
     </MudDialog>
 </MudForm>
+   
+
+

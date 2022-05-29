@@ -18,12 +18,15 @@
 
   <ItemGroup>
     <Folder Include="Calendar\" />
-    <Folder Include="Task\" />
     <Folder Include="Ticket\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Task\Dialog\TaskDialog.razor" />
   </ItemGroup>
 
 </Project>

@@ -69,8 +69,7 @@ else
                 <MudTooltip Text="Expand & Open in new window" Arrow="true" 
                             Placement="Placement.Bottom">
                     <MudIconButton Icon="@Icons.Material.TwoTone.NorthEast"
-                                   Color="Color.Primary"
-                    />
+                                   Color="Color.Primary"  />
                 </MudTooltip>
             </MudToolBar>
                        
@@ -126,9 +125,7 @@ else
                     <MudRadio Option="item" Color="color">@item.Name</MudRadio>
                 }
             </MudRadioGroup>
-                                
                            
-
         </MudContainer>
                         
     </MudPaper>
@@ -306,6 +303,68 @@ else
     </MudForm>
     </MudTabPanel>
                 
+    <MudTabPanel Text="Tasks" Icon="@Icons.TwoTone.AddTask" BadgeData='"10+"'>
+        <MudPaper Class="mt-2" Outlined="true">
+            <MudGrid>
+                <MudItem xs="12" sm="12" md="12">
+                    <MudTimeline Class="ma-2 pa-2"
+                                 DisableModifiers="false"
+                                 TimelineOrientation="TimelineOrientation.Vertical"
+                                 TimelinePosition="TimelinePosition.Alternate"
+                                 Reverse="false">
+                        
+                        <MudTimelineItem Color="Color.Default" Variant="Variant.Filled">
+                            <ItemOpposite>
+                                <MudIconButton Edge="Edge.Start"
+                                               Icon="@Icons.TwoTone.AddTask" 
+                                               OnClick="AddTask"
+                                               Title="Add Task" />
+                            </ItemOpposite>
+                        </MudTimelineItem>
+
+                        <MudTimelineItem Size="Size.Medium" Color="Color.Info"
+                                         Elevation="3">
+                            <ItemContent>
+                                <MudCard Outlined="false" Elevation="3">
+                                    <MudCardContent>
+                                        <MudText Typo="Typo.h6">:Task Name:</MudText>
+                                        <MudText Typo="Typo.body2">Task Details here ...
+                                        </MudText>
+                                        Assigned to 
+                                        <MudChip Variant="Variant.Text" Color="Color.Primary">SRG</MudChip>
+                                        <MudText Typo="Typo.body2">Task Status
+                                            <MudToggleIconButton @bind-Toggled="@IsCompleted"
+                                                                 Icon="@Icons.TwoTone.CheckBoxOutlineBlank" Color="@Color.Error" Title="Task Open"
+                                                                 ToggledIcon="@Icons.TwoTone.CheckBox" 
+                                                                 ToggledColor="@Color.Success" ToggledTitle="Task Completed"/>
+
+                                        </MudText>
+                                        <MudText Typo="Typo.body2">DeadLine set to
+                                            <MudChip Variant="Variant.Text" Color="Color.Error">Saturday, 31 May 2022.</MudChip>
+                                        </MudText>
+                                    </MudCardContent>
+                                </MudCard>
+                            </ItemContent>
+                            <ItemOpposite>
+                                <MudText Color="Color.Success">31 Mar 2022</MudText>
+                            </ItemOpposite>
+                        </MudTimelineItem>
+
+                        <MudTimelineItem Color="Color.Success" Variant="Variant.Filled">
+                            <ItemContent>
+                                <MudAlert Severity="Severity.Success">The reactor is running at optimum temperature</MudAlert>
+                            </ItemContent>
+                            <ItemOpposite>
+                                <MudText Color="Color.Success">13:37</MudText>
+                            </ItemOpposite>
+                        </MudTimelineItem>
+
+                    </MudTimeline>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudTabPanel>
+    
     <MudTabPanel Text="Activity" Icon="@Icons.Material.TwoTone.History" BadgeData='"99+"'>
         <MudPaper Class="mt-2" Outlined="true">
             <MudGrid>
@@ -342,6 +401,7 @@ else
                                 <MudText Color="Color.Success">13:37</MudText>
                             </ItemOpposite>
                         </MudTimelineItem>
+                        
                         <MudTimelineItem Color="Color.Warning" Variant="Variant.Filled">
                             <ItemContent>
                                 <MudAlert Severity="Severity.Warning">The reactor temperature exceeds the optimal range</MudAlert>
@@ -362,12 +422,9 @@ else
                 </MudItem>
             </MudGrid>
         </MudPaper>
-        
     </MudTabPanel>
-           
+    
     </MudTabs>
     </MudCardContent>
-        
-   
     </MudCard>
 }

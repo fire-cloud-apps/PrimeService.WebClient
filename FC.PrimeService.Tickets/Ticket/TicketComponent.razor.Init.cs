@@ -48,13 +48,25 @@ public partial class TicketComponent
     public string _subTitle = string.Empty;
     #endregion
 
+    #region Tasks
+    public bool IsCompleted { get; set; }
+    private Model.ActivityTasks TaskItem { get; set; }
+    #endregion
+
     #region On Initialization Async
 
-    protected override async Task OnInitializedAsync()
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
     {
         _loading = true;
         await Task.Delay(500);
-        
+        TaskItem = new Model.ActivityTasks()
+        {
+            Title = string.Empty,
+            IsCompleted = false,
+            TargetDate = DateTime.Now,
+            AssignedTo = new Employee(){ User = new User(){ Name = "SRG"}},
+            Notes = "Some Additional Notes"
+        };
         //An Ajax call to get company details
         //for now it is filled as Static value
         _inputMode = new Model.TicketService()

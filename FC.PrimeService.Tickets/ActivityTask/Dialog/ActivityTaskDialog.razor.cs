@@ -4,43 +4,79 @@ using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Payments;
-using Model = PrimeService.Model.Tickets;
+using PrimeService.Model.Tickets;
 
-namespace FC.PrimeService.Tickets.PaymentDetail.Dialog;
+namespace FC.PrimeService.Tickets.ActivityTask.Dialog;
 
-public partial class PaymentDetailsDialog
+public partial class ActivityTaskDialog
 {
-    #region Global Variables
+     #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
     private string _title = string.Empty;
-    [Parameter] public Model.PaymentDetails _PaymentDetails { get; set; } 
+    [Parameter] public ActivityTasks _TaskDetails { get; set; } 
     private bool _processing = false;
     MudForm form;
-    private Model.PaymentDetails _inputMode;
+    private ActivityTasks _inputMode;
     string _outputJson;
     bool success;
     string[] errors = { };
     private bool _isReadOnly = false;
+    private ActivityTasks TaskItem = null;
     #endregion
 
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_PaymentDetails == null)
+        if (_TaskDetails == null)
         {
             //Dialog box opened in "Add" mode
             //No Add mode.
-            _inputMode = new Model.PaymentDetails();
-            _title = "Add Payments";
+            _inputMode = new ActivityTasks();
+            _title = "Add Task";
         }
         else
         {
             //Dialog box opened in "Edit" mode
-            _inputMode = _PaymentDetails;
-            _title = "Edit Payments";
+            _inputMode = _TaskDetails;
+            _title = "Edit Task";
         }
     }
+    #endregion
+    
+    #region Staff/Employee Search - Autocomplete
+    
+    public List<Employee> _employees = new List<Employee>()
+    {
+        new Employee(){ User = new User(){ Name = "SRG"}},
+        new Employee(){ User = new User(){ Name = "Alam"}},
+        new Employee(){ User = new User(){ Name = "Priti"}},
+        new Employee(){ User = new User(){ Name = "Joshmi"}},
+    };
+
+    private async Task<IEnumerable<Employee>> Employee_SearchAsync(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+        Console.WriteLine($"Find Client : '{value}'");
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+        {
+            return _employees;
+        }
+
+        var result = _employees.Where(x => x.User.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        if (result.FirstOrDefault() == null)
+        {
+            result = new List<Employee>()
+            {
+                new Employee() { User = new User() { Name = "Not Found" } }
+            };
+        }
+
+        return result;
+    }
+
     #endregion
     
     #region Cancel & Close

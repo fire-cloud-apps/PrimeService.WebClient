@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json;
+using FC.PrimeService.Tickets.ActivityTask.Dialog;
 using FC.PrimeService.Tickets.PaymentDetail.Dialog;
 using Microsoft.AspNetCore.Components;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -87,11 +88,30 @@ public partial class TicketComponent
             Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
         }
     }
+    private async Task InvokeTaskDialog(string parameter, string title, Model.ActivityTasks model)
+    {
+        var parameters = new DialogParameters
+            { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
+        IDialogReference dialog;
+
+        _dialogOptions.MaxWidth = MaxWidth.Small; 
+        dialog = DialogService.Show<ActivityTaskDialog>(title, parameters, _dialogOptions);
+        
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+        }
+    }
     #endregion
 
     private async Task InvokeAddPaymentDialog()
     {
         await InvokeDialog("_PaymentDetails", "Add Payments", null);
+    }
 
+    private async Task AddTask()
+    {
+        await InvokeTaskDialog("_TaskDetails", "Add Tasks", null);
     }
 }

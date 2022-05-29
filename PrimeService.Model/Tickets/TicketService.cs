@@ -27,7 +27,8 @@ public class TicketService
     public Client Client { get; set; }
     public Employee EnteredBy { get; set; }
     public Employee AssignedTo { get; set; }
-    
+    public IList<ActivityTasks> TaskList { get; set; }
+
     #region Payments
     public double AdvanceAmount { get; set; }
     public double BalanceAmount { get; set; }

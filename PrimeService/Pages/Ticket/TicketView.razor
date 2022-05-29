@@ -1,10 +1,7 @@
 ﻿@page "/Ticket"
 
-
 @using FC.PrimeService.Shopping.Shop.Component
 @using FC.PrimeService.Tickets.Ticket
-
-<MudBreadcrumbs Items="_items"></MudBreadcrumbs>
 
 @switch (_viewId)
 {
@@ -20,3 +17,26 @@
         _navigationManager.NavigateTo("/");
         break;
 }
+
+<MudPaper Elevation="3" Class="mt-2 d-flex justify-end">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="6">
+            <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="6">
+            
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudScrollToTop>
+    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.ArrowUpward" Color="Color.Secondary">Go to top</MudButton>
+</MudScrollToTop>
+
+@* <br /> <MudDivider /> 
+<MudContainer Class="ma-2 d-flex justify-center">
+    <MudText>© 2022 Prime Service</MudText>
+</MudContainer>
+<br /> <MudDivider /> *@
+
+
