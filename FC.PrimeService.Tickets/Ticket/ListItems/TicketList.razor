@@ -1,0 +1,133 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Shopping
+@using global::PrimeService.Model.Settings.Tickets
+@using global::PrimeService.Model.Tickets
+
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            @* <img src="svg/location.svg" Height="45" Width="45" alt="client avatar"/> *@
+            <MudIcon Icon="@Icons.TwoTone.Numbers"
+                     Style="font-size: 3.5rem;"></MudIcon>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudDateRangePicker Label="Get Ticket, By Date Range"
+                                @bind-DateRange="SelectedDateRange" />
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Outlined.AddBox" 
+                           Size="Size.Large"
+                           OnClick="AddAction"
+                           Color="Color.Info"/>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" sm="4" md="3">
+                <MudPaper>
+                    <MudList Color="Color.Primary" Clickable="true"
+                             @bind-SelectedItem="SelectedCategory">
+                        <MudListItem Value="0" Text="All" Icon="@Icons.TwoTone.DoneAll"/>
+                        <MudDivider/>
+                        <MudListItem Icon="@Icons.Material.Filled.Money" Text="Payments"
+                                     InitiallyExpanded="true">
+                            <NestedList>
+                                @{
+                                    int Index = 1;
+                                }
+                                @foreach (Status item in _ticketStatus)
+                                {
+                                    <MudListItem Value="@Index" Text="@item.Name"
+                                                 Icon="@Icons.Material.Outlined.GridGoldenratio"/>
+                                    Index++;
+                                }
+                            </NestedList>
+                        </MudListItem>
+                    </MudList>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="8" md="9">
+                <MudTable ServerData="@(new Func<TableState, Task<TableData<TicketService>>>(ServerReload))"
+                                  Dense="true" Hover="true" @ref="table"
+                                  GroupBy="@_groupDefinition"
+                                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                                  GroupFooterClass="mb-4">
+                            <ColGroup>
+                                @if (_groupDefinition.Expandable)
+                                {
+                                    <col style="width: 60px;"/>
+                                }
+                                <col/>
+                                <col/>
+                                <col/>
+                                <col/>
+                                <col/>
+                            </ColGroup>
+                            <ToolBarContent>
+                                <MudTextField T="string" ValueChanged="@(s => OnSearch(s))"
+                                              FullWidth="true"
+                                              Placeholder="Search" Adornment="Adornment.Start"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh><MudTableSortLabel SortLabel="Date" T="Sales">Date</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel T="Sales">Bill#</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel T="Sales">Items</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel SortLabel="Quantity" T="Sales">Quantity</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel T="Sales">Price</MudTableSortLabel></MudTh>
+                
+                            </HeaderContent>
+                            <GroupHeaderTemplate>
+                                <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
+                            </GroupHeaderTemplate>
+                    <RowTemplate>
+                        <MudTd DataLabel="Date">
+                            @context.CreatedDate
+                        </MudTd>
+                        <MudTd DataLabel="Bill#">
+
+                            <MudTooltip Color="Color.Tertiary" Arrow="true">
+                                <ChildContent>
+                                    <MudLink Href=@($"/Ticket/?viewId=Ticket&Id={@context.Id}")
+                                             Target="_blank">
+                                        @context.TicketNo
+                                    </MudLink>
+                                </ChildContent>
+
+                                <TooltipContent>
+                                    <MudText Typo="Typo.body2"> Edit - '@context.Reasons' </MudText>
+                                </TooltipContent>
+                            </MudTooltip>
+                        </MudTd>
+                        <MudTd DataLabel="Reason">
+                            <MudTooltip Arrow="true" Text="@context.Reasons" >
+                                 @(context.Reasons.Substring(0, 10) + "...")
+                            </MudTooltip>
+                           
+                        </MudTd>
+                        <MudTd DataLabel="Balance">
+                            @context.BalanceAmount
+                        </MudTd>
+                        <MudTd DataLabel="Total">
+                            @context.TotalAmount
+                        </MudTd>
+                    </RowTemplate>
+                            <NoRecordsContent>
+                                <MudText>No matching records found</MudText>
+                            </NoRecordsContent>
+                            <LoadingContent>
+                                <MudText>Loading...</MudText>
+                            </LoadingContent>
+                            <PagerContent>
+                                <MudTablePager/>
+                            </PagerContent>
+                        </MudTable>
+
+            </MudItem>
+        </MudGrid>
+        
+    </MudCardContent>
+</MudCard>

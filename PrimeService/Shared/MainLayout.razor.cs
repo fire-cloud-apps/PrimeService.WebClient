@@ -139,6 +139,17 @@ namespace FireCloud.WebClient.PrimeService.Shared
         
 
         #endregion
+
+        #region Show Whats New Drawer
+
+        private bool _showWhatsNew = false;
+        private void ShowWhatsNew()
+        {
+            _showWhatsNew = !_showWhatsNew;//To toggle.
+        }
+
+        #endregion
+        
     }
     public class SwitchTheme
     {

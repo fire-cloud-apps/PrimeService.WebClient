@@ -1,20 +1,11 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.Json;
+﻿using System.Text.Json;
 using FC.PrimeService.Tickets.ActivityTask.Dialog;
 using FC.PrimeService.Tickets.PaymentDetail.Dialog;
-using Microsoft.AspNetCore.Components;
-using MongoDB.Bson.Serialization.IdGenerators;
 using MudBlazor;
-using PrimeService.Model;
-using PrimeService.Model.Location;
-using PrimeService.Model.Settings;
-using PrimeService.Model.Settings.Forms;
-using PrimeService.Model.Settings.Payments;
-using PrimeService.Model.Settings.Tickets;
+using PrimeService.Model.Tickets;
 using Model = PrimeService.Model.Tickets;
-using Shop = PrimeService.Model.Shopping;
 
-namespace FC.PrimeService.Tickets.Ticket;
+namespace FC.PrimeService.Tickets.Ticket.Component;
 
 public partial class TicketComponent
 {
@@ -37,7 +28,7 @@ public partial class TicketComponent
             await ProcessSomething();
 
             //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
+            _outputJson = JsonSerializer.Serialize<TicketService?>(_inputMode);
 
             //Success Message
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
@@ -50,7 +41,7 @@ public partial class TicketComponent
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Console.WriteLine((string?)_outputJson);
         }
     }
 
@@ -114,4 +105,53 @@ public partial class TicketComponent
     {
         await InvokeTaskDialog("_TaskDetails", "Add Tasks", null);
     }
+
+    private async Task ExpandTicket()
+    {
+        var url = $"/TicketFullView?Id={_inputMode.Id}";
+        //Navigate and open in new tab.
+        await JSRuntime.InvokeAsync<object>("open",
+            new object[2] { url, "_blank" });
+    }
+
+    #region Additional Details
+    private int _additionItemIndex = 0;
+    private string _key, _value;
+
+    private List<AdditionalKeyValue> keyList = new List<AdditionalKeyValue>()
+    {
+        new AdditionalKeyValue()
+    };
+    
+    private void AddKeyValue()
+    {
+        //TODO:Update a portion of field
+        //https://stackoverflow.com/questions/33227497/how-to-save-a-portion-of-a-large-document-mongodb-c-sharp-driver
+        keyList.Add(new AdditionalKeyValue());
+        StateHasChanged();
+        
+    }
+    private void RemoveKeyValue(AdditionalKeyValue keypair)
+    {
+        keyList.Remove(keypair);
+        StateHasChanged();
+    }
+    
+    #endregion
+    
+}
+
+public class AdditionalKeyValue
+{
+  public  string Key
+  {
+      get;
+      set;
+  } 
+  public  string Value
+  {
+      get;
+      set;
+  } 
+
 }

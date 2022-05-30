@@ -1,19 +1,14 @@
-﻿using System.Collections.ObjectModel;
-using Microsoft.AspNetCore.Components;
-using MongoDB.Bson.Serialization.IdGenerators;
+﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PrimeService.Model;
-using PrimeService.Model.Location;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Forms;
 using PrimeService.Model.Settings.Payments;
 using PrimeService.Model.Settings.Tickets;
-using Color = MudBlazor.Color;
 using Model = PrimeService.Model.Tickets;
 using Shop = PrimeService.Model.Shopping;
-using Settings = PrimeService.Model.Settings;
 
-namespace FC.PrimeService.Tickets.Ticket;
+namespace FC.PrimeService.Tickets.Ticket.Component;
 
 public partial class TicketComponent
 {
@@ -48,6 +43,7 @@ public partial class TicketComponent
     public string _subTitle = string.Empty;
     #endregion
 
+    
     #region Tasks
     public bool IsCompleted { get; set; }
     private Model.ActivityTasks TaskItem { get; set; }
@@ -71,6 +67,7 @@ public partial class TicketComponent
         //for now it is filled as Static value
         _inputMode = new Model.TicketService()
         {
+            Id = "343093409jdl934l34l43",
             TicketNo = "TN#5.27.2022.1",
             CreatedDate = DateTime.Now,
             EnteredBy = new Employee()
@@ -233,8 +230,6 @@ public partial class TicketComponent
 
     #endregion
 
-
-    
     #region Ticket Status
     private Status SelectedStatus { get; set; }
 

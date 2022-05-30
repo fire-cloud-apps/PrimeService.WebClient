@@ -53,16 +53,16 @@ public class TicketService
     } = TicketProperty.GetDetails(TicketType.SmartPhone);
     
     public IList<ActivityLog> Activities { get; set; }
-    
+
     /// <summary>
     /// Other details
     /// </summary>
-    public Dictionary<string, string>? AdditionalDetails { get; set; } = new Dictionary<string, string>()
-    {
-        { "Key1", string.Empty },
-        { "Key2", string.Empty },
-        { "Key3", string.Empty },
-    };
+    public Dictionary<string, string>? AdditionalDetails { get; set; } = new Dictionary<string, string>();
+    /* {
+         { "Key1", string.Empty },
+         { "Key2", string.Empty },
+         { "Key3", string.Empty }, 
+     };*/
 
 }
 

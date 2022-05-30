@@ -9,6 +9,7 @@ public class AppSettings
     /// Application Version to be displayed in the Main title.
     /// </summary>
     public string? Version { get; set; }
+    public string? Build { get; set; }
     public bool IsDev { get; set; }
    
 }

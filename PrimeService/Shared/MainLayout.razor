@@ -1,6 +1,7 @@
 ﻿
 @inherits LayoutComponentBase
 @inject IJSRuntime jsRuntime
+@using FireCloud.WebClient.PrimeService.Pages
 
 @*
     Ref: Theme provider
@@ -85,11 +86,38 @@
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large" Class="my-4 pt-4">
-            @Body
-        </MudContainer>
-    </MudMainContent>
+
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Large" Class="my-4 pt-4">
+        @Body
+    </MudContainer>
+    <MudScrollToTop>
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Filled.ArrowUpward" Color="Color.Secondary">Go to top</MudButton>
+    </MudScrollToTop>
+    <MudContainer Class="mt-6 mb-2 d-flex justify-center">
+        <MudText>© 2022 Prime Service. 
+            <MudButton Variant="Variant.Text"
+                       EndIcon="@Icons.TwoTone.Grid4x4"
+                       Color="Color.Secondary"
+                       OnClick="ShowWhatsNew"
+                       Style="text-transform:none"
+            >
+                @_appSettings.Build 
+            </MudButton>
+        </MudText>
+    </MudContainer>
+</MudMainContent>
+
+<MudDrawer @bind-Open="@_showWhatsNew" Anchor="Anchor.End" 
+           Width="450px"
+           Elevation="2" Variant="@DrawerVariant.Temporary">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h6">What's New</MudText>
+    </MudDrawerHeader>
+    <MudDrawerContainer>
+        <WhatsNew />
+    </MudDrawerContainer>
+</MudDrawer>
     
    
     
