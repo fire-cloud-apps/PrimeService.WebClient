@@ -1,0 +1,154 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Settings
+@using global::PrimeService.Utility.ValidationHelper
+@using System.Text.Json
+@using global::PrimeService.Model.Settings.Payments
+@using Microsoft.JSInterop
+@inject ISnackbar Snackbar
+@inject IJSRuntime JsRuntime
+
+<MudForm @ref="form" Model="_inputMode">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.TwoTone.Person" Class="mr-3 mb-n1"/>
+                @_title
+            </MudText>
+        
+        </TitleContent>
+   
+        <DialogContent >
+            <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+        
+            @if (_loading)
+            {
+                <MudSkeleton Class="my-2"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2"/>
+            }
+            else
+            {
+               
+                    
+                <MudGrid>
+                    <MudItem xs="12" sm="6" md="4">
+                        @if (_inputMode.PaymentCategory == PaymentCategory.Income)
+                        {
+                            <MudNumericField Disabled="@_isReadOnly" Label="Income"
+                                             AdornmentIcon="@Icons.Material.TwoTone.Countertops"
+                                             HelperText="Income Amount"
+                                             @bind-Value="_inputMode.IncomeAmount"
+                                             For="@(() => _inputMode.IncomeAmount)"
+                                             MaxLength="10"
+                                             Immediate="true"/>
+                        }
+                        else
+                        {
+                            <MudNumericField Disabled="@_isReadOnly" Label="Expense"
+                                             AdornmentIcon="@Icons.Material.TwoTone.Countertops"
+                                             HelperText="Expense Amount"
+                                             @bind-Value="_inputMode.ExpenseAmount"
+                                             For="@(() => _inputMode.ExpenseAmount)"
+                                             MaxLength="10"
+                                             Immediate="true"/>
+                        }
+                        
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly" Label="Reason" HelperText="Max. 50 characters"
+                                      @bind-Value="_inputMode.Reason"
+                                      For="@(() => _inputMode.Reason)"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudTextField Disabled="@_isReadOnly" Label="Reason" HelperText="Max. 50 characters"
+                                      @bind-Value="_inputMode.Reason"
+                                      For="@(() => _inputMode.Reason)"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudAutocomplete T="PaymentTags" Label="Payment Tags"
+                                         HelperText="Select Payment Account"
+                                         @bind-Value="_inputMode.PaymentTag"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.Title}")"
+                                         Required="true"
+                                         RequiredError="Please Select Account"
+                                         SearchFunc="@PaymentTag_SearchAsync" Immediate="true"
+                                         ResetValueOnEmptyText="true"
+                                         CloseIcon="@Icons.Material.Filled.Search"
+                                         AdornmentColor="Color.Tertiary"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudAutocomplete T="PaymentMethods" Label="Payment Method"
+                                         HelperText="Select Payment Method"
+                                         @bind-Value="_inputMode.PaymentTag"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.Title}")"
+                                         Required="true"
+                                         RequiredError="Please Select Payment Method"
+                                         SearchFunc="@PaymentMethod_SearchAsync" Immediate="true"
+                                         ResetValueOnEmptyText="true"
+                                         CloseIcon="@Icons.Material.Filled.Search"
+                                         AdornmentColor="Color.Tertiary"/>
+                    </MudItem>
+                    
+                    <MudItem xs="12" sm="6" md="4">
+                        <MudAutocomplete T="PaymentMethods" Label="Client"
+                                         HelperText="Select Client Method"
+                                         @bind-Value="_inputMode.PaymentTag"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.Title}")"
+                                         Required="true"
+                                         RequiredError="Please Select Client"
+                                         SearchFunc="@PaymentMethod_SearchAsync" Immediate="true"
+                                         ResetValueOnEmptyText="true"
+                                         CloseIcon="@Icons.Material.Filled.Search"
+                                         AdornmentColor="Color.Tertiary"/>
+                    </MudItem>
+                    
+                </MudGrid>
+                    
+            }
+        
+        </DialogContent>
+        <DialogActions>
+
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Filled.Input"
+                       Color="Color.Primary" DisableElevation="true"
+                       OnClick="@(async () => await Submit())">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Submit</MudText>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
+                       StartIcon="@Icons.Outlined.Cancel"
+                       OnClick="Cancel">Cancel</MudButton>
+            
+            @if (_appSettings.IsDev)
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Warning" DisableElevation="true"
+                           OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary" DisableElevation="true"
+                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           DisableElevation="true"
+                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+            }
+            
+        </DialogActions>
+    </MudDialog>
+</MudForm>

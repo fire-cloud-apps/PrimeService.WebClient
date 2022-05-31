@@ -1,6 +1,6 @@
 ﻿
-<MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" 
+<MudNavMenu Bordered="true">
+    <MudNavLink Href="/Index" Match="NavLinkMatch.Prefix" 
                 Icon="@Icons.Material.TwoTone.Home">Home</MudNavLink>
     <MudNavLink Href="/Dashboard" Match="NavLinkMatch.All" 
                 Icon="@Icons.Material.TwoTone.Dashboard">Dashboard</MudNavLink>
@@ -36,6 +36,10 @@
                 Match="NavLinkMatch.Prefix"  
                 Icon="@Icons.TwoTone.Tag">Tickets</MudNavLink>
     
+    <MudNavLink Href= "/Payments?viewId=PaymentList"
+                Match="NavLinkMatch.Prefix"
+                Icon="@Icons.TwoTone.Money">Payments</MudNavLink>
+    
     <MudNavLink Href= "/Sales?viewId=POS"
                 Match="NavLinkMatch.Prefix"  
                 Icon="@Icons.TwoTone.PointOfSale">Quick Sales</MudNavLink>
@@ -49,6 +53,5 @@
     
     <MudNavLink Href="/Settings" Match="NavLinkMatch.Prefix" 
                 Icon="@Icons.TwoTone.Settings">Settings</MudNavLink>
-    
     
 </MudNavMenu>

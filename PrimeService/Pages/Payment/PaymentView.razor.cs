@@ -2,9 +2,9 @@
 using MudBlazor;
 using PrimeService.Utility.Helper;
 
-namespace FireCloud.WebClient.PrimeService.Pages.Shopping;
+namespace FireCloud.WebClient.PrimeService.Pages.Payment;
 
-public partial class SalesView
+public partial class PaymentView
 {
     private List<BreadcrumbItem> _items = null;
     string _viewId = string.Empty;
@@ -26,5 +26,4 @@ public partial class SalesView
         };
         var icon = Icons.TwoTone.Home;
     }
-    
 }

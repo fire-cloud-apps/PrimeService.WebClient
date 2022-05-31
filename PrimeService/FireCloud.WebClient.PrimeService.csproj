@@ -19,6 +19,8 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\FC.PrimeService.Common\FC.PrimeService.Common.csproj" />
+	  <ProjectReference Include="..\FC.PrimeService.Dashboards\FC.PrimeService.Dashboards.csproj" />
+	  <ProjectReference Include="..\FC.PrimeService.Payments\FC.PrimeService.Payments.csproj" />
 	  <ProjectReference Include="..\PrimeService.Model\PrimeService.Model.csproj" />
 	  <ProjectReference Include="..\FC.PrimeService.Reports\FC.PrimeService.Reports.csproj" />
 	  <ProjectReference Include="..\FC.PrimeService.Shopping\FC.PrimeService.Shopping.csproj" />

@@ -1,0 +1,24 @@
+﻿@page "/Payments"
+
+@using FC.PrimeService.Payments.Payment.ListItems
+
+@switch (_viewId)
+{
+    case "PaymentList":
+        <PaymentList />
+        break;
+    case "PT"://Product Transaction
+        <ProductTransactionList Id="@_id" />
+        break;
+    default:
+        _navigationManager.NavigateTo("/");
+        break;
+}
+
+<MudPaper Elevation="3" Class="mt-2 d-flex justify-end">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="6">
+            <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
+        </MudItem>
+    </MudGrid>
+</MudPaper>

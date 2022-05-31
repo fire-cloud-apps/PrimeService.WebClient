@@ -66,6 +66,14 @@ public class BreadCrumNavigation
                 ParentLink = "/TicketList?viewId=TicketList"
             }
         },
+        {
+            "PaymentList",
+            new BreadCrumSettings()
+            {
+                Parent = "Payments", Child ="Payments", ParentIcon = Icons.TwoTone.Tag,
+                ParentLink = "/Payments?viewId=PaymentList"
+            }
+        },
         //
     };
 

@@ -1,0 +1,185 @@
+﻿@using MudBlazor
+@using global::PrimeService.Model.Shopping
+@using global::PrimeService.Model.Settings.Tickets
+@using global::PrimeService.Model.Tickets
+@using global::PrimeService.Model.Settings.Payments
+
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            @* <img src="svg/location.svg" Height="45" Width="45" alt="client avatar"/> *@
+            <MudIcon Icon="@Icons.TwoTone.Money"
+                     Style="font-size: 3.5rem;"></MudIcon>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudDateRangePicker Label="Filter Transaction, By Date Range"
+                                @bind-DateRange="SelectedDateRange" />
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudToolBar>
+                <MudTooltip Text="Add Income" Arrow="true" Placement="Placement.Bottom">
+                    <MudFab Icon="@Icons.Material.Outlined.Add"
+                            Color="Color.Success" 
+                            Size="Size.Small"
+                    />
+                </MudTooltip>
+                <MudTooltip Text="Add Expense" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Remove"
+                                   Color="Color.Secondary"
+                                   />
+                </MudTooltip>
+            </MudToolBar>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudDivider Style="margin-left:8px; margin-right:8px;"/>
+    <MudCardContent>
+        
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.Material.Filled.CurrencyRupee" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Total Amount</MudText>
+                        <MudText Typo="Typo.h5">31,25,000</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.TwoTone.KeyboardDoubleArrowDown" 
+                             Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Income</MudText>
+                        <MudText Typo="Typo.h5">1,50,000</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.TwoTone.KeyboardDoubleArrowUp" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Expense</MudText>
+                        <MudText Typo="Typo.h5">1,20,000</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                    <MudIcon Icon="@Icons.TwoTone.Percent" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Profit</MudText>
+                        <MudText Typo="Typo.h5">25%</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+        
+        <MudGrid>
+            <MudItem xs="12" sm="4" md="3">
+                <MudPaper>
+                    <MudList Color="Color.Primary" Clickable="true"
+                             @bind-SelectedItem="SelectedCategory">
+                        <MudListItem Value="0" Text="All" Icon="@Icons.TwoTone.DoneAll"/>
+                        <MudDivider/>
+                        <MudListItem Icon="@Icons.Material.Filled.Money" Text="Payments"
+                                     InitiallyExpanded="true">
+                            <NestedList>
+                                @{
+                                    int payIndex = 1;
+                                }
+                                @foreach (PaymentCategory item in Enum.GetValues(typeof(PaymentCategory)))
+                                {
+                                    <MudListItem Value="@payIndex" Text="@item.ToString()"
+                                                 Icon="@Icons.Material.Outlined.GridGoldenratio"/>
+                                    payIndex++;
+                                }
+                            </NestedList>
+                        </MudListItem>
+                    </MudList>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="8" md="9">
+                <MudTable ServerData="@(new Func<TableState, Task<TableData<Payments>>>(ServerReload))"
+                          Dense="true" Hover="true" @ref="table"
+                          GroupBy="@_groupDefinition"
+                          GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+                          GroupFooterClass="mb-4">
+                    <ColGroup>
+                        @if (_groupDefinition.Expandable)
+                        {
+                            <col style="width: 60px;"/>
+                        }
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                        <col/>
+                    </ColGroup>
+                    <ToolBarContent>
+                        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))"
+                                      FullWidth="true"
+                                      Placeholder="Search" Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh><MudTableSortLabel SortLabel="Date" T="Payments">Date</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel T="Payments">Amount</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel T="Payments">Reason</MudTableSortLabel></MudTh>
+
+                        <MudTh><MudTableSortLabel T="Payments">Staff</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel T="Payments">Method</MudTableSortLabel></MudTh>
+                    </HeaderContent>
+                    <GroupHeaderTemplate>
+                        <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
+                    </GroupHeaderTemplate>
+                    <RowTemplate>
+                        <MudTd DataLabel="Date">
+                            @context.TransactionDate
+                        </MudTd>
+                        <MudTd DataLabel="Account">
+                            @context.PaymentTag.Title
+                        </MudTd>
+                        <MudTd DataLabel="Reason">
+                            <MudTooltip Color="Color.Tertiary" Arrow="true">
+                                <ChildContent>
+                                    <MudLink Href=@($"/Payments/?viewId=Payment&Id={@context.Id}")
+                                             Target="_blank">
+                                        @context.Reason
+                                    </MudLink>
+                                </ChildContent>
+                                <TooltipContent>
+                                    <MudText Typo="Typo.body2"> Edit - '@context.Reason' </MudText>
+                                </TooltipContent>
+                            </MudTooltip>
+                        </MudTd>
+
+                        <MudTd DataLabel="Staff">
+                            <MudTooltip Arrow="true" Text="@context.Who.User.Name">
+                                @context.Who.User.Name
+                            </MudTooltip>
+                        </MudTd>
+
+                        <MudTd DataLabel="Method">
+                            @context.PaymentMethod.Title
+                        </MudTd>
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <MudText>No matching records found</MudText>
+                    </NoRecordsContent>
+                    <LoadingContent>
+                        <MudText>Loading...</MudText>
+                    </LoadingContent>
+                    <PagerContent>
+                        <MudTablePager/>
+                    </PagerContent>
+                </MudTable>
+            </MudItem>
+        </MudGrid>
+
+    </MudCardContent>
+</MudCard>

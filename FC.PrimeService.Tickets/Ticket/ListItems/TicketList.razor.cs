@@ -100,6 +100,72 @@ public  partial class TicketList
                 Mobile = "8589645123"
             }
         
+        },
+        new Model.TicketService()
+        {
+            Id = "85893409jdl934l34l43",
+            TicketNo = "TN#5.30.2022.1",
+            CreatedDate = DateTime.Now.AddDays(5),
+            TicketStatus = new Status(){ Name = "Init" },
+            AdvanceAmount = 5000,
+            Appearance = "Slightly Damaged",
+            BalanceAmount = 5000,
+            TargetDate = DateTime.Now.AddDays(5),
+            TotalAmount = 10000,
+            Reasons = "Audio is not clear",
+            AssignedTo =  new Employee()
+            {
+                User = new User()
+                {
+                    Name = "Alam"
+                }
+            },
+            EnteredBy = new Employee()
+            {
+                User = new User()
+                {
+                    Name = "SR Ganesh Ram"
+                }
+            },
+            Client = new Shop.Client()
+            {
+                Name = "SRG",
+                Mobile = "8589645123"
+            }
+        
+        },
+        new Model.TicketService()
+        {
+            Id = "58899409OLKI934l34l43",
+            TicketNo = "TN#5.31.2022.3",
+            CreatedDate = DateTime.Now.AddDays(5),
+            TicketStatus = new Status(){ Name = "Init" },
+            AdvanceAmount = 5000,
+            Appearance = "No Physical Damage found",
+            BalanceAmount = 5000,
+            TargetDate = DateTime.Now.AddDays(5),
+            TotalAmount = 10000,
+            Reasons = "Audio is not clear",
+            AssignedTo =  new Employee()
+            {
+                User = new User()
+                {
+                    Name = "SRG"
+                }
+            },
+            EnteredBy = new Employee()
+            {
+                User = new User()
+                {
+                    Name = "SR Ganesh Ram"
+                }
+            },
+            Client = new Shop.Client()
+            {
+                Name = "SRG",
+                Mobile = "8589645123"
+            }
+        
         }
     };
 
