@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using FC.PrimeService.Payments.Payment.Dialogs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
@@ -196,20 +197,34 @@ public partial class PaymentList
     }
     #endregion
 
-    private async Task AddProductCategory()
-    {
-        await InvokeDialog("_ProductCategory","Product Category", null);//Null indicates its an 'Add' Mode.
-    }
+
+    #region Invoke Payment Dialog
     private async Task InvokeDialog(string parameter, string title, Model.Payments model)
     {
-        // var parameters = new DialogParameters
-        //     { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
-        // var dialog = DialogService.Show<ProductCategoryDialog>(title, parameters, _dialogOptions);
-        // var result = await dialog.Result;
-        //
-        // if (!result.Cancelled)
-        // {
-        //     Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
-        // }
+        var parameters = new DialogParameters
+            { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
+        var dialog = DialogService.Show<PaymentDialog>(title, parameters, _dialogOptions);
+        var result = await dialog.Result;
+        
+        if (!result.Cancelled)
+        {
+            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+        }
     }
+
+    private async Task AddIncome()
+    {
+        await InvokeDialog("_Payments","Add Income", new Model.Payments()
+        {
+            PaymentCategory = PaymentCategory.Income
+        });//Null indicates its an 'Add' Mode.
+    }
+    private async Task AddExpense()
+    {
+        await InvokeDialog("_Payments","Add Expense", new Model.Payments()
+        {
+            PaymentCategory = PaymentCategory.Expense
+        });//Null indicates its an 'Add' Mode.
+    }
+    #endregion
 }

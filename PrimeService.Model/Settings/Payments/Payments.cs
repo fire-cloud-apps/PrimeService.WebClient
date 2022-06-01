@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using PrimeService.Model.Shopping;
 
 namespace PrimeService.Model.Settings.Payments;
 
@@ -26,6 +27,8 @@ public class Payments
     public string Reason { get; set; }
     
     public Employee Who { get; set; }
+    
+    public Client Client { get; set; } 
 
     #region Other
 

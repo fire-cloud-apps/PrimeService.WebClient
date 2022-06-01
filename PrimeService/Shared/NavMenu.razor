@@ -2,6 +2,7 @@
 <MudNavMenu Bordered="true">
     <MudNavLink Href="/Index" Match="NavLinkMatch.Prefix" 
                 Icon="@Icons.Material.TwoTone.Home">Home</MudNavLink>
+    
     <MudNavLink Href="/Dashboard" Match="NavLinkMatch.All" 
                 Icon="@Icons.Material.TwoTone.Dashboard">Dashboard</MudNavLink>
     @* *@
@@ -44,9 +45,14 @@
                 Match="NavLinkMatch.Prefix"  
                 Icon="@Icons.TwoTone.PointOfSale">Quick Sales</MudNavLink>
     
+    <MudNavLink Href= "/Report?viewId=Report"
+                    Match="NavLinkMatch.Prefix"  
+                    Icon="@Icons.TwoTone.InsertChart">Report</MudNavLink>
+    
     <MudNavLink Href= "/Inventory?viewId=Product"
                 Match="NavLinkMatch.Prefix" 
                 Icon="@Icons.TwoTone.Inventory2">Inventory</MudNavLink>
+    
     <MudNavLink Href= "/View-Client?viewId=Client"
                 Match="NavLinkMatch.Prefix" 
                 Icon="@Icons.TwoTone.PeopleAlt">Clients</MudNavLink>

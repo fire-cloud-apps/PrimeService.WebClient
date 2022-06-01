@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
+using Shop = PrimeService.Model.Shopping;
 using Model = PrimeService.Model.Settings.Payments;
 
 namespace FC.PrimeService.Payments.Payment.Dialogs;
@@ -23,13 +24,8 @@ public partial class PaymentDialog
     private string _detectedHeight = "450";
     private string _dialogBehaviour = "max-height:{0}px; overflow-y: scroll; overflow-x: hidden;";
     private bool _isReadOnly = false;
-
-    public List< Model.PaymentTags> _paymentTags = new List<Model.PaymentTags>()
-    {
-        new Model.PaymentTags() {  Title = "Main Location" },
-        new Model.PaymentTags() {  Title = "Secondary Location"},
-        new Model.PaymentTags() {  Title = "Emergency Location"},
-    }; // In reality it should come from API.
+    private MudButton submitButton;
+    
     
     #endregion
 
@@ -49,13 +45,14 @@ public partial class PaymentDialog
                TransactionDate = DateTime.Now,
                Who = new Employee(){ User = new User(){ Name = "SRG"}}
             };
-            _title = "Add Payment";
+            _title = "Payments";
         }
         else
         {
             //Dialog box opened in "Edit" mode
             _inputMode = _Payments;
-            _title = "Edit Payment";
+            _title = "Payments";
+            //_title = "Edit Payment"; //Title is assigned in the design page based on 'Income' or 'Expense' Category.
         }
     }
     #endregion
@@ -106,6 +103,12 @@ public partial class PaymentDialog
 
     #region PaymentTags Search - Autocomplete
 
+    public List< Model.PaymentTags> _paymentTags = new List<Model.PaymentTags>()
+    {
+        new Model.PaymentTags() {  Title = "Main Location" },
+        new Model.PaymentTags() {  Title = "Secondary Location"},
+        new Model.PaymentTags() {  Title = "Emergency Location"},
+    }; // In reality it should come from API.
     private async Task<IEnumerable<Model.PaymentTags>> PaymentTag_SearchAsync(string value)
     {
         // In real life use an asynchronous function for fetching data from an api.
@@ -141,6 +144,30 @@ public partial class PaymentDialog
             return _paymentMethods;
         }
         return _paymentMethods.Where(x => x.Title.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    #endregion
+    
+    #region Client Search - Autocomplete
+    
+    public List<Shop.Client> _clients = new List<Shop.Client>()
+    {
+        new Shop.Client() {  Name = "James" },
+        new Shop.Client() {  Name = "Rowson"},
+        new Shop.Client() {  Name = "Matt"},
+    }; // In reality it should come from API.
+
+    private async Task<IEnumerable<Shop.Client>> Client_SearchAsync(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
+        {
+            return _clients;
+        }
+        return _clients.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     #endregion
