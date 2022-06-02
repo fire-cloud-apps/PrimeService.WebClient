@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using MudBlazor;
 using MudBlazor.Utilities;
+using PrimeService.Utility.Helper;
 
 namespace FireCloud.WebClient.PrimeService.Shared
 {
@@ -149,8 +150,28 @@ namespace FireCloud.WebClient.PrimeService.Shared
         }
 
         #endregion
+
+        #region Search Item
+
+        private BreadCrumSettings _breadCrum = new BreadCrumSettings();
+        private async Task<IEnumerable<BreadCrumSettings>> Menu_SearchAsync(string value)
+        {
+            // In real life use an asynchronous function for fetching data from an api.
+            await Task.Delay(5);
+
+            // if text is null or empty, show complete list
+            if (string.IsNullOrEmpty(value))
+            {
+                return BreadCrumNavigation.MenuItems.Values;
+            }
+            return BreadCrumNavigation.MenuItems.Values.Where(x => x.Child.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        #endregion
         
     }
+    
+    
     public class SwitchTheme
     {
         public string Name { get; set; }

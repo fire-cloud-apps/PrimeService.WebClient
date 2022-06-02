@@ -3,6 +3,7 @@
 @using global::PrimeService.Model.Settings.Tickets
 @using global::PrimeService.Model.Tickets
 @using global::PrimeService.Model.Settings.Payments
+@using FC.PrimeService.Dashboards.Dashboard.CardPanel
 
 
 <MudCard>
@@ -37,48 +38,7 @@
     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
     <MudCardContent>
         
-        <MudGrid>
-            <MudItem xs="12" sm="6" md="3">
-                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-                    <MudIcon Icon="@Icons.Material.Filled.CurrencyRupee" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
-                    <div>
-                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Total Amount</MudText>
-                        <MudText Typo="Typo.h5">31,25,000</MudText>
-                    </div>
-                </MudPaper>
-            </MudItem>
-            
-            <MudItem xs="12" sm="6" md="3">
-                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-                    <MudIcon Icon="@Icons.TwoTone.KeyboardDoubleArrowDown" 
-                             Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
-                    <div>
-                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Income</MudText>
-                        <MudText Typo="Typo.h5">1,50,000</MudText>
-                    </div>
-                </MudPaper>
-            </MudItem>
-            
-            <MudItem xs="12" sm="6" md="3">
-                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-                    <MudIcon Icon="@Icons.TwoTone.KeyboardDoubleArrowUp" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
-                    <div>
-                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Expense</MudText>
-                        <MudText Typo="Typo.h5">1,20,000</MudText>
-                    </div>
-                </MudPaper>
-            </MudItem>
-            
-            <MudItem xs="12" sm="6" md="3">
-                <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-                    <MudIcon Icon="@Icons.TwoTone.Percent" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
-                    <div>
-                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Profit</MudText>
-                        <MudText Typo="Typo.h5">25%</MudText>
-                    </div>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
+        <PaymentCard />
         
         <MudGrid>
             <MudItem xs="12" sm="4" md="3">

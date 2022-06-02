@@ -1,5 +1,6 @@
 ﻿using MudBlazor;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Model.Shopping;
 
 namespace PrimeService.Utility.Helper;
 
@@ -77,6 +78,13 @@ public class BreadCrumNavigation
         //
     };
 
+    public static Dictionary<string, BreadCrumSettings> MenuItems
+    {
+        get
+        {
+            return _viewDictionary;
+        }
+    } 
     public static BreadCrumSettings GetData(string componentId)
     {
         return _viewDictionary[componentId];

@@ -1,6 +1,7 @@
 ﻿
 @page "/index"
 @using Microsoft.AspNetCore.Authorization
+@using FC.PrimeService.Dashboards.Dashboard.CardPanel
 @using FireCloud.WebClient.PrimeService.Service
 
 @attribute [Authorize]
@@ -11,12 +12,208 @@
 
 @if (_isAuthenticated)
 {
-    <MudText Typo="Typo.h3" GutterBottom="true">Welcome @_userInfo.Username !</MudText>
-    <MudText Class="mb-8">Welcome to your new app, powered by MudBlazor!</MudText>
-    <MudAlert Severity="Severity.Normal">You can find documentation and examples on our website here: <MudLink Href="https://mudblazor.com" Typo="Typo.body2" Color="Color.Inherit"><b>www.mudblazor.com</b></MudLink></MudAlert>
-    <MudText Typo="Typo.h5">
-        You're logged in with Blazor WebAssembly & JWT!!
-    </MudText>
+    <MudContainer>
+        <MudGrid>
+            <MudItem xs="12" sm="12" md="12">
+                <MudCarousel Class="mud-width-full" ShowArrows="true" 
+                             ShowBullets="true"
+                             AutoCycle="true" TData="object">
+                    <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                       
+                        <MudPaper Class="ma-4 pa-4" MaxWidth="true" >
+                            <MudText Typo="Typo.h6" GutterBottom="true">Payments</MudText>
+                            <PaymentCard/>
+                        </MudPaper>
+                        
+                       
+                    </MudCarouselItem>
+                    <MudCarouselItem Transition="Transition.Slide" Color="Color.Secondary">
+                        <MudPaper Class="ma-4 pa-4" MaxWidth="true">
+                            <MudText Typo="Typo.h6" GutterBottom="true">Payments</MudText>
+                            <PaymentCard/>
+                        </MudPaper>
+                    </MudCarouselItem>
+                    <MudCarouselItem Transition="Transition.Slide" Color="Color.Default">
+                        <MudPaper Class="ma-4 pa-4" MaxWidth="true" >
+                            <MudText Typo="Typo.h6" GutterBottom="true">Payments</MudText>
+                            <PaymentCard/>
+                        </MudPaper>
+                    </MudCarouselItem>
+                </MudCarousel>
+            </MudItem>
+            
+            <MudItem xs="12" sm="12" md="6">
+                <MudCard Elevation="25" Style="height:100%;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Need your attention</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent Class="px-0">
+                        <MudSimpleTable Elevation="0" Hover="true">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Priority</th>
+                                <th>Earnings</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var report in earningReports.OrderBy(x => x.Name))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex flex-row">
+                                            <MudAvatar Image="@report.Avatar" Class="mud-elevation-25"/>
+                                            <div class="ml-6">
+                                                <MudText Typo="Typo.subtitle2">@report.Name</MudText>
+                                                <MudText Typo="Typo.body2">@report.Title</MudText>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><MudChip Label="true" Color="@report.Severity" Size="Size.Small" Class="ml-auto mud-elevation-25">@report.SeverityTitle</MudChip></td>
+                                    <td><MudText>@report.Salary</MudText></td>
+                                </tr>
+                            }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="6">
+                <MudCard Elevation="25" Style="height:100%;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Recent Tickets</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent Class="px-0">
+                        <MudSimpleTable Elevation="0" Hover="true">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Priority</th>
+                                <th>Earnings</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var report in earningReports.OrderBy(x => x.Name))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex flex-row">
+                                            <MudAvatar Image="@report.Avatar" Class="mud-elevation-25"/>
+                                            <div class="ml-6">
+                                                <MudText Typo="Typo.subtitle2">@report.Name</MudText>
+                                                <MudText Typo="Typo.body2">@report.Title</MudText>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><MudChip Label="true" Color="@report.Severity" Size="Size.Small" Class="ml-auto mud-elevation-25">@report.SeverityTitle</MudChip></td>
+                                    <td><MudText>@report.Salary</MudText></td>
+                                </tr>
+                            }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="6">
+                <MudCard Elevation="25" Style="height:100%;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Recent Sales Activity</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent Class="px-0">
+                        <MudSimpleTable Elevation="0" Hover="true">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Priority</th>
+                                <th>Earnings</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var report in earningReports.OrderBy(x => x.Name))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex flex-row">
+                                            <MudAvatar Image="@report.Avatar" Class="mud-elevation-25"/>
+                                            <div class="ml-6">
+                                                <MudText Typo="Typo.subtitle2">@report.Name</MudText>
+                                                <MudText Typo="Typo.body2">@report.Title</MudText>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><MudChip Label="true" Color="@report.Severity" Size="Size.Small" Class="ml-auto mud-elevation-25">@report.SeverityTitle</MudChip></td>
+                                    <td><MudText>@report.Salary</MudText></td>
+                                </tr>
+                            }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="6">
+                <MudCard Elevation="25" Style="height:100%;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Recent incidents</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent Class="px-0">
+                        <MudList Clickable="true">
+                            <MudListItem>
+                                <div class="d-flex flex-row">
+                                    <MudAvatar Class="mud-elevation-25">
+                                        <MudIcon Icon="@Icons.Custom.Brands.GitHub" Class="mx-4"/>
+                                    </MudAvatar>
+                                    <div class="ml-6">
+                                        <MudText Typo="Typo.subtitle2">Issues rising</MudText>
+                                        <MudText Typo="Typo.body2">Issues is almost reaching 100</MudText>
+                                    </div>
+                                    <MudChip Label="true" Color="Color.Error" Size="Size.Small" Class="ml-auto mud-elevation-25">Danger</MudChip>
+                                </div>
+                            </MudListItem>
+                            <MudListItem>
+                                <div class="d-flex flex-row">
+                                    <MudAvatar Class="mud-elevation-25">
+                                        <MudIcon Icon="@Icons.Custom.Uncategorized.Radioactive" Class="mx-4"/>
+                                    </MudAvatar>
+                                    <div class="ml-6">
+                                        <MudText Typo="Typo.subtitle2">Incident in plant number 4</MudText>
+                                        <MudText Typo="Typo.body2">Fire in reactor core</MudText>
+                                    </div>
+                                    <MudChip Label="true" Color="Color.Info" Size="Size.Small" Class="ml-auto mud-elevation-25">Minor</MudChip>
+                                </div>
+                            </MudListItem>
+                            <MudListItem>
+                                <div class="d-flex flex-row">
+                                    <MudAvatar Class="mud-elevation-25">
+                                        <MudIcon Icon="@Icons.Material.Filled.Person" Class="mx-4"/>
+                                    </MudAvatar>
+                                    <div class="ml-6">
+                                        <MudText Typo="Typo.subtitle2">Occupational injury</MudText>
+                                        <MudText Typo="Typo.body2">Employee broke a finger while writing some code</MudText>
+                                    </div>
+                                    <MudChip Label="true" Color="Color.Success" Size="Size.Small" Class="ml-auto mud-elevation-25">Dismissed</MudChip>
+                                </div>
+                            </MudListItem>
+                        </MudList>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+    
+    @* <MudText Typo="Typo.h3" GutterBottom="true">Welcome @_userInfo.Username !</MudText> *@
+    
+    
 }
 else
 {

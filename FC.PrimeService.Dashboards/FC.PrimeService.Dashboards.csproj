@@ -12,7 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.4" />
+    <PackageReference Include="MudBlazor" Version="6.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
   </ItemGroup>
 
 </Project>

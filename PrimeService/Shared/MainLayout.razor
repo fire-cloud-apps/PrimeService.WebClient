@@ -2,6 +2,8 @@
 @inherits LayoutComponentBase
 @inject IJSRuntime jsRuntime
 @using FireCloud.WebClient.PrimeService.Pages
+@using global::PrimeService.Utility.Helper
+@using Microsoft.AspNetCore.Components
 
 @*
     Ref: Theme provider
@@ -27,10 +29,20 @@
     <MudSpacer />
 
     <MudTextField  T="string" Style="height: 45px;"
-                   Class="rounded-pill" Variant="Variant.Outlined" 
+                   Class="rounded-pill" Variant="Variant.Outlined"
                    FullWidth="true" Adornment="Adornment.End"
                    Placeholder="Search any" AdornmentIcon="@Icons.Filled.Search"
                    AdornmentColor="Color.Secondary" />
+    @* <MudAutocomplete T="BreadCrumSettings" Style="height: 35px; width: 100%;" *@
+    @*                  Placeholder="Select any..." *@
+    @*                  Class="rounded-pill" Variant="Variant.Outlined" *@
+    @*                  @bind-Value="_breadCrum" *@
+    @*                  ToStringFunc="@(e => e == null ? null : $"{e.Child}")" *@
+    @*                  SearchFunc="@Menu_SearchAsync" Immediate="true" *@
+    @*                  ResetValueOnEmptyText="true" *@
+    @*                  CloseIcon="@Icons.Material.Filled.Search" *@
+    @*                  FullWidth="true" Adornment="Adornment.End" *@
+    @*                  AdornmentColor="Color.Secondary"/> *@
 
     <MudMenu>
         <ActivatorContent>
