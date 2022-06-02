@@ -3,35 +3,16 @@
     <MudNavLink Href="/Index" Match="NavLinkMatch.Prefix" 
                 Icon="@Icons.Material.TwoTone.Home">Home</MudNavLink>
     
-    <MudNavLink Href="/Dashboard" Match="NavLinkMatch.All" 
-                Icon="@Icons.Material.TwoTone.Dashboard">Dashboard</MudNavLink>
-    @* *@
-    @* <MudNavGroup Title="Form Validation" Expanded="false" IconColor="Color.Secondary" *@
-    @*              HideExpandIcon="false" *@
-    @*              Icon="@Icons.TwoTone.ReportGmailerrorred"> *@
-    @*     <MudNavLink Href="Input-Validation" Match="NavLinkMatch.All" *@
-    @*                 IconColor="Color.Default" *@
-    @*                 Icon="@Icons.TwoTone.Input">TextBox</MudNavLink> *@
-    @*     <MudNavLink Href="/Checkbox-Validation" Match="NavLinkMatch.Prefix" *@
-    @*                 IconColor="Color.Info" *@
-    @*                 Icon="@Icons.TwoTone.FactCheck">Checkbox</MudNavLink> *@
-    @*     <MudNavLink Href="/Radio-Validation" Match="NavLinkMatch.Prefix" *@
-    @*                 IconColor="Color.Warning" *@
-    @*                 Icon="@Icons.TwoTone.RadioButtonChecked">Radio</MudNavLink> *@
-    @*     <MudNavLink Href="/DropDown-Validation" Match="NavLinkMatch.Prefix" *@
-    @*                 IconColor="Color.Surface" *@
-    @*                 Icon="@Icons.TwoTone.ArrowDropDownCircle">Drop Down</MudNavLink> *@
-    @*     <MudNavLink Href="/Autocomplete-Validation" Match="NavLinkMatch.Prefix" *@
-    @*                 IconColor="Color.Success" *@
-    @*                 Icon="@Icons.TwoTone.ManageSearch">Auto Complete</MudNavLink> *@
-    @*     <MudNavLink Href="MudForm-Validation" Match="NavLinkMatch.Prefix" *@
-    @*                 IconColor="Color.Tertiary" *@
-    @*                 Icon="@Icons.Filled.DynamicForm"> *@
-    @*         <MudTooltip Text="All Validation in One Form" Arrow="true" Placement="Placement.Right"> *@
-    @*             <MudText Typo="Typo.body2">MudForm</MudText> *@
-    @*         </MudTooltip> *@
-    @*     </MudNavLink> *@
-    @* </MudNavGroup> *@
+    <MudNavGroup Icon="@Icons.Material.TwoTone.Dashboard" Title="Dashboard" Expanded="false">
+        <MudNavLink Href="/Dashboard" Match="NavLinkMatch.All" 
+                    Icon="@Icons.TwoTone.FlashOn">Trend</MudNavLink>
+        <MudNavLink Href="/Dashboard" Match="NavLinkMatch.All" 
+                    Icon="@Icons.TwoTone.InsertChart">Payments</MudNavLink>
+        <MudNavLink Href="/Dashboard" Match="NavLinkMatch.All" 
+                    Icon="@Icons.TwoTone.Storefront">Inventory</MudNavLink>
+         <MudNavLink Href="/Dashboard" Match="NavLinkMatch.All" 
+                                    Icon="@Icons.TwoTone.CrisisAlert">Sales</MudNavLink>
+    </MudNavGroup>
     
     <MudNavLink Href= "/Ticket?viewId=TicketList"
                 Match="NavLinkMatch.Prefix"  
