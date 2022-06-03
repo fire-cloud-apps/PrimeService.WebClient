@@ -19,8 +19,6 @@ public class AuthenticationService : IAuthenticationService
     private IHttpService _httpService;
     private NavigationManager _navigationManager;
     private ILocalStorageService _localStorageService;
-    
-
     public User User { get; private set; }
 
     public AuthenticationService(

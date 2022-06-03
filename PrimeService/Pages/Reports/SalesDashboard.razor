@@ -1,0 +1,173 @@
+﻿@page "/Dashboard/Sales"
+@inject IJSRuntime jsRuntime;
+
+
+<MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Sales</MudText>
+
+@if (_loading)
+{
+    <MudSkeleton Class="my-2"/>
+    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+    <MudSkeleton Class="my-2"/>
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="12" sm="11" md="11">
+            <MudDateRangePicker Label="@_rangeText"
+                                @bind-DateRange="SelectedDateRange"/>
+        </MudItem>
+        <MudItem xs="12" sm="1" md="1">
+            <MudFab Icon="@Icons.Material.Outlined.Refresh"
+                    Color="Color.Success"
+                    Size="Size.Small"
+                    OnClick="RefreshData"/>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper Elevation="25" Class="pa-4" Style="height:350px;">
+                <MudText>Ticket by Date</MudText>
+                <canvas id="ticket-by-date"></canvas>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper Elevation="25" Class="pa-4" Style="height:350px;">
+                <MudText>Ticket by Status</MudText>
+                <MudChart ChartType="ChartType.Donut" Width="250px" Height="250px" 
+                          InputData="@data" InputLabels="@labels">
+                    <CustomGraphics>
+                        <text class="donut-inner-text" x="47%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Total</text>
+                        <text class="donut-inner-text" x="47%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@data.Sum().ToString()</text>
+                    </CustomGraphics>
+                </MudChart>
+                @code {
+                    public double[] data = { 25, 77, 28, 5 };
+                    public string[] labels = { "Oil", "Coal", "Gas", "Biomass" };
+                }
+            </MudPaper>
+        </MudItem>
+        
+        <MudItem xs="12" sm="6" md="6">
+            <MudGrid>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Euro" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Ticket Average</MudText>
+                            <MudText Typo="Typo.h5">3,125,000</MudText>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+                    
+                <MudItem xs="12" sm="6" md="6">
+                    <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Layers" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Sales Average</MudText>
+                            <MudText Typo="Typo.h5">150,000</MudText>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+                    
+                <MudItem xs="12" sm="6" md="6">
+                    <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Public" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Urgent Ticket</MudText>
+                            <MudText Typo="Typo.h5">12%</MudText>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                        <MudIcon Icon="@Icons.Custom.Uncategorized.Radioactive" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Overdue Ticket</MudText>
+                            <MudText Typo="Typo.h5">3,6</MudText>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                        <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Color="Color.Surface" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
+                                Total Sales
+                            </MudText>
+                            <MudText Typo="Typo.h5">12,5282</MudText>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                        <MudIcon Icon="@Icons.Material.TwoTone.Category" 
+                                 Color="Color.Info" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                        <div>
+                            <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">
+                                Product Category
+                            </MudText>
+                            <MudText Typo="Typo.h5">1026</MudText>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+                    
+            </MudGrid>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper Elevation="25" Class="pa-4" Style="height:350px;">
+                <MudText>Payments by Date</MudText>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series"
+                          XAxisLabels="@XAxisLabels" Width="100%" Height="250px">
+        
+                </MudChart>
+        
+                @code {
+        
+                    public List<ChartSeries> Series = new List<ChartSeries>()
+                    {
+                        new ChartSeries() { Name = "Primary Account", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
+                        new ChartSeries() { Name = "Secondary Account", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
+                        new ChartSeries() { Name = "Expense Account", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
+                    };
+        
+                    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
+                }
+        
+            </MudPaper>
+        </MudItem>
+        
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper Elevation="25" Class="pa-4" Style="height:350px;">
+                <MudText>Payment by Account</MudText>
+                <MudChart ChartType="ChartType.Donut" Width="250px" Height="250px" 
+                          InputData="@data" InputLabels="@labels">
+                    <CustomGraphics>
+                        <text class="donut-inner-text" x="47%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="2">Total</text>
+                        <text class="donut-inner-text" x="47%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="5">@data.Sum().ToString()</text>
+                    </CustomGraphics>
+                </MudChart>
+               
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper Elevation="25" Class="pa-4" Style="height:350px;">
+                <MudText>Ticket by Employee</MudText>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series"
+                          XAxisLabels="@XAxisLabels" Width="100%" Height="250px">
+                
+                </MudChart>
+                
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="12" md="12">
+            <MudPaper Elevation="25" Class="pa-4" Style="height:350px;">
+                <MudText>Sales by Date</MudText>
+                <canvas style="height: 300px; width: 100%;" id="sales-by-date"></canvas>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+

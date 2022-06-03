@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FC.PrimeService.Common\FC.PrimeService.Common.csproj" />
-    <ProjectReference Include="..\PrimeService.Model\PrimeService.Model.csproj" />
     <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
   </ItemGroup>
 

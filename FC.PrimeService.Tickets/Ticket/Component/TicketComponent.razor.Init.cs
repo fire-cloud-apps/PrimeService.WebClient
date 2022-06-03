@@ -42,7 +42,6 @@ public partial class TicketComponent
 
     public string _subTitle = string.Empty;
     #endregion
-
     
     #region Tasks
     public bool IsCompleted { get; set; }

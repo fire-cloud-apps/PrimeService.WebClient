@@ -13,11 +13,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.4" />
-    <PackageReference Include="MudBlazor" Version="6.0.10" />
+    <PackageReference Include="MudBlazor" Version="6.0.10" />    
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PrimeService.Model\PrimeService.Model.csproj" />
     <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
   </ItemGroup>
 

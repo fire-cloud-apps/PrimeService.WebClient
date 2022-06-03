@@ -33,17 +33,6 @@
                    FullWidth="true" Adornment="Adornment.End"
                    Placeholder="Search any" AdornmentIcon="@Icons.Filled.Search"
                    AdornmentColor="Color.Secondary" />
-    @* <MudAutocomplete T="BreadCrumSettings" Style="height: 35px; width: 100%;" *@
-    @*                  Placeholder="Select any..." *@
-    @*                  Class="rounded-pill" Variant="Variant.Outlined" *@
-    @*                  @bind-Value="_breadCrum" *@
-    @*                  ToStringFunc="@(e => e == null ? null : $"{e.Child}")" *@
-    @*                  SearchFunc="@Menu_SearchAsync" Immediate="true" *@
-    @*                  ResetValueOnEmptyText="true" *@
-    @*                  CloseIcon="@Icons.Material.Filled.Search" *@
-    @*                  FullWidth="true" Adornment="Adornment.End" *@
-    @*                  AdornmentColor="Color.Secondary"/> *@
-
     <MudMenu>
         <ActivatorContent>
             <MudAvatar Square="false" Color="Color.Default"
@@ -78,26 +67,24 @@
    
             
 </MudAppBar>
-@* <MudDrawer @bind-Open="_drawerOpen" ClipMode="_themeManager.DrawerClipMode"  *@
-@*            Elevation="_themeManager.DrawerElevation"></MudDrawer> *@
-    
-    <MudDrawer @bind-Open="DrawerOpen" Elevation="2"
-                Fixed="true" Variant="@DrawerVariant.Responsive"
-               OpenMiniOnHover="false">
-        <MudDrawerHeader>
-            <MudText Typo="Typo.h6">
-                <a title="Prime Service" class="navbar-brand" href="" style="font-size: 24px;font-family: cursive;">
-                    <i class="icofont-butterfly-alt icofont-2x" 
-                       style="color: lightcoral; font-size: 28px;"></i>
-                   @_txtCompanyName
-                </a>
-            </MudText>
-            <MudText @ref="_mudVersionText" Color="Color.Default" Typo="Typo.overline">
-                @_version
-            </MudText>
-        </MudDrawerHeader>
-        <NavMenu />
-    </MudDrawer>
+
+<MudDrawer @bind-Open="DrawerOpen" Elevation="2"
+           Fixed="true" Variant="@DrawerVariant.Responsive"
+           OpenMiniOnHover="false">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h6">
+            <a title="Prime Service" class="navbar-brand" href="" style="font-size: 24px;font-family: cursive;">
+                <i class="icofont-butterfly-alt icofont-2x" 
+                   style="color: lightcoral; font-size: 28px;"></i>
+                @_txtCompanyName
+            </a>
+        </MudText>
+        <MudText @ref="_mudVersionText" Color="Color.Default" Typo="Typo.overline">
+            @_version
+        </MudText>
+    </MudDrawerHeader>
+    <NavMenu />
+</MudDrawer>
 
 <MudMainContent>
     <MudContainer MaxWidth="MaxWidth.Large" Class="my-4 pt-4">
@@ -112,8 +99,7 @@
                        EndIcon="@Icons.TwoTone.Grid4x4"
                        Color="Color.Secondary"
                        OnClick="ShowWhatsNew"
-                       Style="text-transform:none"
-            >
+                       Style="text-transform:none" >
                 @_appSettings.Build 
             </MudButton>
         </MudText>
@@ -130,7 +116,5 @@
         <WhatsNew />
     </MudDrawerContainer>
 </MudDrawer>
-    
-   
-    
+
 </MudLayout>

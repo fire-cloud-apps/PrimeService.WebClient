@@ -21,4 +21,8 @@
     <Folder Include="Report\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
+  </ItemGroup>
+
 </Project>
