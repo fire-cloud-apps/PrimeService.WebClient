@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using PrimeService.Model.Location;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Forms;
 using Model = PrimeService.Model.Shopping;

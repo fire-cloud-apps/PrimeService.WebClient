@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using FireCloud.WebClient.PrimeService.Service.QueryString;
+using MongoDB.Bson;
 using PrimeService.Model;
 using MudBlazor;
 
@@ -55,9 +56,18 @@ public partial class Login
                 UserType = UserCategory.FcUser.ToString(), //As JSON is not able to detect this enum value.
             };
             User user = await AuthenticationService.Login(request);
-            var returnUrl = NavigationManager.QueryString("returnUrl") ?? "";
-            NavigationManager.NavigateTo($"/index?{returnUrl}");
-            Snackbar.Add($"Welcome {user.Username}!", Severity.Success);            
+            Console.WriteLine($"Login User : {user.ToJson()} ");
+            if (user.IsSuccess)
+            {
+                var returnUrl = NavigationManager.QueryString("returnUrl") ?? "";
+                NavigationManager.NavigateTo($"/index?{returnUrl}");
+                Snackbar.Add($"Welcome {user.Username}!", Severity.Success);    
+            }
+            else
+            {
+                Snackbar.Add($"Failed to Login.!<br/>{user.Message} ", Severity.Error);    
+                return;
+            }
         }
         catch (Exception ex)
         {

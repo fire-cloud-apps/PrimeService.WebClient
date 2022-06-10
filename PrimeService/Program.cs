@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.Json;
 using Blazored.LocalStorage;
 using FireCloud.WebClient.PrimeService.Service;
@@ -9,8 +10,14 @@ using Blazored.LocalStorage.Serialization;
 using Blazored.LocalStorage.StorageOptions;
 using Blazor.Extensions.Logging;
 using FireCloud.WebClient.PrimeService.Service.Helper;
+using PrimeService.Model.Settings.Tickets;
+using PrimeService.Model.Shopping;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using App = FireCloud.WebClient.PrimeService.App;
 
+//Cloud URL : https://prime-service-api.azurewebsites.net
+//Local URL : https://localhost:7111
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -44,6 +51,7 @@ builder.Services.AddScoped(sp => new HttpClient
 
 var appConfig = builder.Configuration.Get<AppSettings>();
 builder.Services.AddSingleton(appConfig);
+GlobalConfig.AppSettings = appConfig;
 Console.WriteLine($"API URL : {builder.Configuration["App:AuthUrl"]}");
 
 #endregion
@@ -60,3 +68,5 @@ await authenticationService.Initialize();
 #endregion
 
 await host.RunAsync();
+
+

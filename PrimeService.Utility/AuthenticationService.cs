@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
-using System.Threading.Tasks;
-using Blazored.LocalStorage;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using PrimeService.Model;
 
-namespace FireCloud.WebClient.PrimeService.Service;
+namespace PrimeService.Utility;
 public interface IAuthenticationService
 {
     User User { get; }
@@ -40,7 +39,7 @@ public class AuthenticationService : IAuthenticationService
     public async Task<User> Login(User user)
     {
         //Console.WriteLine(user.ToJSON());
-        User = await _httpService.Post<User>("/API/UserAuth/FCAuth", 
+       var userResponse = await _httpService.Post<User>("/API/UserAuth/FCAuth", 
             new
             {
                 user.Username, 
@@ -48,10 +47,24 @@ public class AuthenticationService : IAuthenticationService
                 user.DomainURL,
                 user.UserType
             });
-        await _localStorageService.SetItemAsync<User>("user", User);
-        await _localStorageService.SetItemAsStringAsync("authToken", User.JwtToken);
-        await _localStorageService.SetItemAsStringAsync("refreshToken", User.RefreshToken);
-        return user;
+       if (userResponse.IsSuccess)
+       {
+           User = userResponse;
+           User.Password = string.Empty;
+           await _localStorageService.SetItemAsync<User>("user", User);
+           await _localStorageService.SetItemAsStringAsync("authToken", User.JwtToken);
+           await _localStorageService.SetItemAsStringAsync("refreshToken", User.RefreshToken);
+       }
+       else
+       {
+           User = new User()
+           {
+               IsSuccess = false,
+               Message = userResponse.Message
+           };
+       }
+       
+        return User;
     }
 
     private bool _isAuthorized = false;
@@ -70,9 +83,7 @@ public class AuthenticationService : IAuthenticationService
                 _isAuthorized = true;
             }
         }
-
         return _isAuthorized;
-
     }
 
     public async Task Logout()

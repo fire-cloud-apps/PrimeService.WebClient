@@ -1,6 +1,6 @@
-﻿using System.Drawing;
+﻿using PrimeService.Model.Shopping;
 
-namespace FireCloud.WebClient.PrimeService.Service.Helper;
+namespace PrimeService.Utility.Helper;
 
 public class AppSettings
 {
@@ -11,6 +11,8 @@ public class AppSettings
     public string? Version { get; set; }
     public string? Build { get; set; }
     public bool IsDev { get; set; }
+    
+    public API API { get; set; }
    
 }
 
@@ -19,4 +21,19 @@ public class App
 {
     public string AuthUrl { get; set; }
     public string GoogleAuth { get; set; }
+    public string ServiceUrl { get; set; }
+}
+
+public class API
+{
+     public CompanyApi CompanyApi { get; set; }
+}
+
+public class CompanyApi
+{
+ public string GetDetails { get; set; }
+// "GetBatch":"",
+// "Create":"",
+// "Update":"",
+// "Delete":""
 }

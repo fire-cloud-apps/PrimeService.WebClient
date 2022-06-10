@@ -1,8 +1,13 @@
-﻿@using FireCloud.WebClient.PrimeService.Service.Helper
+﻿@using Blazored.LocalStorage
+@using FireCloud.WebClient.PrimeService.Service.Helper
+@using global::PrimeService.Utility.Helper
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Configuration
 @using MudBlazor
 
 @inject NavigationManager _navigationManager
 @inject HttpClient _httpClient
 @inject AppSettings _appSettings
+@inject ILocalStorageService _localStore
 @inject IDialogService DialogService
+@inject IConfiguration _configuration;
