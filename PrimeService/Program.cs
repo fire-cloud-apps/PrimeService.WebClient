@@ -16,14 +16,13 @@ using PrimeService.Utility;
 using PrimeService.Utility.Helper;
 using App = FireCloud.WebClient.PrimeService.App;
 
-//Cloud URL : https://prime-service-api.azurewebsites.net
-//Local URL : https://localhost:7111
+//Cloud URL : https://prime-service-api.azurewebsites.net/API/
+//Local URL : https://localhost:7111/API/
 //Prime Service
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
-
 
 //https://localhost:7086
 #region Dependency injection, Logging & Scope
