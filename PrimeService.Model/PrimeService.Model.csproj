@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>Prime Serivce Domains</Title>
+        <Authors>PrimeService</Authors>
+        <Copyright>FC@2022</Copyright>
+        <PackageTags>PrimeService</PackageTags>
+        <PackageVersion>1.0.0.4</PackageVersion>
+        <Description>Prime Service Domain details</Description>
+        <PackageIcon>DFS.png</PackageIcon>
+        <PackageReleaseNotes>Version 1.0.0.4
+1. Country replaced with Country.</PackageReleaseNotes>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\PrimeService.Model.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\PrimeService.Model.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FC.Common.Domain" Version="1.0.0" />
+      <PackageReference Include="Humanizer.Core" Version="2.14.1" />
+      <PackageReference Include="MudBlazor" Version="6.0.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Reports" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="DFS.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+      </None>
+    </ItemGroup>
+
+</Project>
