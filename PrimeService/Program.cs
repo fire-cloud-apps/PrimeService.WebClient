@@ -18,6 +18,7 @@ using App = FireCloud.WebClient.PrimeService.App;
 
 //Cloud URL : https://prime-service-api.azurewebsites.net
 //Local URL : https://localhost:7111
+//Prime Service
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
