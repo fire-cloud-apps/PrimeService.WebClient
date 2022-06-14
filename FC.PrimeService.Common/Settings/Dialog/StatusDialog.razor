@@ -1,8 +1,4 @@
-﻿@using MudBlazor
-@using global::PrimeService.Model.Settings
-@using global::PrimeService.Utility.ValidationHelper
-@using System.Text.Json
-@inject ISnackbar Snackbar
+﻿@inject ISnackbar Snackbar
 
 <MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
          @bind-Errors="@errors">
@@ -27,12 +23,18 @@
             {
                 <MudGrid>
                     <MudItem xs="12" sm="12" md="12">
-                        <MudTextField Disabled="@_isReadOnly" Label="Name" 
+                        <MudTextField Disabled="@_isReadOnly" AutoFocus="true" Label="Name" 
                                       HelperText="Max. 50 characters"
                                       @bind-Value="_inputMode.Name"
                                       For="@(() => _inputMode.Name)"
                                       MaxLength="50"
                                       Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudColorPicker Label="Color Code" 
+                                        Style="@($"color: {_inputMode.ColorCode};")"
+                                        @bind-Text="_inputMode.ColorCode"
+                                        ColorPickerView="ColorPickerView.Palette" />
                     </MudItem>
                 </MudGrid>
             }
@@ -56,6 +58,12 @@
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
                        StartIcon="@Icons.Outlined.Cancel"
                        OnClick="Cancel">Cancel</MudButton>
+            @if (_userAction == UserAction.EDIT)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                OnClick="Delete"
+                               Color="Color.Secondary" ></MudIconButton>
+            }
             
             @if (_appSettings.IsDev)
             {

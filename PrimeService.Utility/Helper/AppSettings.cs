@@ -27,8 +27,11 @@ public class App
 public class API
 {
      public CompanyApi CompanyApi { get; set; }
+     public TicketStatusApi TicketStatusApi { get; set; }
+     
 }
 
+#region Company API
 public class CompanyApi
 {
  public string GetDetails { get; set; }
@@ -37,3 +40,18 @@ public class CompanyApi
 // "Update":"",
 // "Delete":""
 }
+#endregion
+
+#region Ticket Status API
+
+public class TicketStatusApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+
+#endregion

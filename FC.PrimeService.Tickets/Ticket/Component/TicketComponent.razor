@@ -21,15 +21,16 @@ else
     <MudCard>
     <MudCardHeader>
         <CardHeaderAvatar>
+            @* Color="@((Color)SelectedStatus.ColorCode)"  *@
             <MudIcon Icon="@Icons.TwoTone.Tag"
-                     Color="@((Color)SelectedStatus.ColorCode)" 
                      Style="font-size: 3.5rem;"></MudIcon>
         </CardHeaderAvatar>
         
         <CardHeaderContent>
             <MudGrid >
                 <MudItem xs="12" sm="4" md="4">
-                    <MudText Typo="Typo.h6" Color="@((Color)SelectedStatus.ColorCode)" >
+                 @* Color="@((Color)SelectedStatus.ColorCode)"  *@
+                    <MudText Typo="Typo.h6">
                         @(_inputMode?.TicketNo)
                     </MudText>
                     <MudText Typo="Typo.caption">
@@ -122,8 +123,9 @@ else
             <MudRadioGroup @bind-SelectedOption="@SelectedStatus">
                 @foreach (var item in _ticketStatus)
                 {
-                    Color color = (Color)item.ColorCode;
-                    <MudRadio Option="item" Color="color">@item.Name</MudRadio>
+                    // Color color = (Color)item.ColorCode;
+                    // Color="color"
+                    <MudRadio Option="item" >@item.Name</MudRadio>
                 }
             </MudRadioGroup>
                            

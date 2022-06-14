@@ -15,8 +15,13 @@ using PrimeService.Model;
 namespace PrimeService.Utility;
 public interface IHttpService
     {
-        Task<T> Get<T>(string uri);
+        
         Task<T> GET<T>(string uri);
+        Task<T> POST<T>(string uri, object value);
+        Task<T> PUT<T>(string uri, object value);
+        Task<T> DELETE<T>(string uri);
+        
+        Task<T> Get<T>(string uri);
         Task<T> Post<T>(string uri, object value);
         
     }
@@ -56,27 +61,24 @@ public class HttpService : IHttpService
         request.SetBrowserRequestMode(BrowserRequestMode.Cors);
         return await SendRequest<T>(request);
     }
-    
+
     public async Task<T> GET<T>(string uri)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, uri);
-        T result;
-        
-        request.SetBrowserRequestMode(BrowserRequestMode.Cors);
-        var user = await _localStorageService.GetItemAsync<User>("user");
-        Console.WriteLine($"JWT Token : {user.JwtToken}");
-        
+
         #region Setting up the URL & Bearer Token
-        var isApiUrl = !request.RequestUri.IsAbsoluteUri;
-        if (user != null )
-        {
-            Console.WriteLine("Sets Header Bearer");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.JwtToken);
-        }
+
+        await SetAuthenticationHeader<T>(request);
+
         #endregion
         
+        return await HTTPStatusHandler<T>(request);
+
+        #region Old Code
+
+        T result;
         using var response = await _httpClient.SendAsync(request);
-        var resRes  = await response.Content.ReadAsStringAsync();
+        var resRes = await response.Content.ReadAsStringAsync();
         // auto logout on 401 response
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
@@ -84,7 +86,6 @@ public class HttpService : IHttpService
             return default;
         }
 
-        // throw exception on error response
         if (response.IsSuccessStatusCode)
         {
             Console.WriteLine(resRes);
@@ -92,17 +93,120 @@ public class HttpService : IHttpService
             result = success.data;
             return result;
         }
-        else
-        {
-            Console.WriteLine($"Error Code {response.StatusCode}");
-            Console.WriteLine(resRes);
-            var error = Newtonsoft.Json.JsonConvert.DeserializeObject<ErrorResponse>(resRes);
-            Console.WriteLine(error.ToJson());
-            _snackbar.Add($"Server Request Failed. {error.error.exceptionMessage}", Severity.Error);
-            return default;
-        }
+
+        //Error handler in case if not success.
+        Console.WriteLine($"Error Code {response.StatusCode}");
+        Console.WriteLine(resRes);
+        var error = Newtonsoft.Json.JsonConvert.DeserializeObject<ErrorResponse>(resRes);
+        Console.WriteLine(error.ToJson());
+        _snackbar.Add($"Server Request Failed. {error.error.exceptionMessage}", Severity.Error);
+        return default;
+
+
+        #endregion
+
     }
     
+    public async Task<T> POST<T>(string uri,object value)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, uri);
+
+        #region Setting up the URL & Bearer Token
+
+        await SetAuthenticationHeader<T>(request);
+
+        #endregion
+        
+        request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
+        
+        return await HTTPStatusHandler<T>(request);
+    }
+
+    public async Task<T> DELETE<T>(string uri)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Delete, uri);
+        
+        #region Setting up the URL & Bearer Token
+        await SetAuthenticationHeader<T>(request);
+        #endregion
+        return await HTTPStatusHandler<T>(request);
+    }
+    
+    public async Task<T> PUT<T>(string uri,object value)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Put, uri);
+
+        #region Setting up the URL & Bearer Token
+        await SetAuthenticationHeader<T>(request);
+        #endregion
+        
+        request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
+        
+        return await HTTPStatusHandler<T>(request);
+    }
+
+
+    #region Helper Method
+
+    private  async Task SetAuthenticationHeader<T>(HttpRequestMessage request)
+    {
+        var user = await _localStorageService.GetItemAsync<User>("user");
+        request.SetBrowserRequestMode(BrowserRequestMode.Cors);
+        //Console.WriteLine($"JWT Token : {user.JwtToken}");
+        
+        if (user != null)
+        {
+            //Console.WriteLine("Sets Header Bearer");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.JwtToken);
+        }
+    }
+
+    private async Task<T> HTTPStatusHandler<T>(HttpRequestMessage request)
+    {
+        T result = default;
+        using var response = await _httpClient.SendAsync(request);
+        var resRes = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Status Code :{response.StatusCode}");
+        
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"Success State.");
+            //Console.WriteLine(resRes);
+            var success = Newtonsoft.Json.JsonConvert.DeserializeObject<SuccessResponse<T>>(resRes);
+            result = success.data;
+            //Console.WriteLine(result.ToJson());
+        }
+        else
+        {
+            Console.WriteLine($"Error/UnAuthorized State.");
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized:
+                    _navigationManager.NavigateTo("logout");
+                    result = default;
+                    break;
+                case HttpStatusCode.BadRequest:
+                default:
+                    result = ErrorRequestHandler<T>(response, resRes);
+                    break;
+            }
+        }
+        return result;
+    }
+
+    private T? ErrorRequestHandler<T>(HttpResponseMessage response, string resRes)
+    {
+        T? result;
+        Console.WriteLine($"Error Code {response.StatusCode}");
+        //Console.WriteLine(resRes);
+        var error = Newtonsoft.Json.JsonConvert.DeserializeObject<ErrorResponse>(resRes);
+        //Console.WriteLine(error.ToJson());
+        _snackbar.Add($"Server Request Failed. {error.error.exceptionMessage}", Severity.Error);
+        result = default;
+        return result;
+    }
+    
+    #endregion
     public async Task<T> Post<T>(string uri, object value)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, uri);

@@ -7,8 +7,8 @@
             <img src="svg/location.svg" Height="45" Width="45" alt="client avatar"/>
         </CardHeaderAvatar>
         <CardHeaderContent>
-            <MudText Typo="Typo.h6">Ticket Category </MudText>
-            <MudText Typo="Typo.caption">List of cateogory for the status eg. 'New', 'InProgress' etc.</MudText>
+            <MudText Typo="Typo.h6">Ticket Status </MudText>
+            <MudText Typo="Typo.caption">List of status for the status eg. 'New', 'InProgress' etc.</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
             <MudIconButton Icon="@Icons.Material.Outlined.AddBox" 
@@ -21,6 +21,7 @@
     <MudCardContent>
 
         <MudTable ServerData="@(new Func<TableState, Task<TableData<Status>>>(ServerReload))"
+                  Loading="true" LoadingProgressColor="Color.Warning"
                   Dense="true" Hover="true" @ref="table">
             <ToolBarContent>
                 @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
@@ -38,7 +39,9 @@
                 <MudTd DataLabel="Name">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
-                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                            <MudButton 
+                                Style="@($"color: {@context.ColorCode};")"
+                                OnClick="@(s => OpenDialog(@context))">
                                 @context.Name
                             </MudButton>
                         </ChildContent>

@@ -13,8 +13,6 @@ public class Status
     /// <summary>
     /// A Unique Id to get account details.
     /// </summary>
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; } = string.Empty;
 
     /// <summary>
@@ -23,7 +21,8 @@ public class Status
     [Required(ErrorMessage = "Name is required.")]
     public string? Name { get; set; }
     
-    public StatusColor ColorCode { get; set; }
+    //public StatusColor ColorCode { get; set; }
+    public string ColorCode { get; set; }
 }
 
 public enum StatusColor

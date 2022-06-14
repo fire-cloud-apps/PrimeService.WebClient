@@ -27,7 +27,7 @@ public partial class CompanyUx
     private bool _isReadOnly = true;
 
     /// <summary>
-    /// HTTP Reqeust
+    /// HTTP Request
     /// </summary>
     private IHttpService _httpService;
     #endregion
@@ -35,7 +35,7 @@ public partial class CompanyUx
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await  Task.Delay(200);
+        //await  Task.Delay(10);
         
         #region Ajax Call to Get Company Details
         _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);

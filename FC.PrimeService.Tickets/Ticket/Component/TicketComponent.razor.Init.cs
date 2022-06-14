@@ -237,35 +237,36 @@ public partial class TicketComponent
         new Status()
         {
             Name = "Init",
-            ColorCode = StatusColor.Info
+            ColorCode = "#2196f3",//Blue
         },
         new Status()
         {
             Name = "In Progress",
-            ColorCode = StatusColor.Primary
+            ColorCode = "#0989c2"
             
         },
         new Status()
         {
             Name = "Waiting",
-            ColorCode = StatusColor.Secondary
+            ColorCode = "#ffe273"
         },
         new Status()
         {
             Name = "Hold",
-            ColorCode = StatusColor.Warning
+            ColorCode = "#d9980d"
         },
         new Status()
         {
             Name = "Completed",
-            ColorCode = StatusColor.Success
+            ColorCode = "#00c853"
         },
         new Status()
         {
             Name = "Closed",
-            ColorCode = StatusColor.Default
+            ColorCode = "#353940"
         },
     };
+
 
     #endregion
     
