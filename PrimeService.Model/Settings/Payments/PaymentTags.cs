@@ -5,16 +5,21 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace PrimeService.Model.Settings.Payments;
 
 /// <summary>
-/// Payment Tag, used as Payment Account Categorization. To find in what category this payment is accounted for eg.'Service to Customer' or 'Expense of Refund'
+/// Payment Tag/Account, used as Payment Account Categorization. To find in what category this payment is accounted for eg.'Service to Customer' or 'Expense of Refund'
 /// </summary>
 public class PaymentTags
 {
     /// <summary>
     /// A Unique Id to get account details.
     /// </summary>
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
+    //[BsonId]
+    //[BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Which is my default account.
+    /// </summary>
+    public bool IsDefault { get; set; }
 
     /// <summary>
     /// Payment Tag Name
@@ -28,9 +33,9 @@ public class PaymentTags
     public PaymentCategory Category { get; set; }
     
     /// <summary>
-    /// Initial fund for the account that has invested.
+    /// Initial fund/Amount for the account that has invested.
     /// </summary>
-    public double InitialFund { get; set; }
+    public double Amount { get; set; }
     
 }
 

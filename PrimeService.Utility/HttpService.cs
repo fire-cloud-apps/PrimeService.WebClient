@@ -13,18 +13,18 @@ using MudBlazor;
 using PrimeService.Model;
 
 namespace PrimeService.Utility;
+
 public interface IHttpService
-    {
-        
-        Task<T> GET<T>(string uri);
-        Task<T> POST<T>(string uri, object value);
-        Task<T> PUT<T>(string uri, object value);
-        Task<T> DELETE<T>(string uri);
-        
-        Task<T> Get<T>(string uri);
-        Task<T> Post<T>(string uri, object value);
-        
-    }
+{
+    Task<T> GET<T>(string uri);
+    Task<T> POST<T>(string uri, object value);
+    Task<T> PUT<T>(string uri, object value);
+    Task<T> DELETE<T>(string uri);
+
+    Task<T> Get<T>(string uri);
+    Task<T> Post<T>(string uri, object value);
+
+}
 
 public class HttpService : IHttpService
 {

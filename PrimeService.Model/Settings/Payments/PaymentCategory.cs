@@ -6,5 +6,8 @@
 public enum PaymentCategory
 {
     Income,
-    Expense
+    Expense,
+    Cancel,
+    Refund,
+    YTB
 }

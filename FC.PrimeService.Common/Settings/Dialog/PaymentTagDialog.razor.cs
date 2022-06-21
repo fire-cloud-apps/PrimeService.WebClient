@@ -31,7 +31,7 @@ public partial class PaymentTagDialog
             _inputMode = new PaymentTags()
             {
                 Title = "Main Account",
-                InitialFund = 10000,
+                Amount = 10000,
                 Category = PaymentCategory.Income
             };
             _title = "Add Payment Tag";

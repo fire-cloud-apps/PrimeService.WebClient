@@ -2,7 +2,7 @@
 
 <MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
          @bind-Errors="@errors">
-    <MudDialog>
+    <MudDialog DefaultFocus="DefaultFocus.FirstChild" >
         <TitleContent>
             <MudText Typo="Typo.h6">
                 <MudIcon Icon="@Icons.TwoTone.StickyNote2" Class="mr-3 mb-n1"/>
@@ -35,6 +35,16 @@
                                         Style="@($"color: {_inputMode.ColorCode};")"
                                         @bind-Text="_inputMode.ColorCode"
                                         ColorPickerView="ColorPickerView.Palette" />
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudNumericField Disabled="@_isReadOnly" Label="Status Order/Stage"
+                                         HelperText="Max. 2 characters"
+                                         ReadOnly="@_readOnlyOrder"
+                                         @bind-Value="_inputMode.Order"
+                                         T="int" For="@(() => _inputMode.Order)"
+                                         MaxLength="2" Min="1" Max="99"
+                                         Immediate="true"/>
+                        
                     </MudItem>
                 </MudGrid>
             }

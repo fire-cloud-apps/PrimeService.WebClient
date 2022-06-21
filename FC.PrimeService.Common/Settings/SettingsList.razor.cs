@@ -25,7 +25,7 @@ public partial class SettingsList
         StateHasChanged();
     }
 
-    #region Company Settings
+    #region Company/General Settings
     private SettingsMenu CompanySettings()
     {
         SettingsMenu companySettings = new SettingsMenu()
@@ -79,6 +79,16 @@ public partial class SettingsList
                     Icon = @Icons.TwoTone.Stars,
                     Disabled = false,
                     Link = $"/SettingsView?viewId=License"
+                },
+                new SettingsItem()
+                {
+                    Title = "Sequence",
+                    ButtonColor = Color.Default,
+                    IconColor = Color.Default,
+                    ToolTip = "Default Sequence Number Generation Settings, You can set 'Prefix', 'Suffix', 'Separator' & 'Batch No' Settings",
+                    Icon = Icons.Filled.FormatListNumbered,
+                    Link = $"/SettingsView?viewId=Sequence"
+                    
                 },
 
                 // new SettingsItem()
@@ -275,6 +285,7 @@ public partial class SettingsList
      
      private async  Task PerformNavigation(SettingsItem selectedItem)
      {
+         DialogOptions options;
          switch (selectedItem.Title)
          {
              case "License":
@@ -284,7 +295,7 @@ public partial class SettingsList
                  await InvokeDialogBox<DefaultSettingsDialog>("Ticket Default Settings", _dialogOptions);
                  break;
              case "Profile":
-                 DialogOptions options = new DialogOptions()
+                 options = new DialogOptions()
                  {
                      MaxWidth = MaxWidth.Medium,
                      FullWidth = false,
@@ -293,16 +304,16 @@ public partial class SettingsList
                  };
                  await InvokeDialogBox<UserProfileDialog>("User Profile", options );
                  break;
-             // case "Account": //This is for testing should be removed it should call web page
-             //     options = new DialogOptions()
-             //     {
-             //         MaxWidth = MaxWidth.Large,
-             //         FullWidth = false,
-             //         CloseButton = true,
-             //         CloseOnEscapeKey = true,
-             //     };
-             //     await InvokeDialogBox<PaymentTagDialog>("Payment Tag", options );
-             //     break;
+             case "Sequence":
+                 options = new DialogOptions()
+                 {
+                     MaxWidth = MaxWidth.Large,
+                     FullWidth = false,
+                     CloseButton = true,
+                     CloseOnEscapeKey = true,
+                 };
+                 await InvokeDialogBox<SequenceDialog>("Default Sequence Order", options );
+                 break;
              default:
                  _navigationManager.NavigateTo(selectedItem.Link);
                  break;
@@ -313,6 +324,7 @@ public partial class SettingsList
      async Task InvokeDialogBox<T>(string title, DialogOptions options) where T : Microsoft.AspNetCore.Components.ComponentBase
      {
          var result = DialogService.Show<T>(title: title, options);
+         //var dialog = DialogService.Show<StatusDialog>(title, parameters, _dialogOptions);
          if (!result.Result.IsCanceled)
          {
              //some action.
@@ -337,4 +349,5 @@ public class SettingsItem
     public string ToolTip { get; set; }
     public string Link { get; set; } = "/SettingsView?viewId=ytb";
     public bool Disabled { get; set; } = false;
+    
 } 

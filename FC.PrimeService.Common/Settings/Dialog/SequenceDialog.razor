@@ -1,0 +1,90 @@
+﻿@inject ISnackbar Snackbar
+
+<MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
+         @bind-Errors="@errors">
+    <MudDialog DefaultFocus="DefaultFocus.FirstChild" >
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.TwoTone.StickyNote2" Class="mr-3 mb-n1"/>
+                @_title
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            @if (_loading)
+            {
+                <MudSkeleton Class="my-2"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2"/>
+            }
+            else
+            {
+                <MudGrid>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudSelect @bind-Value="SelectedModule" 
+                                   Label="Select Module"
+                                   HelperText="Modules" OpenIcon="@Icons.TwoTone.ConfirmationNumber" 
+                                   AdornmentColor="Color.Secondary">
+                            @foreach (Modules item in Enum.GetValues(typeof(Modules)))
+                            {
+                                <MudSelectItem Value="@item">@item</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudTextField Disabled="@_isReadOnly" AutoFocus="true" Label="Prefix"
+                                      HelperText="Max. 2 characters"
+                                      @bind-Value="_inputMode.Prefix"
+                                      For="@(() => _inputMode.Prefix)"
+                                      MaxLength="2"
+                                      Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudTextField Disabled="@_isReadOnly" Label="Suffix"
+                                      HelperText="Max. 2 characters"
+                                      @bind-Value="_inputMode.Suffix"
+                                      For="@(() => _inputMode.Suffix)"
+                                      MaxLength="2"
+                                      Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudTextField Disabled="@_isReadOnly" Label="Separator"
+                                      HelperText="Eg. '.','-','|', '#' etc"
+                                      @bind-Value="_inputMode.Separator"
+                                      For="@(() => _inputMode.Separator)"
+                                      MaxLength="1"
+                                      Immediate="true" />
+                    </MudItem>
+                    <MudItem xs="6" sm="6" md="6">
+                        <MudTextField Disabled="true" Label="Preview"
+                                      Value = "@_inputMode.Preview"
+                                      MaxLength="1"
+                                      Immediate="true" />
+                    </MudItem>
+                </MudGrid>
+            }
+        </DialogContent>
+        <DialogActions>
+        
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Filled.Input"
+                       Color="Color.Primary" DisableElevation="true"
+                       OnClick="@(async () => await Submit())">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Submit</MudText>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
+                       StartIcon="@Icons.Outlined.Cancel"
+                       OnClick="Cancel">Cancel</MudButton>
+        </DialogActions>
+    </MudDialog>
+</MudForm>

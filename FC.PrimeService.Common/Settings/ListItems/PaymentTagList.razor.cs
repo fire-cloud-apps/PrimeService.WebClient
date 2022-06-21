@@ -28,25 +28,25 @@ public partial class PaymentTagList
         new PaymentTags()
         {
             Category =  PaymentCategory.Income,
-            InitialFund = 10000,
+            Amount = 10000,
             Title = "Sales Account"
         },
         new PaymentTags()
         {
             Category =  PaymentCategory.Income,
-            InitialFund = 50000,
+            Amount = 50000,
             Title = "Service Account"
         },
         new PaymentTags()
         {
             Category =  PaymentCategory.Expense,
-            InitialFund = 5500,
+            Amount = 5500,
             Title = "Employee Salary Account"
         },
         new PaymentTags()
         {
             Category =  PaymentCategory.Expense,
-            InitialFund = 5000,
+            Amount = 5000,
             Title = "Purchase Account"
         },
        
@@ -106,7 +106,7 @@ public partial class PaymentTagList
                 data = data.OrderByDirection(state.SortDirection, o => o.Title);
                 break;
             case "InitialFund":
-                data = data.OrderByDirection(state.SortDirection, o => o.InitialFund);
+                data = data.OrderByDirection(state.SortDirection, o => o.Amount);
                 break;
             default:
                 data = data.OrderByDirection(state.SortDirection, o => o.Title);

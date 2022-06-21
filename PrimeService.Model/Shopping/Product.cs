@@ -15,8 +15,8 @@ public class Product
     /// <summary>
     /// A Unique Id to get account details.
     /// </summary>
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
+    //[BsonId]
+    //[BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; } = string.Empty;
 
     /// <summary>

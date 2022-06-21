@@ -18,15 +18,25 @@
 
   <ItemGroup>
     <Folder Include="Calendar\" />
+    <Folder Include="PaymentDetail\Dialog" />
     <Folder Include="Ticket\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FC.PrimeService.Payments\FC.PrimeService.Payments.csproj" />
     <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Task\Dialog\TaskDialog.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="PaymentDetail\Dialog\PaymentDetailsDialog.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="PaymentDetail\Dialog\PaymentDetailsDialog.razor.cs" />
   </ItemGroup>
 
 </Project>

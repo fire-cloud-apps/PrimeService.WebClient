@@ -21,7 +21,8 @@
     <MudCardContent>
 
         <MudTable ServerData="@(new Func<TableState, Task<TableData<Status>>>(ServerReload))"
-                  Loading="true" LoadingProgressColor="Color.Warning"
+                  Loading="true"  LoadingProgressColor="Color.Warning"
+                  SortLabel="Order" AllowUnsorted="true"
                   Dense="true" Hover="true" @ref="table">
             <ToolBarContent>
                 @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
@@ -34,12 +35,13 @@
             </ToolBarContent>
             <HeaderContent>
                 <MudTh><MudTableSortLabel SortLabel="Name" T="Status">Name</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Order" T="Status">Order</MudTableSortLabel></MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Name">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
-                            <MudButton 
+                            <MudButton Variant="Variant.Filled"
                                 Style="@($"color: {@context.ColorCode};")"
                                 OnClick="@(s => OpenDialog(@context))">
                                 @context.Name
@@ -50,6 +52,9 @@
                             <MudText Typo="Typo.body2"> Edit Status - '@context.Name' </MudText>
                         </TooltipContent>
                     </MudTooltip>
+                </MudTd>
+                <MudTd DataLabel="Order">
+                    @($"Stage {context.Order}")
                 </MudTd>
                
             </RowTemplate>

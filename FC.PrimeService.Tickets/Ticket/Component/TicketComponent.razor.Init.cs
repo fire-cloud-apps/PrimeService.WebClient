@@ -7,6 +7,7 @@ using PrimeService.Model.Settings.Payments;
 using PrimeService.Model.Settings.Tickets;
 using Model = PrimeService.Model.Tickets;
 using Shop = PrimeService.Model.Shopping;
+using Pay = PrimeService.Model.Settings.Payments;
 
 namespace FC.PrimeService.Tickets.Ticket.Component;
 
@@ -160,14 +161,50 @@ public partial class TicketComponent
 
     #endregion
     
-    #region Payment Lists
-
-    private IList<Model.PaymentDetails> _paymentDetails = new List<Model.PaymentDetails>()
+    #region Sales Search - Autocomplete
+    
+    public List<Shop.Sales> _sales = new List<Shop.Sales>()
     {
-        new Model.PaymentDetails()
+        new Shop.Sales(){ BillNumber = "SL.2022.10"},
+        new Shop.Sales(){ BillNumber = "SL.2022.11"},
+        new Shop.Sales(){ BillNumber = "SL.2022.12"},
+    };
+
+    private Shop.Sales _selectedSales = new Shop.Sales();
+    
+    private async Task<IEnumerable<Shop.Sales>> Sales_SearchAsync(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+        Console.WriteLine($"Find Sales : '{value}'");
+        // if text is null or empty, show complete list
+        if (string.IsNullOrEmpty(value))
         {
-            PayedAmount = 100,
-            PaymentAccount = new PaymentTags()
+            return _sales;
+        }
+        
+        var result = _sales.Where(x => x.BillNumber.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        if (result.FirstOrDefault() == null)
+        {
+            result = new List<Shop.Sales>()
+            {
+                new Shop.Sales() { BillNumber = "Not Found" }
+            };
+        }
+
+        return result;
+    }
+    
+    #endregion
+    
+    #region Payment Lists
+    
+    private IList<Pay.Payments> _paymentDetails = new List<Pay.Payments>()
+    {
+        new Pay.Payments()
+        {
+            Amount = 100,
+            PaymentTag = new PaymentTags()
             {
                 Title = "Primary Account",
             },
@@ -176,57 +213,27 @@ public partial class TicketComponent
                 Title = "Card"
             },
             PaymentStatus = Shop.PaymentStatus.Pending,
-            ReferenceNumber = "#001",
             TransactionDate = new DateTime(2022, 05,25),
             
         },
-        new Model.PaymentDetails()
+        new Pay.Payments()
         {
-            PayedAmount = 300,
-            PaymentAccount = new PaymentTags()
+            Amount = 200,
+            PaymentTag = new PaymentTags()
             {
-                Title = "Primary Account",
+                Title = "Secondary Account",
             },
             PaymentMethod = new PaymentMethods()
             {
-                Title = "Cash"
+                Title = "Card"
             },
-            PaymentStatus = Shop.PaymentStatus.Pending,
-            ReferenceNumber = "#002",
-            TransactionDate = new DateTime(2022, 05,26)
+            PaymentStatus = Shop.PaymentStatus.PartiallyPaid,
+            TransactionDate = new DateTime(2022, 05,25),
+            
         },
-        new Model.PaymentDetails()
-        {
-            PayedAmount = 250,
-            PaymentAccount = new PaymentTags()
-            {
-                Title = "Primary Account",
-            },
-            PaymentMethod = new PaymentMethods()
-            {
-                Title = "QR"
-            },
-            PaymentStatus = Shop.PaymentStatus.Pending,
-            ReferenceNumber = "#003",
-            TransactionDate = new DateTime(2022, 05,27)
-        },
-        new Model.PaymentDetails()
-        {
-            PayedAmount = 150,
-            PaymentAccount = new PaymentTags()
-            {
-                Title = "Primary Account",
-            },
-            PaymentMethod = new PaymentMethods()
-            {
-                Title = "CardLess"
-            },
-            PaymentStatus = Shop.PaymentStatus.Pending,
-            ReferenceNumber = "#004",
-            TransactionDate = new DateTime(2022, 05,28)
-        },
+       
     };
-
+    
     #endregion
 
     #region Ticket Status

@@ -35,23 +35,22 @@ public class TicketService
     /// <summary>
     /// A List of payments payed by customer/company.
     /// </summary>
-    public IList<PaymentDetails>? Payments { get; set; }
+    public IList<Payments>? Payments { get; set; }
     #endregion
 
-    public string Appearance { get; set; }
-    public string Reasons { get; set; }
+    public PaymentTags? PaymentAccount { get; set; }
     public DateTime? TargetDate { get; set; }
     public TicketType TicketType { get; set; }
     public Status TicketStatus { get; set; }
-
+    
+    #region Additional Details
+    public string Appearance { get; set; }
+    public string Reasons { get; set; }
     public Dictionary<TicketType, Dictionary<string, string>> TicketTypeDetails
     {
         get;
         set;
     } = TicketProperty.GetDetails(TicketType.SmartPhone);
-    
-    public IList<ActivityLog> Activities { get; set; }
-
     /// <summary>
     /// Other details
     /// </summary>
@@ -61,6 +60,25 @@ public class TicketService
          { "Key2", string.Empty },
          { "Key3", string.Empty }, 
      };*/
+    #endregion
+    
+    /// <summary>
+    /// Automatically created Activities, by the user action.
+    /// </summary>
+    public IList<ActivityLog> Activities { get; set; }
+
+    #region Planned for next Version
+    /// <summary>
+    /// Its an optional, 'BillNumber' from 'Sales', as a part of Ticket, if the customer purchases we can use this Id's. We should be able to associate one or more bills.
+    /// </summary>
+    public IList<string> BillNumbers { get; set; } //This should be in separate Tab
+    #endregion
+    
+    /// <summary>
+    /// Temporary comment which will capture and store in 'ActivityLog'
+    /// </summary>
+    public string UserComments { get; set; }
+    
 
 }
 
@@ -80,31 +98,27 @@ public enum TicketType
     MusicInstruments
 }
 
-
 public class ActivityLog
 {
+    /// <summary>
+    /// A Unique SerialNo to handle 'Activity Logs'
+    /// </summary>
+    public int SerialNo { get; set; }
     public DateTime ActivityDate { get; set; }
     public Employee ByWho { get; set; }
     public Employee AssignedFrom { get; set; }
     public Employee AssignedTo { get; set; }
+    /// <summary>
+    /// Activity Notes.
+    /// </summary>
     public string UserComments { get; set; }
     public Status FromStatus { get; set; }
     public Status ToStatus { get; set; }
 
     public string Log
     {
-        get
-        {
-            string status = FromStatus == ToStatus ? FromStatus.ToString() + "=>" + ToStatus.ToString() : string
-                .Empty;
-    
-            return string.Format("{0} {1} {2} {3}",
-                ActivityDate.ToString("MMMM dd"),
-                ActivityDate.ToString("h:mm tt"),
-                status,
-                ByWho.User.Name
-            );
-        }
+        get;
+        set;
     }
 }
 
@@ -112,16 +126,16 @@ public class ActivityLog
 /// <summary>
 /// Transaction Payment Details
 /// </summary>
-public class PaymentDetails
-{
-    /// <summary>
-    /// A unique number generated for each payments
-    /// </summary>
-    public string? ReferenceNumber { get; set; }
-    public PaymentTags? PaymentAccount { get; set; }
-    public PaymentMethods? PaymentMethod { get; set; }
-    public PaymentStatus PaymentStatus { get; set; }
-    public double PayedAmount { get; set; }
-    public DateTime TransactionDate { get; set; }
-   
-}
+// public class PaymentDetails
+// {
+//     /// <summary>
+//     /// A unique number generated for each payments
+//     /// </summary>
+//     public string? ReferenceNumber { get; set; }
+//     //public PaymentTags? PaymentAccount { get; set; }
+//     public PaymentMethods? PaymentMethod { get; set; }
+//     public PaymentStatus PaymentStatus { get; set; }
+//     public double PayedAmount { get; set; }
+//     public DateTime TransactionDate { get; set; }
+//    
+// }

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
+using FC.PrimeService.Payments.Payment.Dialogs;
 using FC.PrimeService.Tickets.ActivityTask.Dialog;
-using FC.PrimeService.Tickets.PaymentDetail.Dialog;
 using MudBlazor;
 using PrimeService.Model.Tickets;
 using Model = PrimeService.Model.Tickets;
@@ -65,13 +65,13 @@ public partial class TicketComponent
         CloseOnEscapeKey = true,
     };
     
-    private async Task InvokeDialog(string parameter, string title, Model.PaymentDetails model)
+    private async Task InvokeDialog(string parameter, string title, global::PrimeService.Model.Settings.Payments.Payments model)
     {
         var parameters = new DialogParameters
             { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
         IDialogReference dialog;
 
-        dialog = DialogService.Show<PaymentDetailsDialog>(title, parameters, _dialogOptions);
+        dialog = DialogService.Show<PaymentDialog>(title, parameters, _dialogOptions);
         
         var result = await dialog.Result;
         if (!result.Cancelled)

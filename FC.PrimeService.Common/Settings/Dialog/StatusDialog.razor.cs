@@ -20,6 +20,7 @@ public partial class StatusDialog
     private Status _inputMode;
     string _outputJson;
     bool success;
+    bool _readOnlyOrder;
     string[] errors = { };
     private bool _isReadOnly = false;
     /// <summary>
@@ -46,6 +47,7 @@ public partial class StatusDialog
             };//Initializes an empty object.
             _title = "Status";
             _userAction = UserAction.ADD;
+            _readOnlyOrder = false;
         }
         else
         {
@@ -53,7 +55,7 @@ public partial class StatusDialog
             _inputMode = _status;
             _title = "Status";
             _userAction = UserAction.EDIT;
-            
+            _readOnlyOrder = true;
         }
 
         Console.WriteLine($"Mode : {_userAction}");
@@ -83,8 +85,7 @@ public partial class StatusDialog
         
         StateHasChanged();
     }
-
-
+    
     async Task<bool> SubmitAction(UserAction action)
     {
         _processing = true;
@@ -111,11 +112,9 @@ public partial class StatusDialog
             default:
                 break;
         }
-      
         Console.WriteLine($"Executed API URL : {url}, Method {action}");
         Console.WriteLine($"Status JSON : {_inputMode.ToJson()}");
         _processing = false;
-
         return result;
     }
 

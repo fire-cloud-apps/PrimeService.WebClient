@@ -10,6 +10,13 @@ namespace PrimeService.Model.Settings;
 public class Employee
 {
     /// <summary>
+    /// A Unique Id to get account details.
+    /// </summary>
+    //[BsonId]
+    //[BsonRepresentation(BsonType.ObjectId)]
+    public string? Id { get; set; } = string.Empty;
+
+    /// <summary>
     /// Activated User
     /// </summary>
     public User User { get; set; }
@@ -21,5 +28,6 @@ public class Employee
     public WorkLocation WorkLocation { get; set; }
     [StringLength(10, ErrorMessage = "Mobile length can't be more than 10.")]
     public string Mobile { get; set; }
+    
 }
 

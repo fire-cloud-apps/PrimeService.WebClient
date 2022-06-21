@@ -201,21 +201,17 @@ else
                           LoadingProgressColor="Color.Info">
                                                                           
                     <HeaderContent>
-                        <MudTh>Reference Number</MudTh>
                         <MudTh>Date</MudTh>
                         <MudTh>Payment Method</MudTh>
                         <MudTh>Payed Amount</MudTh>
                         <MudTh>Payment Status</MudTh>
-                                                                                          
                     </HeaderContent>
                                                                           
                     <RowTemplate>
-                        <MudTd DataLabel="ReferenceNumber">@context.ReferenceNumber</MudTd>
                         <MudTd DataLabel="TransactionDate">@context.TransactionDate</MudTd>
                         <MudTd DataLabel="PaymentMethod">@context.PaymentMethod.Title </MudTd>
-                        <MudTd DataLabel="PayedAmount">@context.PayedAmount</MudTd>
+                        <MudTd DataLabel="PayedAmount">@context.Amount</MudTd>
                         <MudTd DataLabel="PaymentStatus">@context.PaymentStatus</MudTd>
-                                                                                           
                     </RowTemplate>
                 </MudTable>
             </MudItem>
@@ -389,11 +385,13 @@ else
         </MudPaper>
     </MudTabPanel>
     
-    <MudTabPanel Text="Tasks" Icon="@Icons.TwoTone.MoreHoriz" BadgeData='"5+"'>
+    <MudTabPanel Text="More" Icon="@Icons.TwoTone.MoreHoriz" BadgeData='"5+"'>
        
             <MudPaper Class="mt-2" Outlined="true">
                 <MudGrid Class="ma-2 pa-2">
-                
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudText Typo="Typo.button">More Details</MudText>
+                    </MudItem>
                     @foreach (var keyPair in keyList)
                     {
                         Console.WriteLine($"KeyCount: {keyList.Count}");
@@ -444,7 +442,26 @@ else
                 }
             </MudButton>
         </MudPaper>
-       
+        <MudPaper Class="mt-2" Outlined="true">
+            <MudGrid Class="ma-2 pa-2">
+                <MudItem xs="12" sm="12" md="12">
+                    <MudText Typo="Typo.button">Link Sales</MudText>
+                </MudItem>
+                <MudItem>
+                    <MudAutocomplete T="Sales" Label="Select Sales"
+                                     Variant="Variant.Outlined"
+                                     Disabled="@_isReadOnly"
+                                     @bind-Value="_selectedSales"
+                                     OpenIcon="@Icons.Material.TwoTone.Search"
+                                     ToStringFunc="@(e => e == null ? null : $"{e.BillNumber}")"
+                                     SearchFunc="@Sales_SearchAsync" Immediate="true" Required="true"
+                                     RequiredError="Please Select Sales" ResetValueOnEmptyText="false"
+                                     CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
+                </MudItem>
+                
+            </MudGrid>
+        </MudPaper>
+        
     </MudTabPanel>
     
     <MudTabPanel Text="Activity" Icon="@Icons.Material.TwoTone.History" BadgeData='"99+"'>

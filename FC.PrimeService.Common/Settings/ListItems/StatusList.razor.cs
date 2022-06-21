@@ -77,10 +77,13 @@ public partial class StatusList
             case "Name":
                 data = data.OrderByDirection(state.SortDirection, o => o.Name);
                 break;
+            case "Order":
+                data = data.OrderByDirection(state.SortDirection, o => o.Order);
+                break;
         }
         pagedData = data;
         
-        //Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
+        Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
         return new TableData<Status>() {TotalItems = totalItems, Items = pagedData};
     }
     private void OnSearch(string text)
@@ -111,6 +114,7 @@ public partial class StatusList
         if (result.Cancelled)
         {
             Utilities.ConsoleMessage("Cancelled.");
+            OnSearch(string.Empty);
         }
         else
         {
