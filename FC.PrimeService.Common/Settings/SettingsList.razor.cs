@@ -1,5 +1,7 @@
-﻿using FC.PrimeService.Common.Settings.Dialog;
+﻿
+using FC.PrimeService.Common.Settings.Dialog;
 using MudBlazor;
+using PrimeService.Model;
 
 namespace FC.PrimeService.Common.Settings;
 
@@ -7,6 +9,7 @@ public partial class SettingsList
 {
     private IList<SettingsMenu> _settingsMenus;
     private string _comingSoon = "Coming Soon";
+    private User _loginUser;
     private DialogOptions _dialogOptions = new DialogOptions()
     {
         MaxWidth = MaxWidth.Small, 
@@ -15,13 +18,14 @@ public partial class SettingsList
         CloseOnEscapeKey = true,
     };
     
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _settingsMenus = new List<SettingsMenu>();
         _settingsMenus.Add(CompanySettings());
         _settingsMenus.Add(TicketSettings());
         _settingsMenus.Add(PaymentsSettings());
         _settingsMenus.Add(FormsSettings());
+        _loginUser = await _localStore.GetItemAsync<User>("user");
         StateHasChanged();
     }
 
@@ -289,7 +293,16 @@ public partial class SettingsList
          switch (selectedItem.Title)
          {
              case "License":
-                 await InvokeDialogBox<LicenseDialog>("Prime Service License", _dialogOptions);
+                 options = new DialogOptions()
+                 {
+                     MaxWidth = MaxWidth.Large,
+                     FullWidth = false,
+                     CloseButton = true,
+                     CloseOnEscapeKey = true,
+                 };
+                 await InvokeDialogBox<LicenseDialog>(
+                     "Prime Service License", 
+                     options, "_loginUser");
                  break;
              case "Default":
                  await InvokeDialogBox<DefaultSettingsDialog>("Ticket Default Settings", _dialogOptions);
@@ -321,10 +334,21 @@ public partial class SettingsList
         
      }
 
-     async Task InvokeDialogBox<T>(string title, DialogOptions options) where T : Microsoft.AspNetCore.Components.ComponentBase
+     async Task InvokeDialogBox<T>(string title, DialogOptions options, string parameter = "") where T : Microsoft.AspNetCore.Components.ComponentBase
      {
-         var result = DialogService.Show<T>(title: title, options);
-         //var dialog = DialogService.Show<StatusDialog>(title, parameters, _dialogOptions);
+         IDialogReference result;
+         if (string.IsNullOrEmpty(parameter))
+         {
+             result = DialogService.Show<T>(title: title, options);
+         }
+         else
+         {
+             var parameters = new DialogParameters
+                 { [parameter] = _loginUser };
+             result = DialogService.Show<T>(title: title, parameters, options);
+         }
+        
+          
          if (!result.Result.IsCanceled)
          {
              //some action.

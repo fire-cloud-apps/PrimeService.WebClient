@@ -2,6 +2,7 @@
 using PrimeService.Model;
 using FireCloud.WebClient.PrimeService.Service;
 using MudBlazor;
+using PrimeService.Utility.Helper;
 
 namespace FireCloud.WebClient.PrimeService.Pages;
 
@@ -20,7 +21,7 @@ public partial class Index
         if (_userInfo != null)
         {
            _isAuthenticated = true;
-           Console.WriteLine(JsonSerializer.Serialize(_userInfo));
+           Utilities.ConsoleMessage($"UserInfo: {JsonSerializer.Serialize(_userInfo)}");
         }
         loading = true;
         StateHasChanged();

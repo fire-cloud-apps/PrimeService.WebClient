@@ -112,8 +112,8 @@ public partial class StatusDialog
             default:
                 break;
         }
-        Console.WriteLine($"Executed API URL : {url}, Method {action}");
-        Console.WriteLine($"Status JSON : {_inputMode.ToJson()}");
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"Status JSON : {_inputMode.ToJson()}");
         _processing = false;
         return result;
     }
@@ -134,7 +134,7 @@ public partial class StatusDialog
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Utilities.ConsoleMessage(_outputJson);
         }
     }
 

@@ -52,7 +52,7 @@ builder.Services.AddScoped(sp => new HttpClient
 var appConfig = builder.Configuration.Get<AppSettings>();
 builder.Services.AddSingleton(appConfig);
 GlobalConfig.AppSettings = appConfig;
-Console.WriteLine($"API URL : {builder.Configuration["App:AuthUrl"]}");
+Utilities.ConsoleMessage($"API URL : {builder.Configuration["App:AuthUrl"]}");
 
 #endregion
 

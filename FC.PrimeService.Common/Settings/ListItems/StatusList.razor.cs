@@ -82,7 +82,6 @@ public partial class StatusList
                 break;
         }
         pagedData = data;
-        
         Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
         return new TableData<Status>() {TotalItems = totalItems, Items = pagedData};
     }

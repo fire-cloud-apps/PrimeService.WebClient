@@ -4,6 +4,7 @@ using FireCloud.WebClient.PrimeService.Service.QueryString;
 using MongoDB.Bson;
 using PrimeService.Model;
 using MudBlazor;
+using PrimeService.Utility.Helper;
 
 namespace FireCloud.WebClient.PrimeService.Pages.Auth;
 
@@ -56,7 +57,7 @@ public partial class Login
                 UserType = UserCategory.FcUser.ToString(), //As JSON is not able to detect this enum value.
             };
             User user = await AuthenticationService.Login(request);
-            Console.WriteLine($"Login User : {user.ToJson()} ");
+            Utilities.ConsoleMessage($"Login User : {user.ToJson()} ");
             if (user.IsSuccess)
             {
                 var returnUrl = NavigationManager.QueryString("returnUrl") ?? "";
@@ -86,7 +87,7 @@ public partial class Login
     {
         //Console.WriteLine(_configuration["App:GoogleAuth"]);
         NavigationManager.NavigateTo(_appSettings.App.GoogleAuth + _domainURL);
-        Console.WriteLine(_domainURL);
+        Utilities.ConsoleMessage(_domainURL);
         return Task.CompletedTask;
     }
 

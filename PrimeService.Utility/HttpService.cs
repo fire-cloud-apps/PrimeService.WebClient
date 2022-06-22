@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Utility.Helper;
 
 namespace PrimeService.Utility;
 
@@ -74,37 +75,6 @@ public class HttpService : IHttpService
         
         return await HTTPStatusHandler<T>(request);
 
-        #region Old Code
-
-        T result;
-        using var response = await _httpClient.SendAsync(request);
-        var resRes = await response.Content.ReadAsStringAsync();
-        // auto logout on 401 response
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            _navigationManager.NavigateTo("logout");
-            return default;
-        }
-
-        if (response.IsSuccessStatusCode)
-        {
-            Console.WriteLine(resRes);
-            var success = Newtonsoft.Json.JsonConvert.DeserializeObject<SuccessResponse<T>>(resRes);
-            result = success.data;
-            return result;
-        }
-
-        //Error handler in case if not success.
-        Console.WriteLine($"Error Code {response.StatusCode}");
-        Console.WriteLine(resRes);
-        var error = Newtonsoft.Json.JsonConvert.DeserializeObject<ErrorResponse>(resRes);
-        Console.WriteLine(error.ToJson());
-        _snackbar.Add($"Server Request Failed. {error.error.exceptionMessage}", Severity.Error);
-        return default;
-
-
-        #endregion
-
     }
     
     public async Task<T> POST<T>(string uri,object value)
@@ -129,6 +99,7 @@ public class HttpService : IHttpService
         #region Setting up the URL & Bearer Token
         await SetAuthenticationHeader<T>(request);
         #endregion
+        
         return await HTTPStatusHandler<T>(request);
     }
     
@@ -152,11 +123,11 @@ public class HttpService : IHttpService
     {
         var user = await _localStorageService.GetItemAsync<User>("user");
         request.SetBrowserRequestMode(BrowserRequestMode.Cors);
-        //Console.WriteLine($"JWT Token : {user.JwtToken}");
+        //Utilities.ConsoleMessage($"JWT Token : {user.JwtToken}");
         
         if (user != null)
         {
-            //Console.WriteLine("Sets Header Bearer");
+            //Utilities.ConsoleMessage("Sets Header Bearer");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.JwtToken);
         }
     }
@@ -166,19 +137,19 @@ public class HttpService : IHttpService
         T result = default;
         using var response = await _httpClient.SendAsync(request);
         var resRes = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"Status Code :{response.StatusCode}");
+        Utilities.ConsoleMessage($"Status Code :{response.StatusCode}");
         
         if (response.IsSuccessStatusCode)
         {
-            Console.WriteLine($"Success State.");
-            //Console.WriteLine(resRes);
+            Utilities.ConsoleMessage($"Success State.");
+            //Utilities.ConsoleMessage(resRes);
             var success = Newtonsoft.Json.JsonConvert.DeserializeObject<SuccessResponse<T>>(resRes);
             result = success.data;
-            //Console.WriteLine(result.ToJson());
+            //Utilities.ConsoleMessage(result.ToJson());
         }
         else
         {
-            Console.WriteLine($"Error/UnAuthorized State.");
+            Utilities.ConsoleMessage($"Error/UnAuthorized State.");
             switch (response.StatusCode)
             {
                 case HttpStatusCode.Unauthorized:
@@ -197,10 +168,10 @@ public class HttpService : IHttpService
     private T? ErrorRequestHandler<T>(HttpResponseMessage response, string resRes)
     {
         T? result;
-        Console.WriteLine($"Error Code {response.StatusCode}");
-        //Console.WriteLine(resRes);
+        Utilities.ConsoleMessage($"Error Code {response.StatusCode}");
+        //Utilities.ConsoleMessage(resRes);
         var error = Newtonsoft.Json.JsonConvert.DeserializeObject<ErrorResponse>(resRes);
-        //Console.WriteLine(error.ToJson());
+        //Utilities.ConsoleMessage(error.ToJson());
         _snackbar.Add($"Server Request Failed. {error.error.exceptionMessage}", Severity.Error);
         result = default;
         return result;

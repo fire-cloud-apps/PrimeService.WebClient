@@ -1,65 +1,87 @@
-﻿@using System.Net
-@using System.Text
-@using MudBlazor
+﻿@using global::PrimeService.Model.Common
+@inject ISnackbar Snackbar
 
-<MudDialog>
-    <DialogContent>
-        <MudContainer>
-            @if (Loading)
+<MudForm @ref="form" Model="_inputMode">
+    <MudDialog DefaultFocus="DefaultFocus.FirstChild" >
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.TwoTone.StickyNote2" Class="mr-3 mb-n1"/>
+                @_title
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            @if (_loading)
             {
-                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+                <MudSkeleton Class="my-2"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2"/>
             }
             else
             {
-                <MudPaper Class="ma-2 pa-2">
-                    <MudList Clickable="true">
-                        <MudListSubheader>
-                            Subscribed License
-                        </MudListSubheader>
-                        <MudListItem Icon="@Icons.Material.Filled.Contacts">
-                            Customers - Unlimited
-                        </MudListItem>
-                        <MudListItem Icon="@Icons.Material.Filled.Person">
-                            Employee - Unlimited
-                        </MudListItem>
-                        <MudListItem Icon="@Icons.Material.Filled.DesignServices" Text="Service" InitiallyExpanded="true">
-                            <NestedList>
-                                <MudListItem Icon="@Icons.Material.Filled.AirplaneTicket">
-                                    Tickets - $0.0015/record
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.Storage">
-                                    Inventory - $0.0015/record
-                                </MudListItem>
-                                <MudListItem Icon="@Icons.Material.Filled.DocumentScanner">
-                                    Documents - $0.0025/record
-                                </MudListItem>
-                            </NestedList>
-                        </MudListItem>
-                    </MudList>
-                </MudPaper>
+                <MudTabs Outlined="true" Position="Position.Left" Rounded="true" Border="true"
+                         ApplyEffectsToContainer="true" Class="mb-2" PanelClass="pa-6">
+                    <MudTabPanel Text="Subscription">
+                        <MudCard Style="Width:100%;">
+                            <MudCardMedia Image="img/subscription.png" Style="width: 256px; height: 256px;" />
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5">Subscription Plan</MudText>
+                                <MudText Typo="Typo.body1">Company Name @_inputMode.BusinessName</MudText>
+                                <MudText Typo="Typo.body2">Plan Name : @_inputMode.Subscription.PlanName</MudText>
+                                @* <MudText Typo="Typo.overline">Estimated Cost :... </MudText> *@
+                            </MudCardContent>
+                        </MudCard>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Services">
+                        <MudTable ServerData="@(new Func<TableState, Task<TableData<SubscribedService>>>(ServerReload))"
+                                  AllowUnsorted="false"
+                                  RowsPerPage="5"
+                                  Dense="true" Hover="true" @ref="table">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">Available Service</MudText>
+                                <MudSpacer />
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh><MudTableSortLabel T="SubscribedService">Name</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel T="SubscribedService">Limit</MudTableSortLabel></MudTh>
+                                <MudTh><MudTableSortLabel T="SubscribedService">Cost</MudTableSortLabel></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="ServiceName">
+                                    @context.ServiceName
+                                </MudTd>
+                                <MudTd DataLabel="QuantityLimit">
+                                    @{
+                                        string qty = string.Empty;
+                                        qty = @context.QuantityLimit == 0 ? "Unlimited" : @context.QuantityLimit.ToString();
+                                    }
+                                    @qty
+                                </MudTd>
+                                <MudTd >
+                                    @{
+                                        string cost = string.Empty;
+                                        cost = $"{@context.CostPerQuantity}{@context.CostSuffix}";
+                                    }
+                                    @cost
+                                </MudTd>
+                            </RowTemplate>
+                            <NoRecordsContent>
+                                <MudText>No matching records found</MudText>
+                            </NoRecordsContent>
+                            <LoadingContent>
+                                <MudText>Loading...</MudText>
+                            </LoadingContent>
+                            <PagerContent>
+                                <MudTablePager />
+                            </PagerContent>
+                        </MudTable>
+                    </MudTabPanel>
+                    
+                </MudTabs>
+                
             }
-        </MudContainer>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="Ok">Accept</MudButton>
-    </DialogActions>
-</MudDialog>
-@code {
-    [CascadingParameter] 
-    MudDialogInstance MudDialog { get; set; }
-
-    [Inject] HttpClient HttpClient { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        
-        await base.OnInitializedAsync();
-    }
-
-    private bool Loading = false;
-
-    private void Ok()
-    {
-        MudDialog.Close(DialogResult.Ok(true));
-    }
-}
+        </DialogContent>
+    </MudDialog>
+</MudForm>

@@ -9,7 +9,6 @@ public interface IAuthenticationService
     Task Initialize();
     Task<User> Login(User user);
     Task Logout();
-
     bool IsAuthenticated();
 }
 
@@ -39,7 +38,7 @@ public class AuthenticationService : IAuthenticationService
     public async Task<User> Login(User user)
     {
         //Console.WriteLine(user.ToJSON());
-       var userResponse = await _httpService.Post<User>("/API/UserAuth/FCAuth", 
+       var userResponse = await _httpService.Post<User>("UserAuth/FCAuth", 
             new
             {
                 user.Username, 

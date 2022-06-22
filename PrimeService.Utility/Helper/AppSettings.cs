@@ -29,6 +29,7 @@ public class API
      public CompanyApi CompanyApi { get; set; }
      public TicketStatusApi TicketStatusApi { get; set; }
      public SequenceApi SequenceApi { get; set; }
+     public LicenseSubscriptionApi LicenseSubscriptionApi { get; set; }
      
 }
 
@@ -43,10 +44,15 @@ public class CompanyApi
 }
 #endregion
 
+public class LicenseSubscriptionApi
+{
+    public string GetSubscription { get; set; }
+    public string GetAccount { get; set; }
+}
+
 public class SequenceApi
 {
     public string GetDetails { get; set; }
-    public string Update { get; set; }
     public string Generate { get; set; }
 }
 

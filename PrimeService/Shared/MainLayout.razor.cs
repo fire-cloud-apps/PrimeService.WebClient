@@ -60,7 +60,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
 
         protected override void OnInitialized()
         {
-            Console.WriteLine($"Dark Or Light : {_isDarkMode}");
+            Utilities.ConsoleMessage($"Dark Or Light : {_isDarkMode}");
             FindDevice();
             _txtCompanyName = _title;
             _version = _appSettings.Version;
@@ -103,8 +103,8 @@ namespace FireCloud.WebClient.PrimeService.Shared
                     IconColor = Color.Warning
                 };
             }
-            Console.WriteLine($"Is DarkMode {_isDarkMode}");
-            Console.WriteLine($"{JsonSerializer.Serialize(_switchTheme)}");
+            Utilities.ConsoleMessage($"Is DarkMode {_isDarkMode}");
+            Utilities.ConsoleMessage($"{JsonSerializer.Serialize(_switchTheme)}");
         }
         #endregion
 
@@ -115,7 +115,7 @@ namespace FireCloud.WebClient.PrimeService.Shared
         public async Task FindDevice()
         {
             mobile = await jsRuntime.InvokeAsync<bool>("isDevice",null);
-            Console.WriteLine($"Device Type: {mobile}");
+            Utilities.ConsoleMessage($"Device Type: {mobile}");
             isDevice = mobile ? "Mobile" : "Desktop";
         }
 
