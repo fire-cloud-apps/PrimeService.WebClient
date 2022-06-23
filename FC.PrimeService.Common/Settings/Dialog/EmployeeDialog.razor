@@ -11,7 +11,7 @@
         <TitleContent>
             <MudText Typo="Typo.h6">
                 <MudIcon Icon="@Icons.TwoTone.Person" Class="mr-3 mb-n1"/>
-                @_title
+                @Title
             </MudText>
         
         </TitleContent>
@@ -49,27 +49,6 @@
                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
                     </MudItem>
                     <MudItem xs="12" sm="6" md="4">
-                        <MudTextField Disabled="@_isReadOnly" Label="Mobile" HelperText="Max. 50 characters"
-                                      InputType="InputType.Telephone"
-                                      @bind-Value="_inputMode.Mobile"
-                                      For="@(() => _inputMode.Mobile)"
-                                      Counter="50" MaxLength="50"
-                                      Immediate="true"
-                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
-                    </MudItem>
-                </MudGrid>
-                    
-                <MudGrid>
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudTextField Disabled="@_isReadOnly" Label="User Name" HelperText="Max. 50 characters"
-                                      @bind-Value="_inputMode.User.Username"
-                                      For="@(() => _inputMode.User.Username)"
-                                      Counter="50" MaxLength="50"
-                                      autocomplete="new-username"
-                                      Immediate="true"
-                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
-                    </MudItem>
-                    <MudItem xs="12" sm="6" md="4">
                         <MudTextField Disabled="@_isReadOnly" Label="Password" HelperText="Max. 50 characters"
                                       InputType="@PasswordInput" 
                                       autocomplete="new-password"
@@ -81,6 +60,22 @@
                                       Immediate="true"
                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
                     </MudItem>
+                    
+                </MudGrid>
+                    
+                <MudGrid>
+                    <MudItem xs="12" sm="6" md="4">
+                       
+                        <MudTextField Disabled="@_isReadOnly" Label="Mobile"
+                                      InputType="InputType.Telephone"
+                                      HelperText="Eg. +91-82345-78585"
+                                      @bind-Value="_inputMode.Mobile"
+                                      For="@(() => _inputMode.Mobile)"
+                                      Counter="15" MaxLength="15"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max15Characters))"/>
+                    </MudItem>
+                   
                     <MudItem xs="12" sm="6" md="4">
                         <MudTextField Label="Salary" Disabled="@_isReadOnly" 
                                       Variant="Variant.Text" MaxLength="10"
@@ -91,11 +86,11 @@
                                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Money"
                         />
                     </MudItem>
-                    <MudItem xs="12" sm="12" md="12">
+                    <MudItem xs="12" sm="6" md="4">
                         <MudAutocomplete T="WorkLocation" Label="Work Location"
                                          HelperText="Select Employee Work Location"
                                          @bind-Value="_inputMode.WorkLocation"
-                                         ToStringFunc="@(e => e == null ? null : $"{e.Title} ({e.Phone})")"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.Title}")"
                                          Required="true"
                                          RequiredError="Please Select Work Location"
                                          SearchFunc="@WorkLocation_SearchAsync" Immediate="true"
@@ -115,7 +110,6 @@
         
         </DialogContent>
         <DialogActions>
-
             <MudButton Variant="Variant.Filled"
                        StartIcon="@Icons.Filled.Input"
                        Color="Color.Primary" DisableElevation="true"
@@ -134,17 +128,17 @@
                        StartIcon="@Icons.Outlined.Cancel"
                        OnClick="Cancel">Cancel</MudButton>
             
-            @if (_appSettings.IsDev)
+            @if (_appSettings.IsDev && UserAction == UserAction.ADD)
             {
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Warning" DisableElevation="true"
                            OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Secondary" DisableElevation="true"
-                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           DisableElevation="true"
-                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+                @* <MudButton Variant="Variant.Filled" *@
+                @*            Color="Color.Secondary" DisableElevation="true" *@
+                @*            OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton> *@
+                @* <MudButton Variant="Variant.Filled" *@
+                @*            DisableElevation="true" *@
+                @*            OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton> *@
             }
             
         </DialogActions>

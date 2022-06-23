@@ -7,6 +7,8 @@ using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 
 namespace FC.PrimeService.Common.Settings.ListItems;
@@ -24,27 +26,21 @@ public partial class WorkLocationList
     string _outputJson;
     private bool _processing = false;
     private bool _isReadOnly = true;
-    private IEnumerable<WorkLocation> pagedData;
-    private MudTable<WorkLocation> table;
 
-    private int totalItems;
-    private string searchString = null;
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    
     #endregion
 
     #region Initialization Load
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
-        //for now it is filled as Static value
-        _inputMode = new WorkLocation()
-        {
-            Id = "6270d1cce5452d9169e86c50",
-            Title = "Main Location",
-            Address = "No:234, Mail Box, Chennai, TN, India.",
-            Phone = "91 96562 22336"
-        };
+        #region Ajax Call to Get Company Details
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        #endregion
         _loading = false;
         StateHasChanged();
     }
@@ -52,127 +48,100 @@ public partial class WorkLocationList
 
     #region Grid View
     /// <summary>
-    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// Used to Refresh Table data.
+    /// </summary>
+    private MudTable<WorkLocation> _mudTable;
+    
+    /// <summary>
+    /// To do Ajax Search in the 'MudTable'
+    /// </summary>
+    private string _searchString = null;
+    /// <summary>
+    /// Server Side pagination with, filtered and ordered data from the API Service.
     /// </summary>
     private async Task<TableData<WorkLocation>> ServerReload(TableState state)
     {
-        IEnumerable<WorkLocation> data = new List<WorkLocation>()
-        {
-            new WorkLocation()
-            {
-                Address = "123, Address, Chennai",
-                Phone = "78452 96963",
-                Title = "Main Location"
-            },
-            new WorkLocation()
-            {
-                Address = "26, Address, Chennai",
-                Phone = "528452 96963",
-                Title = "Secondary Location"
-            },
-        };
-            //await  _httpClient.GetFromJsonAsync<List<User>>("/public/v2/users");
-        await Task.Delay(300);
-        data = data.Where(element =>
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if (element.Phone.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if ($"{element.Id} {element.Phone} {element.Title}".Contains(searchString))
-                return true;
-            return false;
-        }).ToArray();
-        totalItems = data.Count();
-        switch (state.SortLabel)
-        {
-            case "Title":
-                data = data.OrderByDirection(state.SortDirection, o => o.Title);
-                break;
-            case "Phone":
-                data = data.OrderByDirection(state.SortDirection, o => o.Phone);
-                break;
-            case "Address":
-                data = data.OrderByDirection(state.SortDirection, o => o.Address);
-                break;
-        }
+        #region Ajax Call to Get data by Batch
+        var responseModel = await GetDataByBatch(state);
+        #endregion
         
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        Console.WriteLine($"Table State : {JsonSerializer.Serialize(state)}");
-        return new TableData<WorkLocation>() {TotalItems = totalItems, Items = pagedData};
+        Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
+        return new TableData<WorkLocation>() {TotalItems = responseModel.TotalItems, Items = responseModel.Items};
     }
+
+    /// <summary>
+    /// Do Ajax call to get 'WorkLocation' Data
+    /// </summary>
+    /// <param name="state">Current Table State</param>
+    /// <returns>WorkLocation Data.</returns>
+    private async Task<ResponseData<WorkLocation>> GetDataByBatch(TableState state)
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.WorkLocationApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(_searchString)) ? string.Empty : _searchString,
+            Page = state.Page,
+            PageSize = state.PageSize,
+            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "Title" : state.SortLabel,
+            SearchField = "Title",
+            SortDirection = (state.SortDirection == SortDirection.Ascending) ? "A" : "D"
+        };
+        var responseModel = await _httpService.POST<ResponseData<WorkLocation>>(url, pageMetaData);
+        return responseModel;
+    }
+
     private void OnSearch(string text)
     {
-        searchString = text;
-        table.ReloadServerData();
+        _searchString = text;
+        _mudTable.ReloadServerData();//If we put Async, Loading progress bar is not closing.
+        StateHasChanged();
     }
     #endregion
     
     #region Dialog Open Action
-    private async Task OpenDialog(WorkLocation workLocation)
+    private DialogOptions _dialogOptions = new ()
     {
-        Console.WriteLine(JsonSerializer.Serialize(workLocation));
-        var parameters = new DialogParameters { ["_WorkLocation"] = workLocation };
-        var dialog = DialogService.Show<WorkLocationDialog>("Work Location", parameters);
-        var result = await dialog.Result;
-        
-        if (!result.Cancelled)
-        {
-            //In a real world scenario we would reload the data from the source here since we "removed" it in the dialog already.
-            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
-            //Servers.RemoveAll(item => item.Id == deletedServer);
-        }
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+        CloseButton = true,
+        CloseOnEscapeKey = true,
+    };
+    private async Task OpenEditDialog(WorkLocation workLocation)
+    {
+        Utilities.ConsoleMessage(JsonSerializer.Serialize(workLocation));
+        await InvokeDialog("Edit Work Location", UserAction.EDIT, model:workLocation);
     }
     private async Task OpenAddDialog(MouseEventArgs arg)
     {
-        var parameters = new DialogParameters { ["_WorkLocation"] = null };//'null' indicates that the Dialog should open in 'Add' Mode.
-        var dialog = DialogService.Show<WorkLocationDialog>("Work Location", parameters);
-        var result = await dialog.Result;
-        
-        if (!result.Cancelled)
-        {
-            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
-        }
+        await InvokeDialog("Add Work Location",UserAction.ADD);
     }
     
-
-    #endregion
-
-    #region Submit Button with Animation
-    async Task ProcessSomething()
+    private async Task InvokeDialog(string title, 
+        UserAction action = UserAction.ADD, WorkLocation model = null)
     {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
-    }
-    private async Task Submit()
-    {
-        await form.Validate();
-
-        if (form.IsValid)
+        var parameters = new DialogParameters
         {
-            // //Todo some animation.
-            await ProcessSomething();
-            
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submited!", Severity.Success);
+            ["WorkLocation"] = model,
+            ["UserAction"] =  action as object,
+            ["Title"] = title
+        }; //'null' indicates that the Dialog should open in 'Add' Mode.
+        var dialog = DialogService.Show<WorkLocationDialog>(title, parameters, _dialogOptions);
+        var result = await dialog.Result;
+        
+        if (result.Cancelled)
+        {
+            Utilities.ConsoleMessage("Cancelled.");
+            OnSearch(string.Empty);
         }
         else
         {
-            _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+            Utilities.ConsoleMessage("Executed.");
+            OnSearch(string.Empty);//Reload the server grid.
         }
     }
+    
     #endregion
+
     
 }

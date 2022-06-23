@@ -2,9 +2,12 @@
 using FireCloud.WebClient.PrimeService.Service.Helper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 namespace FC.PrimeService.Common.Settings.Dialog;
 
@@ -13,31 +16,39 @@ public partial class EmployeeDialog
     #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
-    private string _title = string.Empty;
-    [Parameter] public Employee _employee { get; set; } 
+    
+    #region Dialog Parameters
+    [Parameter] public Employee Employee { get; set; } 
+    [Parameter] public UserAction UserAction { get; set; } 
+    [Parameter] public string Title { get; set; } 
+    [Parameter] public User LoginUser { get; set; } 
+    
+    #endregion
+    
     private bool _processing = false;
     MudForm form;
     private Employee _inputMode;
     string _outputJson;
     bool success;
-    string[] errors = { };
     private string _detectedHeight = "450";
     private string _dialogBehaviour = "max-height:{0}px; overflow-y: scroll; overflow-x: hidden;";
     private bool _isReadOnly = false;
 
-    public List<WorkLocation> _WorkLocations = new List<WorkLocation>()
-    {
-        new WorkLocation() {  Title = "Main Location", Address = "Chennai", Phone = "452563632"},
-        new WorkLocation() {  Title = "Secondary Location", Address = "Trv", Phone = "85969323"},
-        new WorkLocation() {  Title = "Emergency Location", Address = "Bombay", Phone = "747523669"},
-    }; // In reality it should come from API.
+    private IEnumerable<WorkLocation> _workLocations = new List<WorkLocation>(); 
+    
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
     
     #endregion
 
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_employee == null)
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        Utilities.ConsoleMessage($"Employee - User Action : {UserAction}");
+        if (UserAction == UserAction.ADD)
         {
             //Dialog box opened in "Add" mode
             _inputMode = new Employee()
@@ -45,76 +56,47 @@ public partial class EmployeeDialog
                 User = new User(),
                 WorkLocation = new WorkLocation()
             };
-            _title = "Add Employee";
+            Utilities.ConsoleMessage($"Input Mode Assigned.");
         }
         else
         {
             //Dialog box opened in "Edit" mode
-            _inputMode = _employee;
-            _title = "Edit Employee";
+            _inputMode = Employee;
         }
+        Utilities.ConsoleMessage($"Load Completed.");
+        StateHasChanged();
     }
     #endregion
     
-    #region Cancel & Close
-    private void Cancel()
-    {
-        MudDialog.Cancel();
-    }
-    #endregion
-
-    #region Submit Button with Animation
-    async Task ProcessSomething()
-    {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
-    }
-    
-    private async Task Submit()
-    {
-        await form.Validate();
-
-        if (form.IsValid)
-        {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submited!", Severity.Success);
-        }
-        else
-        {
-            _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
-        }
-    }
-
-    #endregion
-
     #region WorkLocation Search - Autocomplete
 
     private async Task<IEnumerable<WorkLocation>> WorkLocation_SearchAsync(string value)
     {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _WorkLocations;
-        }
-        return _WorkLocations.Where(x => x.Title.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        var responseData = await GetDataByBatch(value);
+        _workLocations = responseData.Items;
+        return _workLocations;
     }
 
+    #region WorkLocation - AutoComplete Ajax call
+    private async Task<ResponseData<WorkLocation>> GetDataByBatch(string searchValue)
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.WorkLocationApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(searchValue)) ? string.Empty : searchValue,
+            Page = 0,
+            PageSize = 10,
+            SortLabel = "Name",
+            SearchField = "Name",
+            SortDirection = "A"
+        };
+        var responseModel = await _httpService.POST<ResponseData<WorkLocation>>(url, pageMetaData);
+        return responseModel;
+    }
+    
+
+    #endregion
+    
     #endregion
 
     #region Password Toggle
@@ -138,9 +120,98 @@ public partial class EmployeeDialog
     }
 
     #endregion
+    
+    #region Submit, Delete, Cancel Button with Animation
 
-    private Task GetFakeData()
+    private async Task Submit()
     {
-        throw new NotImplementedException();
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            //Todo some animation.
+            var isSuccess = await SubmitAction(UserAction);
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "Employee Saved!");
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        else
+        {
+            _outputJson = "Validation Error occured.";
+            Utilities.ConsoleMessage(_outputJson);
+        }
     }
+    
+    async Task<bool> SubmitAction(UserAction action)
+    {
+        _processing = true;
+        string url = string.Empty;
+        Employee responseModel = null;
+        bool result = false;
+        _inputMode.User.AccountId = LoginUser.AccountId;
+        _inputMode.User.DomainURL = _navigationManager.BaseUri;
+        switch (action)
+        {
+            case UserAction.ADD:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.EmployeeApi.Create}";
+                responseModel = await _httpService.POST<Employee>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.EDIT:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.EmployeeApi.Update}";
+                responseModel = await _httpService.PUT<Employee>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.WorkLocationApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            default:
+                break;
+        }
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"Employee JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+    
+    async Task Delete()
+    {
+        var canDelete = await Utilities.DeleteConfirm(DialogService);
+        if (canDelete)
+        {
+            await SubmitAction(UserAction.DELETE);
+            Utilities.SnackMessage(Snackbar, "Employee Deleted!", Severity.Warning);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Utilities.SnackMessage(Snackbar, "Deletion Cancelled!", Severity.Normal);
+        }
+        StateHasChanged();
+    }
+    #endregion
+
+    #region Get Fake Data
+    private async Task GetFakeData()
+    {
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.EmployeeApi.Fake}";
+        _inputMode = await _httpService.GET<Employee>(url);
+        _loading = false;
+        //throw new NotImplementedException();
+    }
+    
+
+    #endregion
+    
 }

@@ -29,7 +29,9 @@
     <MudCardContent>
 
         <MudTable ServerData="@(new Func<TableState, Task<TableData<Employee>>>(ServerReload))"
-                  Dense="true" Hover="true" @ref="table">
+                  Loading="true"  LoadingProgressColor="Color.Warning"
+                    SortLabel="Title" AllowUnsorted="true"
+                  Dense="true" Hover="true" @ref="_mudTable">
             <ToolBarContent>
                 @* <MudText Typo="Typo.h6"></MudText> *@
                 @* <MudSpacer /> *@
@@ -44,12 +46,13 @@
                 <MudTh><MudTableSortLabel SortLabel="Mobile" T="Employee">Mobile</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Email" T="Employee">Email</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Work Location" T="Employee">WorkLocation</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="IsActive" T="Employee">Active</MudTableSortLabel></MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Name">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
-                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                            <MudButton OnClick="@(s => OpenEditDialog(@context))">
                                 @context.User.Name
                             </MudButton>
                         </ChildContent>
@@ -63,6 +66,18 @@
                 <MudTd DataLabel="Mobile">@context.Mobile</MudTd>
                 <MudTd DataLabel="Email">@context.User.Email</MudTd>
                 <MudTd DataLabel="Work Location">@context.WorkLocation.Title </MudTd>
+                <MudTd DataLabel="IsActive">
+                    @if (context.User.IsActive)
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.CheckCircle" Color="Color.Success" />
+                        
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.Close" Color="Color.Error" />
+                    }
+                   
+                </MudTd>
             </RowTemplate>
             <NoRecordsContent>
                 <MudText>No matching records found</MudText>

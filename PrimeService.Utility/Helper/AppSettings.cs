@@ -30,8 +30,38 @@ public class API
      public TicketStatusApi TicketStatusApi { get; set; }
      public SequenceApi SequenceApi { get; set; }
      public LicenseSubscriptionApi LicenseSubscriptionApi { get; set; }
+     public WorkLocationApi WorkLocationApi { get; set; }
+     public EmployeeApi EmployeeApi { get; set; }
      
 }
+
+#region Employee API
+
+public class EmployeeApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+
+#endregion
+
+#region Work Location API
+
+public class WorkLocationApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+
+#endregion
 
 #region Company API
 public class CompanyApi

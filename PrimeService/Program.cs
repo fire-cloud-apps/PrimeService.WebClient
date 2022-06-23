@@ -1,24 +1,19 @@
-using System.Security.Claims;
-using System.Text.Json;
 using Blazored.LocalStorage;
 using FireCloud.WebClient.PrimeService.Service;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
-using Blazored.LocalStorage.JsonConverters;
-using Blazored.LocalStorage.Serialization;
-using Blazored.LocalStorage.StorageOptions;
-using Blazor.Extensions.Logging;
-using FireCloud.WebClient.PrimeService.Service.Helper;
-using PrimeService.Model.Settings.Tickets;
-using PrimeService.Model.Shopping;
 using PrimeService.Utility;
 using PrimeService.Utility.Helper;
 using App = FireCloud.WebClient.PrimeService.App;
 
+//Prime Service
 //Cloud URL : https://prime-service-api.azurewebsites.net/API/
 //Local URL : https://localhost:7111/API/
-//Prime Service
+
+//FC Auth
+//Cloud URL : https://fcauthentication.azurewebsites.net/API/
+//Local URL : https://localhost:7086/API/
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");

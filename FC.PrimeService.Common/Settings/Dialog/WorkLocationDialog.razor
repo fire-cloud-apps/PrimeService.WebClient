@@ -4,83 +4,103 @@
 @using System.Text.Json
 @inject ISnackbar Snackbar
 
-<MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.TwoTone.LocationOn" Class="mr-3 mb-n1"/>
-            @_title
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-         @if (_loading)
-                {
-                    <MudSkeleton Class="my-2"/>
-                    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
-                    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
-                    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
-                    <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
-                    <MudSkeleton Class="my-2"/>
-                }
-         else
-         {
-             <MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
-                      @bind-Errors="@errors">
-                 <MudGrid>
-                     <MudItem xs="12" sm="6" md="6">
-                         <MudTextField Disabled="@_isReadOnly" Label="Title" HelperText="Max. 50 characters"
-                                       @bind-Value="_inputMode.Title"
-                                       For="@(() => _inputMode.Title)"
-                                       Counter="50" MaxLength="50"
-                                       Immediate="true"
-                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
-                     </MudItem>
-                     <MudItem xs="12" sm="6" md="6">
-                         <MudTextField Disabled="@_isReadOnly" Label="Phone" HelperText="Max. 50 characters"
-                                       @bind-Value="_inputMode.Phone"
-                                       For="@(() => _inputMode.Phone)"
-                                       Counter="50" MaxLength="50"
-                                       Immediate="true"
-                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
-                     </MudItem>
-                     <MudItem xs="12">
-                         <MudTextField Disabled="@_isReadOnly" Label="Address"
-                                       HelperText="Max. 300 characters"
-                                       @bind-Value="_inputMode.Address"
-                                       For="@(() => _inputMode.Address)"
-                                       Lines="3"
-                                       Counter="300"
-                                       MaxLength="330"
-                                       Immediate="true"/>
-                     </MudItem>
-                 </MudGrid>
+<MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
+         @bind-Errors="@errors">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.TwoTone.LocationOn" Class="mr-3 mb-n1"/>
+                @Title
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            @if (_loading)
+            {
+                <MudSkeleton Class="my-2"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+                <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+                <MudSkeleton Class="my-2"/>
+            }
+            else
+            {
+            
+                <MudGrid>
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudTextField Disabled="@_isReadOnly" Label="Title" 
+                                      AutoFocus="true"
+                                      HelperText="Eg. Main Office/Head Quarter"
+                                      @bind-Value="_inputMode.Title"
+                                      For="@(() => _inputMode.Title)"
+                                      Counter="50" MaxLength="50"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="6">
+                        <MudTextField Disabled="@_isReadOnly" Label="Phone" 
+                                      HelperText="Eg. +91-82345-78585"
+                                      @bind-Value="_inputMode.Phone"
+                                      For="@(() => _inputMode.Phone)"
+                                      Counter="15" MaxLength="15"
+                                      Immediate="true"
+                                      Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max15Characters))"/>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField Disabled="@_isReadOnly" Label="Address"
+                                      HelperText="Company a complete address, with Street, Country code in full."
+                                      @bind-Value="_inputMode.Address"
+                                      For="@(() => _inputMode.Address)"
+                                      Lines="3"
+                                      Counter="300"
+                                      MaxLength="330"
+                                      Immediate="true"/>
+                    </MudItem>
+                </MudGrid>
 
-                 @* <MudPaper Class="pa-4 mt-4 d-flex justify-end"> *@
-                 @*     <MudButton Variant="Variant.Filled" *@
-                 @*                StartIcon="@Icons.Filled.Input" *@
-                 @*                Color="Color.Primary" DisableElevation="true" *@
-                 @*                OnClick="@(async () => await Submit())"> *@
-                 @*         @if (_processing) *@
-                 @*         { *@
-                 @*             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/> *@
-                 @*             <MudText Class="ms-2">Processing</MudText> *@
-                 @*         } *@
-                 @*         else *@
-                 @*         { *@
-                 @*             <MudText>Submit</MudText> *@
-                 @*         } *@
-                 @*     </MudButton> *@
-                 @*     <MudButton Variant="Variant.Filled" *@
-                 @*                Color="Color.Secondary" DisableElevation="true" *@
-                 @*                OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton> *@
-                 @*     <MudButton Variant="Variant.Filled" *@
-                 @*                DisableElevation="true" *@
-                 @*                OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton> *@
-                 @* </MudPaper> *@
-             </MudForm>
-         }
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Secondary" OnClick="Submit">Submit</MudButton>
-    </DialogActions>
-</MudDialog>
+                 
+             
+            }
+        </DialogContent>
+        <DialogActions>
+            
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Filled.Input"
+                       Color="Color.Primary" DisableElevation="true"
+                       OnClick="@(async () => await Submit())">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Submit</MudText>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
+                       StartIcon="@Icons.Outlined.Cancel"
+                       OnClick="Cancel">Cancel</MudButton>
+            @if (UserAction == UserAction.EDIT)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                               OnClick="Delete"
+                               Color="Color.Secondary" ></MudIconButton>
+            }
+                
+            @if (_appSettings.IsDev && UserAction == UserAction.ADD)
+            {
+                    <MudButton Variant="Variant.Filled" 
+                               Color="Color.Warning" DisableElevation="true" 
+                                OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
+                    @*  <MudButton Variant="Variant.Filled" *@
+                    @*            Color="Color.Secondary" DisableElevation="true" *@
+                    @*            OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton> *@
+                    @* <MudButton Variant="Variant.Filled" *@
+                    @*            DisableElevation="true" *@
+                    @*            OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton> *@
+            }
+                
+        </DialogActions>
+    </MudDialog>
+</MudForm>

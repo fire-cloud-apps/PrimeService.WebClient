@@ -22,7 +22,7 @@ public class User
     /// <summary>
     /// A Unique username for the login user/employee.
     /// </summary>
-    [Required(ErrorMessage = "UserName is required.")]
+    //[Required(ErrorMessage = "UserName is required.")]
     [StringLength(50, ErrorMessage = "UserName length can't be more than 50.")]
     public string? Username { get; set; } = string.Empty;
 
@@ -85,6 +85,7 @@ public class User
     /// <summary>
     /// Employee Email id
     /// </summary>
+    [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
     /// <summary>

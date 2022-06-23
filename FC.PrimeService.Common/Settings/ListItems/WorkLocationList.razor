@@ -26,10 +26,10 @@
     <MudCardContent>
 
         <MudTable ServerData="@(new Func<TableState, Task<TableData<WorkLocation>>>(ServerReload))"
-                  Dense="true" Hover="true" @ref="table">
+                  Loading="true"  LoadingProgressColor="Color.Warning"
+                  SortLabel="Title" AllowUnsorted="true"
+                  Dense="true" Hover="true" @ref="_mudTable">
             <ToolBarContent>
-                @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
-                @* <MudSpacer /> *@
                 <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" 
                               FullWidth="true"
                               Placeholder="Search" Adornment="Adornment.Start"
@@ -45,7 +45,7 @@
                 <MudTd DataLabel="Title">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
-                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                            <MudButton OnClick="@(s => OpenEditDialog(@context))">
                                 @context.Title
                             </MudButton>
                         </ChildContent>
@@ -55,7 +55,6 @@
                         </TooltipContent>
                     </MudTooltip>
                 </MudTd>
-               
                 <MudTd DataLabel="Phone">@context.Phone</MudTd>
                 <MudTd DataLabel="Address">@context.Address </MudTd>
             </RowTemplate>

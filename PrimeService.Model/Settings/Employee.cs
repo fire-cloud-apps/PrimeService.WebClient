@@ -26,7 +26,7 @@ public class Employee
     /// Current Work Location
     /// </summary>
     public WorkLocation WorkLocation { get; set; }
-    [StringLength(10, ErrorMessage = "Mobile length can't be more than 10.")]
+    [StringLength(15, ErrorMessage = "Mobile length can't be more than 15.")]
     public string Mobile { get; set; }
     
 }
