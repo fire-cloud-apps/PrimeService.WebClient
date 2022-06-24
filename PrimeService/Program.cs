@@ -47,8 +47,8 @@ builder.Services.AddScoped(sp => new HttpClient
 var appConfig = builder.Configuration.Get<AppSettings>();
 builder.Services.AddSingleton(appConfig);
 GlobalConfig.AppSettings = appConfig;
-Utilities.ConsoleMessage($"API URL : {builder.Configuration["App:AuthUrl"]}");
-
+Utilities.ConsoleMessage($"Authentication URL : {builder.Configuration["App:AuthUrl"]}");
+Utilities.ConsoleMessage($"Prime-Service URL : {builder.Configuration["App:ServiceUrl"]}");
 #endregion
 
 #region Build & Initialize
