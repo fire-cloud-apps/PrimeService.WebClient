@@ -138,6 +138,15 @@ public partial class SettingsList
                     ToolTip = "Ticket Default Values",
                     Icon = @Icons.TwoTone.StickyNote2
                 },
+                new SettingsItem()
+                {
+                    Title = "Category",
+                    ButtonColor = Color.Default,
+                    IconColor = Color.Default,
+                    ToolTip = "Service Category",
+                    Icon = @Icons.TwoTone.Air,
+                    Link = $"/SettingsView?viewId=Category"
+                },
                 // new SettingsItem()
                 // {
                 //     Title = "Notification",
@@ -285,7 +294,7 @@ public partial class SettingsList
 
     #endregion
      
-    #region Helper Methods
+    #region Parform Navigation based on 'Title' Methods
      
      private async  Task PerformNavigation(SettingsItem selectedItem)
      {
@@ -331,7 +340,6 @@ public partial class SettingsList
                  _navigationManager.NavigateTo(selectedItem.Link);
                  break;
          }
-        
      }
 
      async Task InvokeDialogBox<T>(string title, DialogOptions options, string parameter = "") where T : Microsoft.AspNetCore.Components.ComponentBase
@@ -347,8 +355,7 @@ public partial class SettingsList
                  { [parameter] = _loginUser };
              result = DialogService.Show<T>(title: title, parameters, options);
          }
-        
-          
+
          if (!result.Result.IsCanceled)
          {
              //some action.

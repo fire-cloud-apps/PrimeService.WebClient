@@ -34,7 +34,8 @@ public partial class  WorkLocationDialog
     private IHttpService _httpService;
     
     #endregion
-    
+
+    #region Load Async
     protected override async Task OnInitializedAsync()
     {
         _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
@@ -51,7 +52,8 @@ public partial class  WorkLocationDialog
         }
         
     }
-    
+    #endregion
+   
     #region Submit, Delete, Cancel Button with Animation
 
     private async Task Submit()

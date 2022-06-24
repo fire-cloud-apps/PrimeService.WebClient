@@ -26,8 +26,7 @@ public partial class Index
         loading = true;
         StateHasChanged();
     }
-
-
+    
     #region Dashboard Stuff
 
     EarningReport[] earningReports = new EarningReport[]

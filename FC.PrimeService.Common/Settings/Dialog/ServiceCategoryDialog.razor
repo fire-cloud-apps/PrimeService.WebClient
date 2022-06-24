@@ -1,22 +1,19 @@
-﻿@using global::PrimeService.Utility.ValidationHelper
-@using Microsoft.AspNetCore.Components
-@using Microsoft.JSInterop
+﻿@using MudBlazor
+@using global::PrimeService.Model.Settings
+@using global::PrimeService.Utility.ValidationHelper
+@using System.Text.Json
 @inject ISnackbar Snackbar
-@inject IJSRuntime JsRuntime
 
-<MudForm @ref="form" Model="_inputMode">
+<MudForm @ref="form" Model="_inputMode" @bind-IsValid="@success"
+         @bind-Errors="@errors">
     <MudDialog>
         <TitleContent>
             <MudText Typo="Typo.h6">
-                <MudIcon Icon="@Icons.TwoTone.CurrencyRupee" Class="mr-3 mb-n1"/>
+                <MudIcon Icon="@Icons.TwoTone.LocationOn" Class="mr-3 mb-n1"/>
                 @Title
             </MudText>
-        
         </TitleContent>
-   
-        <DialogContent >
-            <MudDivider Style="margin-left:8px; margin-right:8px;"/>
-        
+        <DialogContent>
             @if (_loading)
             {
                 <MudSkeleton Class="my-2"/>
@@ -28,21 +25,27 @@
             }
             else
             {
-                <MudGrid Style="max-height: 450px; overflow-y: scroll; overflow-x: hidden;">
+            
+                <MudGrid>
                     <MudItem xs="12" sm="12" md="12">
-                        <MudTextField Disabled="@_isReadOnly" Label="Title" HelperText="Max. 50 characters"
-                                      @bind-Value="_inputMode.Title"
-                                      For="@(() => _inputMode.Title)"
+                        <MudTextField Disabled="@_isReadOnly" Label="Category Name" 
+                                      AutoFocus="true"
+                                      HelperText="Eg. Repair/Maintenance/Service"
+                                      @bind-Value="_inputMode.CategoryName"
+                                      For="@(() => _inputMode.CategoryName)"
                                       Counter="50" MaxLength="50"
                                       Immediate="true"
                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
                     </MudItem>
+                   
                 </MudGrid>
+
+                 
+             
             }
-        
         </DialogContent>
         <DialogActions>
-
+            
             <MudButton Variant="Variant.Filled"
                        StartIcon="@Icons.Filled.Input"
                        Color="Color.Primary" DisableElevation="true"
@@ -54,13 +57,13 @@
                 }
                 else
                 {
-                    <MudText>Submit</MudText>
+                    <MudText>Save</MudText>
                 }
             </MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
                        StartIcon="@Icons.Outlined.Cancel"
                        OnClick="Cancel">Cancel</MudButton>
-            
+           
         </DialogActions>
     </MudDialog>
 </MudForm>

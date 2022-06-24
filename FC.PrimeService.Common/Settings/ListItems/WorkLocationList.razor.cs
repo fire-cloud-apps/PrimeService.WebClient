@@ -106,10 +106,10 @@ public partial class WorkLocationList
         CloseButton = true,
         CloseOnEscapeKey = true,
     };
-    private async Task OpenEditDialog(WorkLocation workLocation)
+    private async Task OpenEditDialog(WorkLocation model)
     {
-        Utilities.ConsoleMessage(JsonSerializer.Serialize(workLocation));
-        await InvokeDialog("Edit Work Location", UserAction.EDIT, model:workLocation);
+        Utilities.ConsoleMessage(JsonSerializer.Serialize(model));
+        await InvokeDialog("Edit Work Location", UserAction.EDIT, model:model);
     }
     private async Task OpenAddDialog(MouseEventArgs arg)
     {

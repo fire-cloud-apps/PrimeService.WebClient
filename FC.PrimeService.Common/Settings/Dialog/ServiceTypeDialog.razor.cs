@@ -1,9 +1,12 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 namespace FC.PrimeService.Common.Settings.Dialog;
 
@@ -12,69 +15,80 @@ public partial class ServiceTypeDialog
     #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
-    private string _title = string.Empty;
-    [Parameter] public ServiceType _ServiceType { get; set; } 
+    
+    #region Dialog Parameters
+    [Parameter] public ServiceType ServiceType { get; set; } 
+    [Parameter] public string Title { get; set; }
+    [Parameter] public UserAction UserAction { get; set; }
+    #endregion
     private bool _processing = false;
     MudForm form;
     private ServiceType _inputMode;
     string _outputJson;
     bool success;
-    string[] errors = { };
     private bool _isReadOnly = false;
 
-    public List<ServiceCategory> _serviceCategorys = new List<ServiceCategory>()
-    {
-        new ServiceCategory() { CategoryName = "Repair" },
-        new ServiceCategory() { CategoryName = "Maintenance" },
-        new ServiceCategory() { CategoryName = "Service" },
-        new ServiceCategory() { CategoryName = "Support" },
-        
-    }; // In reality it should come from API.
-    
+    public IEnumerable<ServiceCategory> _serviceCategory = new List<ServiceCategory>();
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
     #endregion
 
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_ServiceType == null)
+        _loading = true;
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        Utilities.ConsoleMessage($"Service Type - User Action : {UserAction}");
+        if (UserAction == UserAction.ADD)
         {
             //Dialog box opened in "Add" mode
-            _inputMode = new ServiceType()
-            {
-               Price = 100,
-               Cost = 10,
-               Title = "Laptop Repair",
-               Warranty = 30,
-               Category = new ServiceCategory()
-               {
-                   CategoryName = "Repair"
-               }
-            };
-            _title = "Add Service Type";
+            _inputMode = new ServiceType();//Initializes an empty object.
         }
         else
         {
             //Dialog box opened in "Edit" mode
-            _inputMode = _ServiceType;
-            _title = "Edit Service Type";
+            _inputMode = ServiceType;
         }
+
+        _loading = false;
+        StateHasChanged();
     }
     #endregion
     
-    #region Cancel & Close
-    private void Cancel()
+    
+    #region ServiceCategory Search - Autocomplete
+
+    private async Task<IEnumerable<ServiceCategory>> ServiceCategory_SearchAsync(string value)
     {
-        MudDialog.Cancel();
+        var responseData = await GetDataByBatch(value);
+        _serviceCategory = responseData.Items;
+        return _serviceCategory;
     }
     #endregion
-
-    #region Submit Button with Animation
-    async Task ProcessSomething()
+    
+    #region ServiceCategory - AutoComplete Ajax call
+    private async Task<ResponseData<ServiceCategory>> GetDataByBatch(string searchValue)
     {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ServiceCategoryApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(searchValue)) ? string.Empty : searchValue,
+            Page = 0,
+            PageSize = 10,
+            SortLabel = "Title",
+            SearchField = "Title",
+            SortDirection = "A"
+        };
+        var responseModel = await _httpService.POST<ResponseData<ServiceCategory>>(url, pageMetaData);
+        return responseModel;
     }
+    
+
+    #endregion
+    
+    #region Submit, Delete, Cancel Button with Animation
 
     private async Task Submit()
     {
@@ -82,51 +96,85 @@ public partial class ServiceTypeDialog
 
         if (form.IsValid)
         {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submitted!", Severity.Success);
+            //Todo some animation.
+            var isSuccess = await SubmitAction(UserAction);
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "ServiceType Saved!");
+                MudDialog.Close(DialogResult.Ok(true));
+            }
         }
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Utilities.ConsoleMessage(_outputJson);
         }
     }
-
-    #endregion
-
-    #region ServiceCategory Search - Autocomplete
-
-    private async Task<IEnumerable<ServiceCategory>> ServiceCategory_SearchAsync(string value)
+    
+    async Task<bool> SubmitAction(UserAction action)
     {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
+        _processing = true;
+        string url = string.Empty;
+        ServiceType responseModel = null;
+        bool result = false;
+        switch (action)
         {
-            return _serviceCategorys;
+            case UserAction.ADD:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ServiceTypeApi.Create}";
+                responseModel = await _httpService.POST<ServiceType>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.EDIT:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ServiceTypeApi.Update}";
+                responseModel = await _httpService.PUT<ServiceType>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ServiceTypeApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            default:
+                break;
         }
-        return _serviceCategorys.Where(x => x.CategoryName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"ServiceType JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
     }
-
-    #endregion
-
-    #region Generate Fake
-    private Task GetFakeData()
+    private void Cancel()
     {
-        throw new NotImplementedException();
-    } 
+        MudDialog.Cancel();
+    }
+    
+    async Task Delete()
+    {
+        var canDelete = await Utilities.DeleteConfirm(DialogService);
+        if (canDelete)
+        {
+            await SubmitAction(UserAction.DELETE);
+            Utilities.SnackMessage(Snackbar, "ServiceType Deleted!", Severity.Warning);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Utilities.SnackMessage(Snackbar, "Deletion Cancelled!", Severity.Normal);
+        }
+        StateHasChanged();
+    }
     #endregion
+
+    #region Get Fake Data
+    private async Task GetFakeData()
+    {
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ServiceTypeApi.Fake}";
+        _inputMode = await _httpService.GET<ServiceType>(url);
+        _loading = false;
+    }
+    #endregion
+    
     
 }

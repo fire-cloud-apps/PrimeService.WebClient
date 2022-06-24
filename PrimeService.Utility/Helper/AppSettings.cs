@@ -2,6 +2,13 @@
 
 namespace PrimeService.Utility.Helper;
 
+public class App
+{
+    public string AuthUrl { get; set; }
+    public string GoogleAuth { get; set; }
+    public string ServiceUrl { get; set; }
+}
+
 public class AppSettings
 {
     public App App { get; set; }
@@ -17,12 +24,7 @@ public class AppSettings
 }
 
 
-public class App
-{
-    public string AuthUrl { get; set; }
-    public string GoogleAuth { get; set; }
-    public string ServiceUrl { get; set; }
-}
+
 
 public class API
 {
@@ -35,7 +37,55 @@ public class API
      
      public TicketDefaultApi TicketDefaultApi { get; set; }
      
+     public ServiceCategoryApi ServiceCategoryApi { get; set; }
+     
+     public ServiceTypeApi ServiceTypeApi { get; set; }
+     
+     public PaymentMethodsApi PaymentMethodsApi { get; set; }
+     
 }
+
+#region PaymentMethodsApi API
+
+public class PaymentMethodsApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+
+#endregion
+
+#region ServiceTypeApi API
+
+public class ServiceTypeApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+
+#endregion
+
+#region ServiceCategoryApi API
+
+public class ServiceCategoryApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+
+#endregion
 
 #region Employee API
 
@@ -77,6 +127,7 @@ public class CompanyApi
 }
 #endregion
 
+#region More
 public class LicenseSubscriptionApi
 {
     public string GetSubscription { get; set; }
@@ -88,6 +139,7 @@ public class SequenceApi
     public string GetDetails { get; set; }
     public string Generate { get; set; }
 }
+#endregion
 
 #region Ticket Status API
 
