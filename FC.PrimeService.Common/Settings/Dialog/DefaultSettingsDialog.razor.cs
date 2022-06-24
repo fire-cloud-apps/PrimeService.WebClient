@@ -1,8 +1,11 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 namespace FC.PrimeService.Common.Settings.Dialog;
 
@@ -21,72 +24,85 @@ public partial class DefaultSettingsDialog
     bool success;
     string[] errors = { };
     private bool _isReadOnly = false;
+    
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
     #endregion
 
     #region Component Initialization
     protected override async Task OnInitializedAsync()
     {
-        if (_defaultSettings == null)
+        _loading = true;
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        
+        _inputMode = await GetDefault();
+        if (_inputMode == null)
         {
-            //Dialog box opened in "Add" mode
-            _inputMode = new DefaultSettings();//Initializes an empty object.
-            _title = "Default Settings";
+            //Occurs only during very first time.
+            _inputMode = new DefaultSettings()
+            {
+                Deadline = 5,
+                Warranty = 90
+            };
         }
-        else
-        {
-            //Dialog box opened in "Edit" mode
-            _inputMode = _defaultSettings;
-            _title = "Default Settings";
-        }
+
+        _loading = false;
+        StateHasChanged();
     }
     #endregion
     
-    #region Submit, Cancel Button with Animation
-    private void Cancel()
+    #region Get Profile Details
+    private async Task<DefaultSettings> GetDefault()
     {
-        MudDialog.Cancel();
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.TicketDefaultApi.GetDefault}";
+        var responseModel = await _httpService.GET<DefaultSettings>(url);
+        return responseModel;
     }
+
+    #endregion
     
-    async Task ProcessSomething()
-    {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
-    }
+    #region Submit Button with Animation
 
     private async Task Submit()
     {
         await form.Validate();
-
         if (form.IsValid)
         {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submited!", Severity.Success);
+            var isSuccess = await SubmitAction();
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "User Profile Updated!");
+                MudDialog.Close(DialogResult.Ok(true));
+            }
         }
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Utilities.ConsoleMessage(_outputJson);
         }
     }
-    
-    #endregion
 
-    #region Fake Data
-    private Task GetFakeData()
+    async Task<bool> SubmitAction()
     {
-        throw new NotImplementedException();
+        _processing = true;
+        string url = string.Empty;
+        DefaultSettings responseModel = null;
+        bool result = false;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.TicketDefaultApi.AddOrUpdate}";
+        responseModel = await _httpService.PUT<DefaultSettings>(url, _inputMode);
+        result = (responseModel != null);
+        
+        Utilities.ConsoleMessage($"Executed API URL : {url}");
+        Utilities.ConsoleMessage($"'DefaultSettings' JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
     }
     #endregion
 }

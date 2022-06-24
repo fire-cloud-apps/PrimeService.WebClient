@@ -1,8 +1,11 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 namespace FC.PrimeService.Common.Settings.Dialog;
 
@@ -11,63 +14,51 @@ public partial class UserProfileDialog
     #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
-    private string _title = string.Empty;
-    [Parameter] public User _userProfile { get; set; } 
+    [Parameter] public User _loginUser { get; set; } 
     private bool _processing = false;
     MudForm form;
-    private User _inputMode;
+    private Employee _inputMode;
     string _outputJson;
     bool success;
-    string[] errors = { };
-    
     private bool _isReadOnly = false;
 
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    
     #endregion
 
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_userProfile == null)
+        _loading = true;
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        
+        if (_loginUser != null)
         {
-            //Dialog box opened in "Add" mode
-            _inputMode = new User()
-            {
-                Name = "SR Ganesh Ram",
-                Username = "sr.ganeshram",
-                Email = "sr.ganeshram@gmail.com",
-                Password = "738993390",
-            };
-            _title = "User Profile";
+            Utilities.ConsoleMessage($"User Profile - User Info: {_loginUser.Id} - {_loginUser.Username}");
+            _inputMode = await GetProfile(_loginUser.Username);
+            Utilities.ConsoleMessage($"User Data {JsonSerializer.Serialize<Employee>(_inputMode)}");
+            
         }
-        else
-        {
-            //Dialog box opened in "Edit" mode
-            _inputMode = _userProfile;
-            _title = "User Profile";
-        }
-    }
-    #endregion
-    
-    #region Cancel & Close
-    private void Cancel()
-    {
-        MudDialog.Cancel();
+        _loading = false;
+        StateHasChanged();
     }
     #endregion
 
-    #region Submit Button with Animation
-    async Task ProcessSomething()
+    #region Get Profile Details
+    private async Task<Employee> GetProfile(string email)
     {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.EmployeeApi.GetByEmail}";
+        url = string.Format(url, email);
+        var responseModel = await _httpService.GET<Employee>(url);
+        return responseModel;
     }
+
+    #endregion
     
-    public static IEnumerable<string> Max10Characters(string ch)
-    {
-        if (!string.IsNullOrEmpty(ch) && 10 < ch?.Length)
-            yield return "Max 10 characters";
-    }
+    #region Submit Button with Animation
 
     private async Task Submit()
     {
@@ -75,27 +66,41 @@ public partial class UserProfileDialog
 
         if (form.IsValid)
         {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submitted!", Severity.Success);
+            //Todo some animation.
+            var isSuccess = await SubmitAction();
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "User Profile Updated!");
+                MudDialog.Close(DialogResult.Ok(true));
+            }
         }
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Utilities.ConsoleMessage(_outputJson);
         }
     }
 
+    async Task<bool> SubmitAction()
+    {
+        _processing = true;
+        string url = string.Empty;
+        Employee responseModel = null;
+        bool result = false;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.EmployeeApi.Update}";
+        responseModel = await _httpService.PUT<Employee>(url, _inputMode);
+        result = (responseModel != null);
+        
+        Utilities.ConsoleMessage($"Executed API URL : {url}");
+        Utilities.ConsoleMessage($"Employee JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
     #endregion
 
     #region Password Toggle
@@ -120,8 +125,4 @@ public partial class UserProfileDialog
 
     #endregion
 
-    private Task GetFakeData()
-    {
-        throw new NotImplementedException();
-    }
 }

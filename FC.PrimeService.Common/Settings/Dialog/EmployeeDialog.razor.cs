@@ -93,8 +93,6 @@ public partial class EmployeeDialog
         var responseModel = await _httpService.POST<ResponseData<WorkLocation>>(url, pageMetaData);
         return responseModel;
     }
-    
-
     #endregion
     
     #endregion

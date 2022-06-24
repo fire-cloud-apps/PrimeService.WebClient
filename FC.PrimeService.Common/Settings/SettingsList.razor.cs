@@ -315,7 +315,7 @@ public partial class SettingsList
                      CloseButton = true,
                      CloseOnEscapeKey = true,
                  };
-                 await InvokeDialogBox<UserProfileDialog>("User Profile", options );
+                 await InvokeDialogBox<UserProfileDialog>("User Profile", options, "_loginUser" );
                  break;
              case "Sequence":
                  options = new DialogOptions()

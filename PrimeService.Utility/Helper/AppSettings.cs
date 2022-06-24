@@ -33,12 +33,15 @@ public class API
      public WorkLocationApi WorkLocationApi { get; set; }
      public EmployeeApi EmployeeApi { get; set; }
      
+     public TicketDefaultApi TicketDefaultApi { get; set; }
+     
 }
 
 #region Employee API
 
 public class EmployeeApi
 {
+    public string GetByEmail { get; set; }
     public string GetDetails { get; set; }
     public string GetBatch { get; set; }
     public string Fake { get; set; }
@@ -96,6 +99,16 @@ public class TicketStatusApi
     public string Create { get; set; }
     public string Update { get; set; }
     public string Delete { get; set; }
+}
+
+#endregion
+
+#region Ticket Default Settings
+
+public class TicketDefaultApi
+{
+    public string GetDefault { get; set; }
+    public string AddOrUpdate { get; set; }
 }
 
 #endregion

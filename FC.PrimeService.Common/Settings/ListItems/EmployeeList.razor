@@ -52,7 +52,8 @@
                 <MudTd DataLabel="Name">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
-                            <MudButton OnClick="@(s => OpenEditDialog(@context))">
+                            <MudButton Variant="Variant.Filled"
+                                OnClick="@(s => OpenEditDialog(@context))">
                                 @context.User.Name
                             </MudButton>
                         </ChildContent>
@@ -70,13 +71,11 @@
                     @if (context.User.IsActive)
                     {
                         <MudIcon Icon="@Icons.TwoTone.CheckCircle" Color="Color.Success" />
-                        
                     }
                     else
                     {
                         <MudIcon Icon="@Icons.TwoTone.Close" Color="Color.Error" />
                     }
-                   
                 </MudTd>
             </RowTemplate>
             <NoRecordsContent>

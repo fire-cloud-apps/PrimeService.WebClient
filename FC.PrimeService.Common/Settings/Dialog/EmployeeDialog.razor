@@ -60,12 +60,10 @@
                                       Immediate="true"
                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
                     </MudItem>
-                    
                 </MudGrid>
                     
                 <MudGrid>
                     <MudItem xs="12" sm="6" md="4">
-                       
                         <MudTextField Disabled="@_isReadOnly" Label="Mobile"
                                       InputType="InputType.Telephone"
                                       HelperText="Eg. +91-82345-78585"
