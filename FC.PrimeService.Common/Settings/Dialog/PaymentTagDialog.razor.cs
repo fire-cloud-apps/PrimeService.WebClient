@@ -1,14 +1,18 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using MongoDB.Bson;
 using MudBlazor;
+using PrimeService.Model;
 using PrimeService.Model.Settings.Payments;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 namespace FC.PrimeService.Common.Settings.Dialog;
 
 public partial class PaymentTagDialog
 {
-        #region Global Variables
+    #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
     private string _title = string.Empty;
@@ -20,79 +24,134 @@ public partial class PaymentTagDialog
     bool success;
     string[] errors = { };
     private bool _isReadOnly = false;
+    
+    #region Dialog Parameters
+    [Parameter] public PaymentTags PaymentTags { get; set; } 
+    [Parameter] public string Title { get; set; }
+    [Parameter] public UserAction UserAction { get; set; }
+    #endregion
+    
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    
     #endregion
 
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_PaymentTags == null)
+        _loading = true;
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        Utilities.ConsoleMessage($"Payment Tags - User Action : {UserAction}");
+        if (UserAction == UserAction.ADD)
         {
             //Dialog box opened in "Add" mode
-            _inputMode = new PaymentTags()
-            {
-                Title = "Main Account",
-                Amount = 10000,
-                Category = PaymentCategory.Income
-            };
-            _title = "Add Payment Tag";
+            _inputMode = new PaymentTags();//Initializes an empty object.
         }
         else
         {
             //Dialog box opened in "Edit" mode
-            _inputMode = _PaymentTags;
-            _title = "Edit Payment Tag";
+            _inputMode = PaymentTags;
         }
-    }
-    #endregion
-    
-    #region Cancel & Close
-    private void Cancel()
-    {
-        MudDialog.Cancel();
+
+        _loading = false;
+        StateHasChanged();
     }
     #endregion
 
-    #region Submit Button with Animation
-    async Task ProcessSomething()
-    {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
-    }
+    #region Submit, Delete, Cancel Button with Animation
 
+    private string _eventMessage = "PaymentTags Saved!";
     private async Task Submit()
     {
         await form.Validate();
 
         if (form.IsValid)
         {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submitted!", Severity.Success);
+            var isSuccess = await SubmitAction(UserAction);
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, _eventMessage);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
         }
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Utilities.ConsoleMessage(_outputJson);
         }
     }
-
-    #endregion
-
-    #region Generate Fake
-    private Task GetFakeData()
+    
+    async Task<bool> SubmitAction(UserAction action)
     {
-        throw new NotImplementedException();
-    } 
+        _processing = true;
+        string url = string.Empty;
+        PaymentTags responseModel = null;
+        bool result = false;
+        switch (action)
+        {
+            case UserAction.ADD:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentTagsApi.Create}";
+                responseModel = await _httpService.POST<PaymentTags>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.EDIT:
+                if (_inputMode.IsDefault)
+                {
+                    result = await SetDefaultAccount();
+                    _eventMessage = $"Payment Tag : '{_inputMode.Title}' set as Default Account.";
+                }
+                else
+                {
+                    url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentTagsApi.Update}";
+                    responseModel = await _httpService.PUT<PaymentTags>(url, _inputMode);
+                    result = (responseModel != null);
+                }
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentTagsApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            default:
+                break;
+        }
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"PaymentTags JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+    
+    async Task Delete()
+    {
+        var canDelete = await Utilities.DeleteConfirm(DialogService);
+        if (canDelete)
+        {
+            await SubmitAction(UserAction.DELETE);
+            Utilities.SnackMessage(Snackbar, "PaymentTags Deleted!", Severity.Warning);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Utilities.SnackMessage(Snackbar, "Deletion Cancelled!", Severity.Normal);
+        }
+        StateHasChanged();
+    }
     #endregion
+
+    private async Task<bool> SetDefaultAccount()
+    {
+        string url = string.Empty;
+        PaymentTags responseModel = null;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentTagsApi.SetDefault}";
+        responseModel = await _httpService.PUT<PaymentTags>(url, _inputMode);
+        var result = (responseModel != null);
+        return result;
+    }
 }

@@ -43,7 +43,30 @@ public class API
      
      public PaymentMethodsApi PaymentMethodsApi { get; set; }
      
+     public PaymentTagsApi PaymentTagsApi { get; set; }
+     
 }
+
+
+#region PaymentTagsApi API
+
+public class PaymentTagsApi
+{
+    public string GetDetails { get; set; }
+
+    public string SetDefault {
+        get;
+        set;
+    }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+
+#endregion
+
 
 #region PaymentMethodsApi API
 

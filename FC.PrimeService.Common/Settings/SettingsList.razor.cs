@@ -1,7 +1,12 @@
 ﻿
+using System.Text.Json;
 using FC.PrimeService.Common.Settings.Dialog;
+using Microsoft.AspNetCore.Components;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 namespace FC.PrimeService.Common.Settings;
 
@@ -17,16 +22,40 @@ public partial class SettingsList
         CloseButton = true,
         CloseOnEscapeKey = true,
     };
+
+    private MaterialColors _colors = null;
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    [Inject] ISnackbar Snackbar { get; set; }
     
     protected override async Task OnInitializedAsync()
     {
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        _colors = new MaterialColors(_httpService, _navigationManager.BaseUri);
+        
         _settingsMenus = new List<SettingsMenu>();
         _settingsMenus.Add(CompanySettings());
+
         _settingsMenus.Add(TicketSettings());
         _settingsMenus.Add(PaymentsSettings());
         _settingsMenus.Add(FormsSettings());
         _loginUser = await _localStore.GetItemAsync<User>("user");
+        
+        //To generate Random color for each Main Menu.
+        foreach (var mainMenu in _settingsMenus)
+        {
+            string randomColor = await _colors.GetRandomColor();
+            Utilities.ConsoleMessage($"Random Color: {randomColor}");
+            mainMenu.RandomColor = randomColor;
+            // foreach (var menu in mainMenu.Items)
+            // {
+            //     menu.RandomColor = randomColor;
+            // }
+        }
         StateHasChanged();
+
     }
 
     #region Company/General Settings
@@ -44,7 +73,8 @@ public partial class SettingsList
                     IconColor = Color.Default,
                     ToolTip = "Company Profile Details Service",
                     Icon = Icons.Filled.Task,
-                    Link = $"/SettingsView?viewId=Company"
+                    Link = $"/SettingsView?viewId=Company",
+                    
                 },
                 new SettingsItem()
                 {
@@ -125,6 +155,7 @@ public partial class SettingsList
 
     private SettingsMenu TicketSettings()
     {
+        
         SettingsMenu settings = new SettingsMenu()
         {
             Title = "Ticket Settings",
@@ -368,6 +399,7 @@ public partial class SettingsList
 public class SettingsMenu
 {
     public string Title { get; set; }
+    public string RandomColor { get; set; } = "#9E9E9E";
     public IList<SettingsItem> Items { get; set; }
 }
 
@@ -377,6 +409,7 @@ public class SettingsItem
     public Color IconColor { get; set; }
     public string Icon { get; set; }
     public Color ButtonColor { get; set; }
+    
     public string ToolTip { get; set; }
     public string Link { get; set; } = "/SettingsView?viewId=ytb";
     public bool Disabled { get; set; } = false;

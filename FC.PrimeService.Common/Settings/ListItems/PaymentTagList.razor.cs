@@ -5,12 +5,14 @@ using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using PrimeService.Model.Settings.Payments;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 namespace FC.PrimeService.Common.Settings.ListItems;
 
 public partial class PaymentTagList
 {
-        
+
     #region Variables
     [Inject] ISnackbar Snackbar { get; set; }
     MudForm form;
@@ -19,48 +21,30 @@ public partial class PaymentTagList
     string _outputJson;
     private bool _processing = false;
     private bool _isReadOnly = true;
-    private IEnumerable<PaymentTags> pagedData;
-    private MudTable<PaymentTags> table;
-    private int totalItems;
-    private string searchString = null;
-    IEnumerable<PaymentTags> _data = new List<PaymentTags>()
+   
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    private IEnumerable<PaymentTags> _data = new List<PaymentTags>();
+    
+    #endregion
+
+    #region Initialization Load
+    protected override async Task OnInitializedAsync()
     {
-        new PaymentTags()
-        {
-            Category =  PaymentCategory.Income,
-            Amount = 10000,
-            Title = "Sales Account"
-        },
-        new PaymentTags()
-        {
-            Category =  PaymentCategory.Income,
-            Amount = 50000,
-            Title = "Service Account"
-        },
-        new PaymentTags()
-        {
-            Category =  PaymentCategory.Expense,
-            Amount = 5500,
-            Title = "Employee Salary Account"
-        },
-        new PaymentTags()
-        {
-            Category =  PaymentCategory.Expense,
-            Amount = 5000,
-            Title = "Purchase Account"
-        },
-       
+        _loading = true;
         
-    };
+        #region Ajax Call to Get Company Details
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        #endregion
+        
+        _loading = false;
+        StateHasChanged();
+    }
+    #endregion
     
-    private DialogOptions _dialogOptions = new DialogOptions()
-    {
-        MaxWidth = MaxWidth.Small,
-        FullWidth = true,
-        CloseButton = true,
-        CloseOnEscapeKey = true,
-    };
-    
+    #region Grid View
     private TableGroupDefinition<PaymentTags> _groupDefinition = new()
     {
         GroupName = "Category",
@@ -68,85 +52,100 @@ public partial class PaymentTagList
         Expandable = false,
         Selector = (e) => e.Category
     };
-    #endregion
-
-    #region Initialization Load
-    protected override async Task OnInitializedAsync()
+    
+    /// <summary>
+    /// Used to Refresh Table data.
+    /// </summary>
+    private MudTable<PaymentTags> _mudTable;
+    
+    /// <summary>
+    /// To do Ajax Search in the 'MudTable'
+    /// </summary>
+    private string _searchString = null;
+    /// <summary>
+    /// Server Side pagination with, filtered and ordered data from the API Service.
+    /// </summary>
+    private async Task<TableData<PaymentTags>> ServerReload(TableState state)
     {
-        _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
+        #region Ajax Call to Get data by Batch
+        var responseModel = await GetDataByBatch(state);
+        #endregion
         
-        _loading = false;
+        Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
+        return new TableData<PaymentTags>() {TotalItems = responseModel.TotalItems, Items = responseModel.Items};
+    }
+
+    /// <summary>
+    /// Do Ajax call to get 'PaymentTags' Data
+    /// </summary>
+    /// <param name="state">Current Table State</param>
+    /// <returns>PaymentTags Data.</returns>
+    private async Task<ResponseData<PaymentTags>> GetDataByBatch(TableState state)
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentTagsApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(_searchString)) ? string.Empty : _searchString,
+            Page = state.Page,
+            PageSize = state.PageSize,
+            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "Title" : state.SortLabel,
+            SearchField = "Title",
+            SortDirection = (state.SortDirection == SortDirection.Ascending) ? "A" : "D"
+        };
+        var responseModel = await _httpService.POST<ResponseData<PaymentTags>>(url, pageMetaData);
+        return responseModel;
+    }
+
+    private void OnSearch(string text)
+    {
+        _searchString = text;
+        _mudTable.ReloadServerData();//If we put Async, Loading progress bar is not closing.
         StateHasChanged();
     }
     #endregion
 
-    #region Grid View
-    /// <summary>
-    /// Here we simulate getting the paged, filtered and ordered data from the server
-    /// </summary>
-    private async Task<TableData<PaymentTags>> ServerReload(TableState state)
-    {
-        IEnumerable<PaymentTags> data = _data;
-            //await  _httpClient.GetFromJsonAsync<List<User>>("/public/v2/users");
-        await Task.Delay(300);
-        data = data.Where(element =>
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }).ToArray();
-        totalItems = data.Count();
-        switch (state.SortLabel)
-        {
-            case "Title":
-                data = data.OrderByDirection(state.SortDirection, o => o.Title);
-                break;
-            case "InitialFund":
-                data = data.OrderByDirection(state.SortDirection, o => o.Amount);
-                break;
-            default:
-                data = data.OrderByDirection(state.SortDirection, o => o.Title);
-                break;
-        }
-        
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        Console.WriteLine($"Table State : {JsonSerializer.Serialize(state)}");
-        return new TableData<PaymentTags>() {TotalItems = totalItems, Items = pagedData};
-    }
-    private void OnSearch(string text)
-    {
-        searchString = text;
-        table.ReloadServerData();
-    }
-    #endregion
-    
     #region Dialog Open Action
-    private async Task OpenDialog(PaymentTags model)
+    private DialogOptions _dialogOptions = new ()
     {
-        Console.WriteLine(model.Title);
-        await InvokeDialog(model);
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+        CloseButton = true,
+        CloseOnEscapeKey = true,
+    };
+    private async Task OpenEditDialog(PaymentTags model)
+    {
+        Utilities.ConsoleMessage(JsonSerializer.Serialize(model));
+        await InvokeDialog("Edit Payment Tags", UserAction.EDIT, model:model);
     }
     private async Task OpenAddDialog(MouseEventArgs arg)
     {
-        await InvokeDialog(null);
+        await InvokeDialog("Add Payment Tags",UserAction.ADD);
     }
-
-    private async Task InvokeDialog(PaymentTags model)
+    
+    private async Task InvokeDialog(string title, 
+        UserAction action = UserAction.ADD, PaymentTags model = null)
     {
         var parameters = new DialogParameters
-            { ["_PaymentTags"] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
-        var dialog = DialogService.Show<PaymentTagDialog>("Payment Account", parameters, _dialogOptions);
+        {
+            ["PaymentTags"] = model,
+            ["UserAction"] =  action as object,
+            ["Title"] = title
+        }; //'null' indicates that the Dialog should open in 'Add' Mode.
+        var dialog = DialogService.Show<PaymentTagDialog>(title, parameters, _dialogOptions);
         var result = await dialog.Result;
-
-        if (!result.Cancelled)
+        
+        if (result.Cancelled)
+        {
+            Utilities.ConsoleMessage("Cancelled.");
+            OnSearch(string.Empty);
+        }
+        else
         {
             Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+            Utilities.ConsoleMessage("Executed.");
+            OnSearch(string.Empty);//Reload the server grid.
         }
     }
-
+    
     #endregion
 }

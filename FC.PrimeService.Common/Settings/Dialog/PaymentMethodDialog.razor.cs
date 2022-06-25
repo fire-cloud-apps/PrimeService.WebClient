@@ -53,12 +53,12 @@ public partial class PaymentMethodDialog
         StateHasChanged();
     }
     #endregion
-
-  
+    
     #region Submit, Delete, Cancel Button with Animation
 
     private async Task Submit()
     {
+        
         await form.Validate();
 
         if (form.IsValid)
@@ -130,5 +130,4 @@ public partial class PaymentMethodDialog
         StateHasChanged();
     }
     #endregion
-
 }

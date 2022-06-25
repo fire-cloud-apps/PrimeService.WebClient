@@ -14,7 +14,7 @@
         <TitleContent>
             <MudText Typo="Typo.h6">
                 <MudIcon Icon="@Icons.TwoTone.CurrencyRupee" Class="mr-3 mb-n1"/>
-                @_title
+                @Title
             </MudText>
         
         </TitleContent>
@@ -56,7 +56,7 @@
                 </MudGrid>
                     
                 <MudGrid>
-                    <MudItem xs="12" sm="12" md="12">
+                    <MudItem xs="12" sm="8" md="8">
                         <MudSelect @bind-Value="_inputMode.Category" 
                                    Label="Select Category" HelperText="Select Payment Category" 
                                    OpenIcon="@Icons.Material.Filled.Money" AdornmentColor="Color.Secondary">
@@ -66,9 +66,15 @@
                             }
                         </MudSelect>
                     </MudItem>
-                   
+                    @if (UserAction == UserAction.EDIT)
+                    {
+                        <MudItem xs="12" sm="4" md="4">
+                            <MudSwitch @bind-Checked="@_inputMode.IsDefault"
+                                       Color="Color.Success"
+                                       Label="Is Default"></MudSwitch>
+                        </MudItem>
+                    }
                 </MudGrid>
-                    
             }
         
         </DialogContent>
@@ -85,26 +91,12 @@
                 }
                 else
                 {
-                    <MudText>Submit</MudText>
+                    <MudText>Save</MudText>
                 }
             </MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
                        StartIcon="@Icons.Outlined.Cancel"
                        OnClick="Cancel">Cancel</MudButton>
-            
-            @if (_appSettings.IsDev)
-            {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Warning" DisableElevation="true"
-                           OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Secondary" DisableElevation="true"
-                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           DisableElevation="true"
-                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
-            }
-            
         </DialogActions>
     </MudDialog>
 </MudForm>

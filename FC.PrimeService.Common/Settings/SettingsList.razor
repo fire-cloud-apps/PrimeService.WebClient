@@ -24,7 +24,8 @@
             <MudCard Class="ma-2 pa-2">
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.button">@settings.Title</MudText>
+                        <MudText Style="@($"color: {settings.RandomColor};")"
+                                 Typo="Typo.button">@settings.Title</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudDivider Style="margin-left:8px; margin-right:8px;"/>
@@ -65,8 +66,9 @@
                                                        Title="@menuItems.Title" aria-label="github">
                                             <MudIcon Icon="@menuItems.Icon"
                                                      Color="@menuItems.IconColor"
-                                                     Style="font-size: 3rem;"/>
-                                            <MudText Typo="Typo.body1">
+                                                     Style="@($"font-size: 3rem;")"
+                                                     />
+                                            <MudText Typo="Typo.body1" >
                                                 @menuItems.Title
                                             </MudText>
                                         </MudIconButton>

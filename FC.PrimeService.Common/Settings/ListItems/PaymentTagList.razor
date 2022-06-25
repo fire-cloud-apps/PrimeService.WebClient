@@ -24,8 +24,10 @@
     <MudCardContent>
 
         <MudTable ServerData="@(new Func<TableState, Task<TableData<PaymentTags>>>(ServerReload))"
-                  Dense="true" Hover="true" @ref="table"
+                  Dense="true" Hover="true" @ref="_mudTable"
                   GroupBy="@_groupDefinition"
+                   Loading="true"  LoadingProgressColor="Color.Warning"
+                   SortLabel="Title" AllowUnsorted="true"
                   GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
                   GroupFooterClass="mb-4">
             <ColGroup>
@@ -52,6 +54,7 @@
                 <MudTh><MudTableSortLabel SortLabel="Title" T="PaymentTags">Title</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="InitialFund" T="PaymentTags">Fund</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Category" T="PaymentTags">Category</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Category" T="PaymentTags">Is Default</MudTableSortLabel></MudTh>
             </HeaderContent>
             <GroupHeaderTemplate>
                 <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
@@ -60,7 +63,7 @@
                 <MudTd DataLabel="Title">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
-                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                            <MudButton Variant="Variant.Filled" OnClick="@(s => OpenEditDialog(@context))">
                                 @context.Title
                             </MudButton>
                         </ChildContent>
@@ -75,6 +78,16 @@
                 </MudTd>
                 <MudTd DataLabel="Category">
                     @context.Category.ToString()
+                </MudTd>
+                <MudTd DataLabel="IsDefault">
+                    @if (context.IsDefault)
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.CheckCircle" Color="Color.Success" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.Close" Color="Color.Error" />
+                    }
                 </MudTd>
             </RowTemplate>
             <NoRecordsContent>
