@@ -12,7 +12,7 @@
         <TitleContent>
             <MudText Typo="Typo.h6">
                 <MudIcon Icon="@Icons.TwoTone.HomeRepairService" Class="mr-3 mb-n1"/>
-                @_title
+                @Title
             </MudText>
         
         </TitleContent>
@@ -94,15 +94,18 @@
             
             @if (_appSettings.IsDev)
             {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Warning" DisableElevation="true"
-                           OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Secondary" DisableElevation="true"
-                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           DisableElevation="true"
-                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
+                @if (UserAction == UserAction.ADD)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Warning" DisableElevation="true"
+                               OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
+                }
+               else
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                   OnClick="Delete"
+                                   Color="Color.Secondary" ></MudIconButton>
+                }
             }
             
         </DialogActions>

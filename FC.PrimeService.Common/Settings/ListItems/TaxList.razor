@@ -23,7 +23,9 @@
     <MudCardContent>
 
         <MudTable ServerData="@(new Func<TableState, Task<TableData<Tax>>>(ServerReload))"
-                  Dense="true" Hover="true" @ref="table">
+                  Loading="true"  LoadingProgressColor="Color.Warning"
+                  SortLabel="Title" AllowUnsorted="true"
+                  Dense="true" Hover="true" @ref="_mudTable">
             <ToolBarContent>
                 @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
                 @* <MudSpacer /> *@
@@ -42,7 +44,7 @@
                 <MudTd DataLabel="Title">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
-                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                            <MudButton OnClick="@(s => OpenEditDialog(@context))">
                                 @context.Title
                             </MudButton>
                         </ChildContent>
@@ -53,7 +55,7 @@
                     </MudTooltip>
                 </MudTd>
                 <MudTd DataLabel="TaxRate">
-                    @context.TaxRate.ToString()
+                    @context.TaxRate
                 </MudTd>
                 <MudTd DataLabel="Description">
                     @context.Description

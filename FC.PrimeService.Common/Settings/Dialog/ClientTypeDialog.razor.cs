@@ -1,17 +1,27 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using MongoDB.Bson;
 using MudBlazor;
+using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Forms;
 using PrimeService.Model.Settings.Payments;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
+
 namespace FC.PrimeService.Common.Settings.Dialog;
 
 public partial class ClientTypeDialog
 {
-    #region Global Variables
+    #region Initialization
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
-    private string _title = string.Empty;
-    [Parameter] public ClientType _ClientType { get; set; } 
+
+    #region Dialog Parameters
+    [Parameter] public ClientType ClientType { get; set; } 
+    [Parameter] public string Title { get; set; }
+    [Parameter] public UserAction UserAction { get; set; }
+    #endregion
+    
     private bool _processing = false;
     MudForm form;
     private ClientType _inputMode;
@@ -19,43 +29,34 @@ public partial class ClientTypeDialog
     bool success;
     string[] errors = { };
     private bool _isReadOnly = false;
+    
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    
     #endregion
 
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_ClientType == null)
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        Utilities.ConsoleMessage($"ClientType - User Action : {UserAction}");
+        if (UserAction == UserAction.ADD)
         {
             //Dialog box opened in "Add" mode
-            _inputMode = new ClientType()
-            {
-                Title = "Person",
-            };
-            _title = "Add Client Type";
+            _inputMode = new ClientType();//Initializes an empty object.
         }
         else
         {
             //Dialog box opened in "Edit" mode
-            _inputMode = _ClientType;
-            _title = "Edit Client Type";
+            _inputMode = ClientType;
         }
+        
     }
     #endregion
-    
-    #region Cancel & Close
-    private void Cancel()
-    {
-        MudDialog.Cancel();
-    }
-    #endregion
-
-    #region Submit Button with Animation
-    async Task ProcessSomething()
-    {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
-    }
+   
+    #region Submit, Delete, Cancel Button with Animation
 
     private async Task Submit()
     {
@@ -63,33 +64,79 @@ public partial class ClientTypeDialog
 
         if (form.IsValid)
         {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submitted!", Severity.Success);
+            if (await SubmitAction(UserAction))
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "Client Type Saved!");
+                MudDialog.Close(DialogResult.Ok(true));
+            }
         }
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Utilities.ConsoleMessage(_outputJson);
         }
     }
-
-    #endregion
-
-    #region Generate Fake
-    private Task GetFakeData()
+    
+    async Task<bool> SubmitAction(UserAction action)
     {
-        throw new NotImplementedException();
-    } 
+        _processing = true;
+        string url = string.Empty;
+        ClientType responseModel = null;
+        bool result = false;
+        switch (action)
+        {
+            case UserAction.ADD:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientTypeApi.Create}";
+                responseModel = await _httpService.POST<ClientType>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.EDIT:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientTypeApi.Update}";
+                responseModel = await _httpService.PUT<ClientType>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientTypeApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            default:
+                break;
+        }
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"Client Type JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    async Task GetFakeData()
+    {
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientTypeApi.Fake}";
+        _inputMode = await _httpService.GET<ClientType>(url);
+        _loading = false;
+    }
+
+    async Task Delete()
+    {
+        var canDelete = await Utilities.DeleteConfirm(DialogService);
+        if (canDelete)
+        {
+            await SubmitAction(UserAction.DELETE);
+            Utilities.SnackMessage(Snackbar, "ClientType Deleted!", Severity.Warning);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Utilities.SnackMessage(Snackbar, "Deletion Cancelled!", Severity.Normal);
+        }
+        StateHasChanged();
+    }
     #endregion
 }

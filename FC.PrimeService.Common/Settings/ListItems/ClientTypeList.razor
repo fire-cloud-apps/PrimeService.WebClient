@@ -25,7 +25,9 @@
     <MudCardContent>
 
         <MudTable ServerData="@(new Func<TableState, Task<TableData<ClientType>>>(ServerReload))"
-                  Dense="true" Hover="true" @ref="table"
+                  Loading="true"  LoadingProgressColor="Color.Warning"
+                  SortLabel="Title" AllowUnsorted="true"
+                  Dense="true" Hover="true" @ref="_mudTable"
                  >
           
             <ToolBarContent>
@@ -46,7 +48,7 @@
                 <MudTd DataLabel="Title">
                     <MudTooltip Color="Color.Tertiary" Arrow="true">
                         <ChildContent>
-                            <MudButton OnClick="@(s => OpenDialog(@context))">
+                            <MudButton OnClick="@(s => OpenEditDialog(@context))">
                                 @context.Title
                             </MudButton>
                         </ChildContent>

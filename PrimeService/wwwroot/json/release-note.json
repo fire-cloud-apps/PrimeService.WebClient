@@ -1,0 +1,40 @@
+﻿{
+"Release":
+ [
+   { 
+     "Version":"0.0.3",
+     "BuildVersion":"0.0.2.20",
+     "ReleaseDate":"June-25-2022",
+     "WhatsNew":[
+       "Dialog","Snackbar","Toggle"
+     ],
+     "Enhancement":["icon","Tax","Tax-Edit"],
+     "Fixes":["105D-Tax not working","106E-Error while loading"],
+     "Next":["105D-Tax not working","106E-Error while loading"]
+   },
+   {
+     "Version":"0.0.2",
+     "BuildVersion":"0.0.2.36",
+     "ReleaseDate":"June-20-2022",
+     "WhatsNew":[
+       "Dialog","Snackbar","Toggle"
+     ],
+     "Enhancement":["icon","Tax","Tax-Edit"],
+     "Fixes":["105D-Tax not working","106E-Error while loading"],
+     "Next":["105D-Tax not working","106E-Error while loading"]
+   },
+   {
+     "Version":"0.0.1",
+     "BuildVersion":"0.0.1.01",
+     "ReleaseDate":"June-14-2022",
+     "WhatsNew":[
+       "Dialog","Snackbar","Toggle"
+     ],
+     "Enhancement":["icon","Tax","Tax-Edit"],
+     "Fixes":["105D-Tax not working","106E-Error while loading"],
+     "Next":["105D-Tax not working","106E-Error while loading"]
+   }
+
+
+ ]   
+}

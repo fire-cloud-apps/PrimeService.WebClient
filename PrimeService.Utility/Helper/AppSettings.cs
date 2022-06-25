@@ -45,8 +45,47 @@ public class API
      
      public PaymentTagsApi PaymentTagsApi { get; set; }
      
+     public ClientTypeApi ClientTypeApi { get; set; }
+     public ProductCategoryApi ProductCategoryApi { get; set; }
+     public TaxApi TaxApi { get; set; }
+     
 }
 
+#region TaxApi API
+public class TaxApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
+
+#region ProductCategoryApi API
+public class ProductCategoryApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
+
+#region ClientTypeApi API
+public class ClientTypeApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
 
 #region PaymentTagsApi API
 
@@ -66,7 +105,6 @@ public class PaymentTagsApi
 }
 
 #endregion
-
 
 #region PaymentMethodsApi API
 

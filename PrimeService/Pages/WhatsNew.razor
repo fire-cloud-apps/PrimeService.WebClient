@@ -6,7 +6,112 @@
              TimelinePosition="TimelinePosition.Start"
              Reverse="false">
     
-    <MudTimelineItem Size="Size.Medium" Color="Color.Info"
+    @if (_releaseNotes != null)
+    {
+        foreach (var releases in _releaseNotes.Release)
+        {
+            <MudTimelineItem Size="Size.Medium" Color="Color.Info"
+                     TimelineAlign="TimelineAlign.Start"
+                     Elevation="3">
+                <ItemContent>
+                    <MudCard Outlined="false" Elevation="3">
+                        <MudCardContent>
+                            <MudText Typo="Typo.button">
+                                <MudChip Variant="Variant.Filled" Color="Color.Success">
+                                    Version @releases.Version - @releases.ReleaseDate
+                                </MudChip>
+                            </MudText><br/>
+                            
+                            <MudChip Variant="Variant.Text" Color="Color.Success">
+                                What's New
+                            </MudChip>
+                            <MudContainer Class="pa-4">
+                                <MudText Typo="Typo.body2">
+                                    <ul>
+                                        
+                                        @foreach (var whatNew in releases.WhatsNew)
+                                        {
+                                            <div style="vertical-align:text-top;">
+                                                <MudIcon Icon="@Icons.TwoTone.NewReleases"
+                                                         Color="Color.Success" Size="Size.Small"/>
+                                                &nbsp; @whatNew
+                                            </div>
+                                        }
+                                    </ul>
+                                </MudText>
+                            </MudContainer>
+                            
+                            <MudText Typo="Typo.body2">
+                                <MudChip Variant="Variant.Text" Color="Color.Info">Enhencement</MudChip>
+                            </MudText>
+                            <MudContainer Class="pa-4">
+                                <MudText Typo="Typo.body2">
+                                    <ul>
+                                        @foreach (var enhencement in releases.Enhancement)
+                                        {
+                                            <div style="vertical-align:text-top;">
+                                                <MudIcon Icon="@Icons.TwoTone.PostAdd"
+                                                         Color="Color.Info" Size="Size.Small"/>
+                                                &nbsp; @enhencement
+                                            </div>
+                                        }
+                                    </ul>
+                                </MudText>
+                            </MudContainer>
+                            
+                            <MudText Typo="Typo.body2">
+                                <MudChip Variant="Variant.Text" Color="Color.Error">Fixes</MudChip>
+                            </MudText>
+                            <MudContainer Class="pa-4">
+                                <MudText Typo="Typo.body2">
+                                    <ul>
+                                        @foreach (var fix in releases.Fixes)
+                                        {
+                                            <div style="vertical-align:text-top;">
+                                                <MudIcon Icon="@Icons.TwoTone.BugReport"
+                                                         Color="Color.Error" Size="Size.Small"/>
+                                                &nbsp; @fix
+                                            </div>
+                                        }
+                                    </ul>
+                                </MudText>
+                            </MudContainer>
+                            
+                            <MudText Typo="Typo.body2">
+                                <MudChip Variant="Variant.Text" Color="Color.Warning">What's Next</MudChip>
+                            </MudText>
+                            <MudContainer Class="pa-4">
+                                <MudText Typo="Typo.body2">
+                                    <ul>
+                                        @foreach (var next in releases.Next)
+                                        {
+                                            <div style="vertical-align:text-top;">
+                                                <MudIcon Icon="@Icons.TwoTone.NextPlan"
+                                                         Color="Color.Warning" Size="Size.Small"/>
+                                                &nbsp; @next
+                                            </div>
+                                        }
+                                    </ul>
+                                </MudText>
+                            </MudContainer>
+                        </MudCardContent>
+                        
+                    </MudCard>
+                </ItemContent>
+                <ItemOpposite>
+                    <MudText Typo="Typo.body2">Is Activity Compled ? 
+                        <MudToggleIconButton 
+                            Icon="@Icons.TwoTone.CheckBoxOutlineBlank" Color="@Color.Error" Title="Task Open"
+                            ToggledIcon="@Icons.TwoTone.CheckBox" 
+                            ToggledColor="@Color.Success" ToggledTitle="Task Completed"/>
+                    </MudText>
+                </ItemOpposite>
+            </MudTimelineItem>
+        }
+    }
+    else
+    {
+        <MudTimelineItem Size="Size.Medium" Color="Color.Info"
                      TimelineAlign="TimelineAlign.Start"
                      Elevation="3">
         <ItemContent>
@@ -67,64 +172,67 @@
         </ItemOpposite>
     </MudTimelineItem>
     
-    <MudTimelineItem Size="Size.Small" Color="Color.Dark"
-                     TimelineAlign="TimelineAlign.Start"
-                     Elevation="3">
-        <ItemContent>
-            <MudCard Outlined="false" Elevation="3">
-                <MudCardContent>
-                    <MudText Typo="Typo.button">
-                        <MudChip Variant="Variant.Filled" Color="Color.Dark">
-                            Version 0.0.2 - Mar-14-2022
-                        </MudChip>
-                    </MudText><br/>
+        <MudTimelineItem Size="Size.Small" Color="Color.Dark"
+                         TimelineAlign="TimelineAlign.Start"
+                         Elevation="3">
+            <ItemContent>
+                <MudCard Outlined="false" Elevation="3">
+                    <MudCardContent>
+                        <MudText Typo="Typo.button">
+                            <MudChip Variant="Variant.Filled" Color="Color.Dark">
+                                Version 0.0.2 - Mar-14-2022
+                            </MudChip>
+                        </MudText><br/>
                         
-                    <MudChip Variant="Variant.Text" Color="Color.Success">
-                        What's New
-                    </MudChip>
-                    <MudContainer Class="pa-4">
+                        <MudChip Variant="Variant.Text" Color="Color.Success">
+                            What's New
+                        </MudChip>
+                        <MudContainer Class="pa-4">
+                            <MudText Typo="Typo.body2">
+                                <ul>
+                                    <li>1. Product add dialog</li>
+                                    <li>2. Product add Firebox</li>
+                                    <li>3. Product add Firebox</li>
+                                </ul>
+                            </MudText>
+                        </MudContainer>
                         <MudText Typo="Typo.body2">
-                            <ul>
-                                <li>1. Product add dialog</li>
-                                <li>2. Product add Firebox</li>
-                                <li>3. Product add Firebox</li>
-                            </ul>
+                            <MudChip Variant="Variant.Text" Color="Color.Info">Enhencement</MudChip>
                         </MudText>
-                    </MudContainer>
-                    <MudText Typo="Typo.body2">
-                        <MudChip Variant="Variant.Text" Color="Color.Info">Enhencement</MudChip>
-                    </MudText>
-                    <MudContainer Class="pa-4">
+                        <MudContainer Class="pa-4">
+                            <MudText Typo="Typo.body2">
+                                <ul>
+                                    <li>1. Product add dialog</li>
+                                    <li>2. Product add Firebox</li>
+                                    <li>3. Product add Firebox</li>
+                                </ul>
+                            </MudText>
+                        </MudContainer>
                         <MudText Typo="Typo.body2">
-                            <ul>
-                                <li>1. Product add dialog</li>
-                                <li>2. Product add Firebox</li>
-                                <li>3. Product add Firebox</li>
-                            </ul>
+                            <MudChip Variant="Variant.Text" Color="Color.Error">Fixes</MudChip>
                         </MudText>
-                    </MudContainer>
-                    <MudText Typo="Typo.body2">
-                        <MudChip Variant="Variant.Text" Color="Color.Error">Fixes</MudChip>
-                    </MudText>
-                    <MudContainer Class="pa-4">
-                        <MudText Typo="Typo.body2">
-                            <ul>
-                                <li>1. Product add dialog</li>
-                                <li>2. Product add Firebox</li>
-                                <li>3. Product add Firebox</li>
-                            </ul>
-                        </MudText>
-                    </MudContainer>
-                </MudCardContent>
-            </MudCard>
-        </ItemContent>
-        <ItemOpposite>
-            <MudText Typo="Typo.body2">Is Activity Compled ? 
-                <MudToggleIconButton 
-                    Icon="@Icons.TwoTone.CheckBoxOutlineBlank" Color="@Color.Error" Title="Task Open"
-                    ToggledIcon="@Icons.TwoTone.CheckBox" 
-                    ToggledColor="@Color.Success" ToggledTitle="Task Completed"/>
-            </MudText>
-        </ItemOpposite>
-    </MudTimelineItem>
+                        <MudContainer Class="pa-4">
+                            <MudText Typo="Typo.body2">
+                                <ul>
+                                    <li>1. Product add dialog</li>
+                                    <li>2. Product add Firebox</li>
+                                    <li>3. Product add Firebox</li>
+                                </ul>
+                            </MudText>
+                        </MudContainer>
+                    </MudCardContent>
+                </MudCard>
+            </ItemContent>
+            <ItemOpposite>
+                <MudText Typo="Typo.body2">Is Activity Compled ? 
+                    <MudToggleIconButton 
+                        Icon="@Icons.TwoTone.CheckBoxOutlineBlank" Color="@Color.Error" Title="Task Open"
+                        ToggledIcon="@Icons.TwoTone.CheckBox" 
+                        ToggledColor="@Color.Success" ToggledTitle="Task Completed"/>
+                </MudText>
+            </ItemOpposite>
+        </MudTimelineItem>
+    }
+    
+    
 </MudTimeline>
