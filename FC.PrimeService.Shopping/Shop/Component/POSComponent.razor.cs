@@ -633,7 +633,7 @@ public partial class POSComponent
     private async Task AddClientDialog()
     {
         var parameters = new DialogParameters
-            { ["_Client"] = null }; 
+            { ["Client"] = null }; 
         IDialogReference dialog;
         
         dialog = DialogService.Show<ClientDialog>(

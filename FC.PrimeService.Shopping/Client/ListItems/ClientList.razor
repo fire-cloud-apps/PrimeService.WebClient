@@ -23,7 +23,9 @@
     <MudCardContent>
 
         <MudTable ServerData="@(new Func<TableState, Task<TableData<Client>>>(ServerReload))"
-                  Dense="true" Hover="true" @ref="table"
+                  Dense="true" Hover="true" @ref="_mudTable"
+                  Loading="true"  LoadingProgressColor="Color.Warning"
+                  SortLabel="Title" AllowUnsorted="true"
                   GroupBy="@_groupDefinition"
                   GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
                   GroupFooterClass="mb-4">
@@ -43,7 +45,7 @@
                 @* <MudSpacer /> *@
                 <MudTextField T="string" ValueChanged="@(s => OnSearch(s))"
                               FullWidth="true"
-                              Placeholder="Search" Adornment="Adornment.Start"
+                              Placeholder="Search by 'Mobile Number'" Adornment="Adornment.Start"
                               AdornmentIcon="@Icons.Material.Filled.Search"
                               IconSize="Size.Medium" Class="mt-0"></MudTextField>
             </ToolBarContent>

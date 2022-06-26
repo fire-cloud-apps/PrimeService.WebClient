@@ -28,13 +28,18 @@
                             <MudContainer Class="pa-4">
                                 <MudText Typo="Typo.body2">
                                     <ul>
-                                        
                                         @foreach (var whatNew in releases.WhatsNew)
                                         {
-                                            <div style="vertical-align:text-top;">
+                                            string first30Char = Utilities.GetCharterByLength(whatNew);
+                                            
+                                            <div class="d-flex flex-row">
                                                 <MudIcon Icon="@Icons.TwoTone.NewReleases"
                                                          Color="Color.Success" Size="Size.Small"/>
-                                                &nbsp; @whatNew
+                                                <div class="ml-2">
+                                                    <MudTooltip Text="@whatNew" Arrow="true">
+                                                         <MudText Typo="Typo.subtitle2">@first30Char</MudText>
+                                                    </MudTooltip>
+                                                </div>
                                             </div>
                                         }
                                     </ul>
@@ -47,12 +52,18 @@
                             <MudContainer Class="pa-4">
                                 <MudText Typo="Typo.body2">
                                     <ul>
-                                        @foreach (var enhencement in releases.Enhancement)
+                                        @foreach (var enhancement in releases.Enhancement)
                                         {
-                                            <div style="vertical-align:text-top;">
+                                            string first30Char = Utilities.GetCharterByLength(enhancement);
+                                            <div class="d-flex flex-row">
                                                 <MudIcon Icon="@Icons.TwoTone.PostAdd"
                                                          Color="Color.Info" Size="Size.Small"/>
-                                                &nbsp; @enhencement
+                                                <div class="ml-2">
+                                                    <MudTooltip Text="@enhancement" Arrow="true">
+                                                        <MudText Typo="Typo.subtitle2">@first30Char</MudText>
+                                                    </MudTooltip>
+                                                    
+                                                </div>
                                             </div>
                                         }
                                     </ul>
@@ -67,10 +78,15 @@
                                     <ul>
                                         @foreach (var fix in releases.Fixes)
                                         {
-                                            <div style="vertical-align:text-top;">
+                                            string first30Char = Utilities.GetCharterByLength(fix);
+                                            <div class="d-flex flex-row">
                                                 <MudIcon Icon="@Icons.TwoTone.BugReport"
                                                          Color="Color.Error" Size="Size.Small"/>
-                                                &nbsp; @fix
+                                                <div class="ml-2">
+                                                    <MudTooltip Text="@fix" Arrow="true">
+                                                         <MudText Typo="Typo.subtitle2">@first30Char</MudText>
+                                                    </MudTooltip>
+                                                </div>
                                             </div>
                                         }
                                     </ul>
@@ -85,10 +101,15 @@
                                     <ul>
                                         @foreach (var next in releases.Next)
                                         {
-                                            <div style="vertical-align:text-top;">
+                                            string first30Char = Utilities.GetCharterByLength(next);
+                                            <div class="d-flex flex-row">
                                                 <MudIcon Icon="@Icons.TwoTone.NextPlan"
                                                          Color="Color.Warning" Size="Size.Small"/>
-                                                &nbsp; @next
+                                                <div class="ml-2">
+                                                    <MudTooltip Text="@next" Arrow="true">
+                                                        <MudText Typo="Typo.subtitle2">@first30Char</MudText>
+                                                    </MudTooltip>
+                                                </div>
                                             </div>
                                         }
                                     </ul>

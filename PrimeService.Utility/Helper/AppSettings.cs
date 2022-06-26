@@ -48,8 +48,21 @@ public class API
      public ClientTypeApi ClientTypeApi { get; set; }
      public ProductCategoryApi ProductCategoryApi { get; set; }
      public TaxApi TaxApi { get; set; }
+     public ClientApi ClientApi { get; set; }
      
 }
+
+#region ClientApi API
+public class ClientApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
 
 #region TaxApi API
 public class TaxApi

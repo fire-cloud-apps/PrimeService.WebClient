@@ -29,7 +29,7 @@ public class Client
     /// Client Mobile Number.
     /// </summary>
     [Required]
-    [StringLength(12, ErrorMessage = "Mobile length can't be more than 12.")]
+    [StringLength(15, ErrorMessage = "Mobile length can't be more than 15.")]
     public string? Mobile { get; set; } = string.Empty;
     
     /// <summary>

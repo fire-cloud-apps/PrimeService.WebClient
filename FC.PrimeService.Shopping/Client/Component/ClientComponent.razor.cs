@@ -1,9 +1,15 @@
 ﻿using System.Text.Json;
+using FC.PrimeService.Common.Settings.Dialog;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Forms;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using Model = PrimeService.Model.Shopping;
+using FireCloud.WebClient.PrimeService.Service.QueryString;
+using MongoDB.Bson;
+using PrimeService.Model;
 
 namespace FC.PrimeService.Shopping.Client.Component;
 
@@ -25,94 +31,165 @@ public partial class ClientComponent
     string _outputJson;
     private bool _processing = false;
     private bool _isReadOnly = false;
-    public List<ClientType> _clientTypes = new List<ClientType>()
-    {
-        new ClientType() { Title = "Individual" },
-        new ClientType() { Title = "Company" },
-        new ClientType() { Title = "NGO" },
-        new ClientType() { Title = "Government" },
-        
-    };
+    private IEnumerable<ClientType> _clientTypes = new List<ClientType>();
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+
+    private UserAction UserAction;
+
     #endregion
     
+    #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
-        //for now it is filled as Static value
-        _inputMode = new Model.Client()
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        Utilities.ConsoleMessage($"Client Id: {Id}");
+        if (string.IsNullOrEmpty(Id))
         {
-            Name = "Pritish",
-            Mobile = "85969633123",
-            Note = "Client specific notes",
-            Type = new ClientType() { Title = "Individual" }
-        };
-        Console.WriteLine($"Id Received: {Id}"); //Use this id and get the values from 'API'
-        _loading = false;
+            UserAction = UserAction.ADD;
+            _inputMode = new Model.Client();
+        }
+        else
+        {
+            UserAction = UserAction.EDIT;
+            await GetModelDetails(Id);
+            
+        }
+        Utilities.ConsoleMessage($"Load Completed.");
         StateHasChanged();
     }
+    #endregion
     
-    #region ServiceCategory Search - Autocomplete
+    #region Get Model Details - Edit
+    private async Task GetModelDetails(string id)
+    {
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientApi.GetDetails}";
+        url = string.Format(url, id);
+        Utilities.ConsoleMessage($"URL {url}");
+        _inputMode = await _httpService.GET<Model.Client>(url);
+        _loading = false;
+    }
+    
+
+    #endregion
+    
+    #region 'ClientType' Autocomplete - Search
 
     private async Task<IEnumerable<ClientType>> ClientType_SearchAsync(string value)
     {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _clientTypes;
-        }
-        return _clientTypes.Where(x => x.Title.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        var responseData = await GetDataByBatch(value);
+        _clientTypes = responseData.Items;
+        return _clientTypes;
     }
 
+    
+    #region ClientType - AutoComplete Ajax call
+    private async Task<ResponseData<ClientType>> GetDataByBatch(string searchValue)
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientTypeApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(searchValue)) ? string.Empty : searchValue,
+            Page = 0,
+            PageSize = 10,
+            SortLabel = "Title",
+            SearchField = "Title",
+            SortDirection = "A"
+        };
+        var responseModel = await _httpService.POST<ResponseData<ClientType>>(url, pageMetaData);
+        return responseModel;
+    }
     #endregion
     
-    #region Submit Button with Animation
-    async Task ProcessSomething()
-    {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
-    }
-    
+    #endregion
+
+    #region Submit, Delete, Cancel Button with Animation
+
     private async Task Submit()
     {
         await form.Validate();
 
         if (form.IsValid)
         {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submited!", Severity.Success);
+            //Todo some animation.
+            var isSuccess = await SubmitAction(UserAction);
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "Client Saved!");
+            }
         }
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Utilities.ConsoleMessage(_outputJson);
         }
     }
-
+    
+    async Task<bool> SubmitAction(UserAction action)
+    {
+        _processing = true;
+        string url = string.Empty;
+        Model.Client responseModel = null;
+        bool result = false;
+        switch (action)
+        {
+            case UserAction.ADD:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientApi.Create}";
+                responseModel = await _httpService.POST<Model.Client>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.EDIT:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientApi.Update}";
+                responseModel = await _httpService.PUT<Model.Client>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            default:
+                break;
+        }
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"Employee JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
+    }
+    
+    
+    async Task Delete()
+    {
+        var canDelete = await Utilities.DeleteConfirm(DialogService);
+        if (canDelete)
+        {
+            await SubmitAction(UserAction.DELETE);
+            Utilities.SnackMessage(Snackbar, "Client Deleted!", Severity.Warning);
+        }
+        else
+        {
+            Utilities.SnackMessage(Snackbar, "Deletion Cancelled!", Severity.Normal);
+        }
+        StateHasChanged();
+    }
     #endregion
 
-    #region Fake Data
-
-    private Task GetFakeData()
+    #region Get Fake Data
+    private async Task GetFakeData()
     {
-        throw new NotImplementedException();
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientApi.Fake}";
+        _inputMode = await _httpService.GET<Model.Client>(url);
+        _loading = false;
+        //throw new NotImplementedException();
     }
+    
 
     #endregion
 

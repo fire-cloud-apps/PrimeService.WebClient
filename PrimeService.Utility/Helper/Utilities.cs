@@ -50,4 +50,20 @@ public static class Utilities
         Console.WriteLine(msg);
         #endif
     }
+
+    /// <summary>
+    /// Return only the string to the given length eg. "Dialog box will be opened..."
+    /// </summary>
+    /// <param name="value">value to split - string value</param>
+    /// <param name="suffix">eg. "..." or ".." or "-" etc. Default '...' </param>
+    /// <param name="length">length of the string to return. Default '30'</param>
+    /// <returns></returns>
+    public static string GetCharterByLength(string value, string suffix = "...", short length = 30)
+    {
+        string firstGivenChar = 
+            !String.IsNullOrWhiteSpace(value) && value.Length >= length
+                ? value.Substring(0, length) + suffix
+                : value;
+        return firstGivenChar;
+    }
 }

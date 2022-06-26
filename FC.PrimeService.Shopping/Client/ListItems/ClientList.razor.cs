@@ -1,72 +1,39 @@
 ﻿using System.Text.Json;
+using FC.Common.Domain;
 using FC.PrimeService.Common.Settings.Dialog;
+using FC.PrimeService.Shopping.Client.Dialog;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using PrimeService.Model.Settings.Forms;
 using PrimeService.Model.Settings.Payments;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using Model = PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Shopping.Client.ListItems;
 
 public partial class ClientList
 {
-    #region Variables
+    
+    #region Initialization
     [Inject] ISnackbar Snackbar { get; set; }
-    MudForm form;
     private bool _loading = false;
+    private Model.Client _inputMode;
     bool success;
+    string[] errors = { };
     string _outputJson;
     private bool _processing = false;
     private bool _isReadOnly = true;
-    private IEnumerable<Model.Client> pagedData;
-    private MudTable<Model.Client> table;
-    private int totalItems;
-    private string searchString = null;
-    IEnumerable<Model.Client> _data = new List<Model.Client>()
-    {
-        new Model.Client()
-        {
-            Id = "6270d1cce5452d9169e86c50",
-            Mobile = "8589696623",
-            Name = "SRG",
-            Note = "Some Data",
-            Type = new ClientType(){Title = "Individual"}
-        },
-        new Model.Client()
-        {
-            Id = "6270d1cce5452d9169e86c60",
-            Mobile = "7485965612",
-            Name = "ZoZo",
-            Note = "Company Details",
-            Type = new ClientType(){Title = "Company"}
-        },
-        new Model.Client()
-        {
-            Id = "6270d1cce5452d9169e86c51",
-            Mobile = "78599312363",
-            Name = "Assembly",
-            Note = "Company Details",
-            Type = new ClientType(){Title = "Company"}
-        },
-        new Model.Client()
-        {
-            Id = "6270d1cce5452d9169e86c52",
-            Mobile = "0448956363",
-            Name = "HCL",
-            Note = "Company Details",
-            Type = new ClientType(){Title = "Company"}
-        },
-
-    };
+    private User _loginUser;
     
-    private DialogOptions _dialogOptions = new DialogOptions()
-    {
-        MaxWidth = MaxWidth.Small,
-        FullWidth = true,
-        CloseButton = true,
-        CloseOnEscapeKey = true,
-    };
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    #endregion
+    #region Variables
+   
     
     private TableGroupDefinition<Model.Client> _groupDefinition = new()
     {
@@ -81,57 +48,80 @@ public partial class ClientList
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
-        
+        #region Ajax Call to Get Company Details
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        #endregion
         _loading = false;
+        _loginUser = await _localStore.GetItemAsync<User>("user");
+        Utilities.ConsoleMessage($"Login User {_loginUser.AccountId}");
         StateHasChanged();
     }
     #endregion
 
     #region Grid View
     /// <summary>
-    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// Used to Refresh Table data.
+    /// </summary>
+    private MudTable<Model.Client> _mudTable;
+    
+    /// <summary>
+    /// To do Ajax Search in the 'MudTable'
+    /// </summary>
+    private string _searchString = null;
+    /// <summary>
+    /// Server Side pagination with, filtered and ordered data from the API Service.
     /// </summary>
     private async Task<TableData<Model.Client>> ServerReload(TableState state)
     {
-        IEnumerable<Model.Client> data = _data;
-            //await  _httpClient.GetFromJsonAsync<List<User>>("/public/v2/users");
-        await Task.Delay(300);
-        data = data.Where(element =>
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }).ToArray();
-        totalItems = data.Count();
-        switch (state.SortLabel)
-        {
-            case "Name":
-                data = data.OrderByDirection(state.SortDirection, o => o.Name);
-                break;
-            default:
-                data = data.OrderByDirection(state.SortDirection, o => o.Name);
-                break;
-        }
+        #region Ajax Call to Get data by Batch
+        var responseModel = await GetDataByBatch(state);
+        #endregion
         
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        Console.WriteLine($"Table State : {JsonSerializer.Serialize(state)}");
-        return new TableData<Model.Client>() {TotalItems = totalItems, Items = pagedData};
+        Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
+        return new TableData<Model.Client>() {TotalItems = responseModel.TotalItems, Items = responseModel.Items};
     }
+
+    /// <summary>
+    /// Do Ajax call to get 'WorkLocation' Data
+    /// </summary>
+    /// <param name="state">Current Table State</param>
+    /// <returns>WorkLocation Data.</returns>
+    private async Task<ResponseData<Model.Client>> GetDataByBatch(TableState state)
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ClientApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(_searchString)) ? string.Empty : _searchString,
+            Page = state.Page,
+            PageSize = state.PageSize,
+            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "Name" : state.SortLabel,
+            SearchField = "Mobile",
+            SortDirection = (state.SortDirection == SortDirection.Ascending) ? "A" : "D"
+        };
+        var responseModel = await _httpService.POST<ResponseData<Model.Client>>(url, pageMetaData);
+        return responseModel;
+    }
+
     private void OnSearch(string text)
     {
-        searchString = text;
-        table.ReloadServerData();
+        _searchString = text;
+        _mudTable.ReloadServerData();//If we put Async, Loading progress bar is not closing.
+        StateHasChanged();
     }
     #endregion
+
     
     #region Add Action
+
     private async Task AddAction(MouseEventArgs arg)
     {
-        _navigationManager.NavigateTo("/Action/?Component=Client");
+        var url = $"/Action?Component=Client&Id=";
+        //Navigate and open in new tab.
+        await JSRuntime.InvokeAsync<object>("open",
+            new object[2] { url, "_blank" });
+        OnSearch(string.Empty);
     }
+
     #endregion
+    
 }

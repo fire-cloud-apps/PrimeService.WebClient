@@ -12,7 +12,7 @@ public partial class ClientDialog
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
     
-    [Parameter] public Model.Client _Client { get; set; } 
+    [Parameter] public Model.Client Client { get; set; } 
     private bool _processing = false;
     MudForm form;
     private Model.Client _inputMode;
@@ -25,7 +25,7 @@ public partial class ClientDialog
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_Client == null)
+        if (Client == null)
         {
             //Dialog box opened in "Add" mode
             _inputMode = new Model.Client()
@@ -36,7 +36,7 @@ public partial class ClientDialog
         else
         {
             //Dialog box opened in "Edit" mode
-            _inputMode = _Client;
+            _inputMode = Client;
         }
     }
     #endregion

@@ -164,7 +164,7 @@ public partial class EmployeeDialog
                 result = (responseModel != null);
                 break;
             case UserAction.DELETE:
-                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.WorkLocationApi.Delete}";
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.EmployeeApi.Delete}";
                 url = string.Format(url, _inputMode.Id);
                 result = await _httpService.DELETE<bool>(url);
                 break;
