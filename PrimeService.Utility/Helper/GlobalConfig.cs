@@ -1,4 +1,6 @@
-﻿namespace PrimeService.Utility.Helper;
+﻿using PrimeService.Model.Common;
+
+namespace PrimeService.Utility.Helper;
 
 public class GlobalConfig
 {
@@ -7,4 +9,12 @@ public class GlobalConfig
         get;
         set;
     }
+
+    public static AuditUser LoginUser
+    {
+        get;
+        set;
+    }
+    
+    
 }

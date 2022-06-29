@@ -126,8 +126,8 @@ public partial class ClientComponent
         else
         {
             _outputJson = "Validation Error occured.";
-            Utilities.ConsoleMessage(_outputJson);
         }
+        Utilities.ConsoleMessage(_outputJson);
     }
     
     async Task<bool> SubmitAction(UserAction action)
@@ -157,7 +157,7 @@ public partial class ClientComponent
                 break;
         }
         Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
-        Utilities.ConsoleMessage($"Employee JSON : {_inputMode.ToJson()}");
+        Utilities.ConsoleMessage($"Client JSON : {_inputMode.ToJson()}");
         _processing = false;
         return result;
     }

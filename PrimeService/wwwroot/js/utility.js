@@ -21,6 +21,16 @@ function InitalizeBarCode(){
 function isDevice() {
     return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(navigator.userAgent);
 }
+function printProduct(data){
+    var a = window.open('', '', 'height=500, width=500');
+    a.document.write('<html>');
+    a.document.write('<body > <br>');
+    a.document.write('Product Details as HTML : ' +  data);
+    a.document.write('</body></html>');
+    a.document.close();
+    a.print();
+    return true;
+}
 
 function loadJs(sourceUrl) {
     if (sourceUrl.Length == 0) {

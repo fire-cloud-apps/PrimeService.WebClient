@@ -1,5 +1,6 @@
 ﻿@using MudBlazor
 @using global::PrimeService.Model.Shopping
+@using System.Security.Cryptography.X509Certificates
 
 <MudCard>
     <MudCardHeader>
@@ -34,9 +35,20 @@
                         <MudListItem Icon="@Icons.Material.Filled.Inbox" Text="Category"
                                      InitiallyExpanded="true">
                             <NestedList>
-                                <MudListItem Value="1" Text="Mobile" Icon="@Icons.Material.Outlined.MobileFriendly"/>
-                                <MudListItem Value="2" Text="Laptop" Icon="@Icons.Material.TwoTone.Laptop"/>
-                                <MudListItem Value="3" Text="TV" Icon="@Icons.Material.TwoTone.Tv"/>
+                                @if (_productCategories != null)
+                                {
+                                    int categoryIndex = 1;
+                                    foreach (var category in _productCategories)
+                                    {
+                                        <MudListItem Value="@category.Id"
+                                                     Text="@category.CategoryName" 
+                                                     Icon="@Icons.Material.Outlined.Numbers"/>
+                                        categoryIndex++;
+                                    }
+                                }
+                                @* <MudListItem Value="1" Text="Mobile" Icon="@Icons.Material.Outlined.MobileFriendly"/> *@
+                                @* <MudListItem Value="2" Text="Laptop" Icon="@Icons.Material.TwoTone.Laptop"/> *@
+                                @* <MudListItem Value="3" Text="TV" Icon="@Icons.Material.TwoTone.Tv"/> *@
                             </NestedList>
                         </MudListItem>
                     </MudList>
@@ -44,7 +56,7 @@
             </MudItem>
             <MudItem xs="12" sm="8" md="9">
                 <MudTable ServerData="@(new Func<TableState, Task<TableData<Product>>>(ServerReload))"
-                                  Dense="true" Hover="true" @ref="table"
+                                  Dense="true" Hover="true" @ref="_mudTable"
                                   GroupBy="@_groupDefinition"
                                   GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
                                   GroupFooterClass="mb-4">

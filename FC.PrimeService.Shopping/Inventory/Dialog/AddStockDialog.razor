@@ -39,13 +39,13 @@
                                          Immediate="true" />
                     </MudItem>
                     
-                    <MudItem xs="12" sm="6" md="4">
+                    <MudItem xs="12" sm="12" md="12">
                         <MudNumericField Disabled="@_isReadOnly" Label="Additional Cost" 
                                          Placeholder="Additional Cost if any"
                                          AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
                                          HelperText="Max 5 Character Allowed"
-                                         @bind-Value="_inputMode.SellingPrice"
-                                         For="@(() => _inputMode.SellingPrice)"
+                                         @bind-Value="_inputMode.Price"
+                                         For="@(() => _inputMode.Price)"
                                          MaxLength="5"
                                          Min="0"
                                          Max="99999"
@@ -67,7 +67,7 @@
                 }
                 else
                 {
-                    <MudText>Submit</MudText>
+                    <MudText>Save</MudText>
                 }
             </MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" 

@@ -82,7 +82,7 @@ public partial class ClientList
     }
 
     /// <summary>
-    /// Do Ajax call to get 'WorkLocation' Data
+    /// Do Ajax call to get 'Client' Data
     /// </summary>
     /// <param name="state">Current Table State</param>
     /// <returns>WorkLocation Data.</returns>
@@ -109,7 +109,6 @@ public partial class ClientList
         StateHasChanged();
     }
     #endregion
-
     
     #region Add Action
 

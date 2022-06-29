@@ -3,7 +3,10 @@ using FC.PrimeService.Common.Settings.Dialog;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
+using PrimeService.Model;
 using PrimeService.Model.Settings.Forms;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using Model = PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Shopping.Inventory.ListItems;
@@ -19,15 +22,18 @@ public partial class ProductList
     string _outputJson;
     private bool _processing = false;
     private bool _isReadOnly = true;
-    private IEnumerable<Model.Product> pagedData;
-    private MudTable<Model.Product> table;
     private int totalItems;
-    private string searchString = null;
+    
+    private User _loginUser;
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
 
     #region Category Selection
 
     private MudListItem _selectedCategory;
-    public MudListItem SelectedCategory
+    private MudListItem SelectedCategory
     {
         get
         {
@@ -36,16 +42,21 @@ public partial class ProductList
         set
         {
             _selectedCategory = value;
-            if (_selectedCategory != null)
+            if (_selectedCategory.Value.ToString() == "0")
             {
-                Console.WriteLine($"Selected Item Category {_selectedCategory.Text}");
+                OnSearch(string.Empty, "Category.Id");
             }
+            else
+            {
+                OnSearch(_selectedCategory.Value.ToString(), "Category.Id");
+            }
+            
+            Console.WriteLine($"Selected Item Category Value: {_selectedCategory.Value} - Text: { _selectedCategory.Text}");
         }
     }
 
     
     #endregion
-    
     
     IEnumerable<Model.Product> _data = new List<Model.Product>()
     {
@@ -99,13 +110,14 @@ public partial class ProductList
         CloseButton = true,
         CloseOnEscapeKey = true,
     };
-    
+
+    private IEnumerable<Model.ProductCategory> _productCategories;
     private TableGroupDefinition<Model.Product> _groupDefinition = new()
     {
-        GroupName = "Category",
+        GroupName = "Quantity",
         Indentation = false,
-        Expandable = false,
-        Selector = (e) => e.Category.CategoryName
+        Expandable = true,
+        Selector = (e) => e.Quantity
     };
     #endregion
 
@@ -113,66 +125,118 @@ public partial class ProductList
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
-        
+        #region Ajax Call to Get Company Details
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        #endregion
+
+        _productCategories = await GetProductCategory();
         _loading = false;
+        _loginUser = await _localStore.GetItemAsync<User>("user");
+        Utilities.ConsoleMessage($"Login User {_loginUser.AccountId}");
         StateHasChanged();
     }
     #endregion
 
+    #region Load Product Category
+    
+    private async Task<IEnumerable<Model.ProductCategory>> GetProductCategory()
+    {
+        #region Ajax Call to Get data by Batch
+        var responseModel = await GetProductCategory_ByBatch();
+        #endregion
+        
+        return responseModel.Items;
+    }
+    
+    /// <summary>
+    /// Do Ajax call to get 'ProductCategory' Data
+    /// </summary>
+    /// <returns>ProductCategory Data.</returns>
+    private async Task<ResponseData<Model.ProductCategory>> GetProductCategory_ByBatch()
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductCategoryApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = string.Empty,
+            Page = 0,
+            PageSize = 25,
+            SortLabel = "CategoryName" ,
+            SearchField = "CategoryName",
+            SortDirection = "A" 
+        };
+        var responseModel = await _httpService.POST<ResponseData<Model.ProductCategory>>(url, pageMetaData);
+        return responseModel;
+    }
+    
+
+    #endregion
+    
     #region Grid View
     /// <summary>
-    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// Used to Refresh Table data.
+    /// </summary>
+    private MudTable<Model.Product> _mudTable;
+    
+    /// <summary>
+    /// To do Ajax Search in the 'MudTable'
+    /// </summary>
+    private string _searchString = string.Empty;
+    private string _searchField = "Name";
+    /// <summary>
+    /// Server Side pagination with, filtered and ordered data from the API Service.
     /// </summary>
     private async Task<TableData<Model.Product>> ServerReload(TableState state)
     {
-        IEnumerable<Model.Product> data = _data;
-            //await  _httpClient.GetFromJsonAsync<List<User>>("/public/v2/users");
-        await Task.Delay(300);
-        data = data.Where(element =>
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }).ToArray();
-        totalItems = data.Count();
-        switch (state.SortLabel)
-        {
-            case "Name":
-                data = data.OrderByDirection(state.SortDirection, o => o.Name);
-                break;
-            case "Quantity":
-                data = data.OrderByDirection(state.SortDirection, o => o.Quantity);
-                break;
-            default:
-                data = data.OrderByDirection(state.SortDirection, o => o.Name);
-                break;
-        }
+        #region Ajax Call to Get data by Batch
+        var responseModel = await GetDataByBatch(state);
+        #endregion
         
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        Console.WriteLine($"Table State : {JsonSerializer.Serialize(state)}");
-        return new TableData<Model.Product>() {TotalItems = totalItems, Items = pagedData};
+        Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
+        return new TableData<Model.Product>() {TotalItems = responseModel.TotalItems, Items = responseModel.Items};
     }
-    private void OnSearch(string text)
+    
+    /// <summary>
+    /// Do Ajax call to get 'Product' Data
+    /// </summary>
+    /// <param name="state">Current Table State</param>
+    /// <returns>Product Data.</returns>
+    private async Task<ResponseData<Model.Product>> GetDataByBatch(TableState state)
     {
-        searchString = text;
-        table.ReloadServerData();
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = _searchString,
+            Page = state.Page,
+            PageSize = state.PageSize,
+            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "Name" : state.SortLabel,
+            SearchField = _searchField,
+            SortDirection = (state.SortDirection == SortDirection.Ascending) ? "A" : "D"
+        };
+        var responseModel = await _httpService.POST<ResponseData<Model.Product>>(url, pageMetaData);
+        return responseModel;
+    }
+
+    private void OnSearch(string text, string field = "Name")
+    {
+        _searchString = text;
+        _searchField = field;
+        _mudTable.ReloadServerData();//If we put Async, Loading progress bar is not closing.
+        StateHasChanged();
     }
     #endregion
     
-    #region Add Action
+    #region Add Action Product
     private async Task AddAction(MouseEventArgs arg)
     {
         _navigationManager.NavigateTo("/Action/?Component=Product");
     }
     #endregion
 
+    #region Add - Product Category Dialog 
+
     private async Task AddProductCategory()
     {
-        await InvokeDialog("_ProductCategory","Product Category", null);//Null indicates its an 'Add' Mode.
+        await InvokeDialog("ProductCategory","Add Product Category", null);//Null indicates its an 'Add' Mode.
     }
     private async Task InvokeDialog(string parameter, string title, Model.ProductCategory model)
     {
@@ -185,5 +249,11 @@ public partial class ProductList
         {
             Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
         }
+        _productCategories = await GetProductCategory();
+        StateHasChanged();
     }
+
+
+    #endregion
+
 }

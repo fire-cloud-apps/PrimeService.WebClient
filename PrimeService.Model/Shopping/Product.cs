@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -109,4 +110,25 @@ public class Product
     public string? Notes { get; set; } = string.Empty;
 
     #endregion
+}
+
+//Currently not in use.
+public class ProductValidator : AbstractValidator<Product>
+{
+    public ProductValidator()
+    {
+        RuleFor(x => x.MaxQuantity).LessThanOrEqualTo(x => x.MinQuantity)
+            .WithMessage("Maximum Quantity should be Greater then Minimum Quantity");
+    }
+    public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
+    {
+        var result = await ValidateAsync(ValidationContext<Product>.CreateWithOptions((Product)model, x => x.IncludeProperties(propertyName)));
+        if (result.IsValid)
+            return Array.Empty<string>();
+        return result.Errors.Select(e => e.ErrorMessage);
+    };
+    
+   
+
+    
 }

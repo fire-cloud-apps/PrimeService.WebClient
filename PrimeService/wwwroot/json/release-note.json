@@ -1,10 +1,10 @@
 ﻿{
 "Release":
- [
+ [   
    { 
      "Version":"0.0.3",
-     "BuildVersion":"0.0.2.20",
-     "ReleaseDate":"June-25-2022",
+     "BuildVersion":"0.0.2.22",
+     "ReleaseDate":"June-29-2022",
      "WhatsNew":[
        "Dialog - Dialog box added to all the setting data.","Snackbar","Toggle"
      ],

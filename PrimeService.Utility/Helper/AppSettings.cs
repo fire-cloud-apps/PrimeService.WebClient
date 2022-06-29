@@ -49,8 +49,34 @@ public class API
      public ProductCategoryApi ProductCategoryApi { get; set; }
      public TaxApi TaxApi { get; set; }
      public ClientApi ClientApi { get; set; }
-     
+     public ProductApi ProductApi { get; set; }
+     //
+     public ProductTransactionApi ProductTransactionApi { get; set; }
 }
+
+#region ProductTransactionApi API
+public class ProductTransactionApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
+
+#region ProductApi API
+public class ProductApi
+{
+    public string GetDetails { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
 
 #region ClientApi API
 public class ClientApi

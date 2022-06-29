@@ -27,6 +27,7 @@
 
     <ItemGroup>
       <PackageReference Include="FC.Common.Domain" Version="1.0.0" />
+      <PackageReference Include="FluentValidation" Version="11.1.0" />
       <PackageReference Include="Humanizer.Core" Version="2.14.1" />
       <PackageReference Include="MudBlazor" Version="6.0.10" />
     </ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
 
 namespace PrimeService.Model.Shopping;
@@ -25,7 +26,7 @@ public class ProductTransaction
     [Required]
     public DateTime TransactionDate { get; set; }
     [Required]
-    public Employee? Who { get; set; }
+    public AuditUser? Who { get; set; }
     public StockAction Action { get; set; }
     
     /// <summary>

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Forms;
 using PrimeService.Model.Settings.Payments;
@@ -69,7 +70,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.1",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -114,7 +115,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.4",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -159,7 +160,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.1",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -204,7 +205,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.4",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -249,7 +250,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.1",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -294,7 +295,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.4",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -339,7 +340,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.1",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -384,7 +385,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.4",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -429,7 +430,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.1",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -474,7 +475,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.4",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -519,7 +520,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.1",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -564,7 +565,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.4",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",
@@ -609,7 +610,7 @@ public partial class ShopList
         new Model.Sales()
         {
             BillNumber = "#2022.05.03.2",
-            BilledBy = new Employee(){ User = new User(){ Name = "SRG"}},
+            BilledBy = new AuditUser(){  Name = "SRG"},
             Client = new Model.Client(){ Name = "Alam"},
             AdditonalCost = 30,
             Id = "626f61717c3a4477dc2d8275",

@@ -22,8 +22,28 @@
     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
     <MudCardContent>
 
+        <MudPaper Class="pa-2">
+            <MudGrid>
+                <MudItem xs="12" sm="12" md="12">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6">@_inputMode.Name</MudText>
+                            <MudText Typo="Typo.body1">@_inputMode.Notes</MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary">Quantity : @_inputMode.Quantity</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Secondary">Selling Price : @_inputMode.SellingPrice</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Default">BarCode : @_inputMode.Barcode</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Tertiary">Code : @_inputMode.Code</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+               
+            </MudGrid>
+        </MudPaper>
+        <br/>
         <MudTable ServerData="@(new Func<TableState, Task<TableData<ProductTransaction>>>(ServerReload))"
-                  Dense="true" Hover="true" @ref="table"
+                  Dense="true" Hover="true" @ref="_mudTable"
                   GroupBy="@_groupDefinition"
                   GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
                   GroupFooterClass="mb-4">
@@ -36,7 +56,8 @@
                     <col />
                     <col />
                     <col />
-                    <col />
+                <col />
+                <col />
                 </ColGroup>
             <ToolBarContent>
                 @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
@@ -50,26 +71,31 @@
             <HeaderContent>
                 <MudTh><MudTableSortLabel SortLabel="Date" T="ProductTransaction">Date</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Staff" T="ProductTransaction">Staff</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="StockAction" T="ProductTransaction">Stock</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Quantity" T="ProductTransaction">Quantity</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Price" T="ProductTransaction">Price</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Reason" T="ProductTransaction">Reason</MudTableSortLabel></MudTh>
                 
             </HeaderContent>
             <GroupHeaderTemplate>
-                <MudTh Class="mud-table-cell-custom-group" colspan="5">@($"{context.GroupName}: {context.Key}")</MudTh>
+                <MudTh Class="mud-table-cell-custom-group" colspan="6">@($"{context.GroupName}: {context.Key}")</MudTh>
             </GroupHeaderTemplate>
             <RowTemplate>
                 <MudTd DataLabel="Date">
-                    <MudTooltip Color="Color.Tertiary" Arrow="true">
-                        <ChildContent>
-                            <MudLink Href="#" >
-                                @context.TransactionDate
-                            </MudLink>
-                        </ChildContent>
-                    </MudTooltip>
+                    @context.TransactionDate
                 </MudTd>
                 <MudTd DataLabel="Staff">
-                    @context.Who.User.Name
+                    @context.Who.Name
+                </MudTd>
+                <MudTd DataLabel="Action">
+                    @if (context.Action == StockAction.In)
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.ArrowCircleUp" Color="Color.Success" Title="Add" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.ArrowCircleDown" Color="Color.Error" Title="Reduce" />
+                    }
                 </MudTd>
                 <MudTd DataLabel="Quantity">
                     @context.Quantity

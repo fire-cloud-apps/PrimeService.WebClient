@@ -2,10 +2,14 @@
 using FC.PrimeService.Shopping.Inventory.Dialog;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Forms;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using Model = PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Shopping.Inventory.Component;
@@ -17,7 +21,7 @@ public partial class ProductComponent
     MudForm form;
     private bool _loading = false;
     private string _display = "d-none";//Display 'none' during loading.
-    public Model.Product _inputMode;
+    private Model.Product _inputMode;
    
     /// <summary>
     /// Client unique Id to get load the data.
@@ -29,164 +33,265 @@ public partial class ProductComponent
     private bool _processing = false;
     private bool _isReadOnly = true;
     private bool _editToggle = false;
-    public List<Model.ProductCategory> _productCategory = new List<Model.ProductCategory>()
-    {
-        new Model.ProductCategory() { CategoryName = "Mobile" },
-        new Model.ProductCategory() { CategoryName = "Computer" },
-        new Model.ProductCategory() { CategoryName = "Laptop" },
-        new Model.ProductCategory() { CategoryName = "TV" },
-        
-    };
+    public IEnumerable<Model.ProductCategory> _productCategory = new List<Model.ProductCategory>();
+    private User _loginUser;
 
-    private IList<Model.ProductTransaction> _productTransactions = new List<Model.ProductTransaction>()
-    {
-        new Model.ProductTransaction()
-        {
-            TransactionDate = DateTime.Now,
-            Reason = "Stock In",
-            Action = Model.StockAction.Out,
-            Quantity = -5,
-            Price = 5 * 2500,
-            Who = new Employee()
-            {
-                User = new User()
-                {
-                    Name = "SRG"
-                }
-            },
-        },
-        new Model.ProductTransaction()
-        {
-            TransactionDate = DateTime.Now,
-            Reason = "Purchase Order",
-            Action = Model.StockAction.In,
-            Quantity = 15,
-            Price = 15 * 2500,
-            Who = new Employee()
-            {
-                User = new User()
-                {
-                    Name = "Ram"
-                }
-            },
-        }
-    };
-    
+    private IEnumerable<Model.ProductTransaction> _productTransactions =
+        new List<Model.ProductTransaction>();
+
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    private UserAction UserAction;
+        
     #endregion
+    
+    #region Load Async
     
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
-        //for now it is filled as Static value
-        _inputMode = new Model.Product ()
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        
+        Utilities.ConsoleMessage($"Client Id: {Id}");
+        await SetGlobalConfiguration();
+        
+        if (string.IsNullOrEmpty(Id))
         {
-            Id = "6270d1cce5452d9169e86c50",
-            Name = "Samsung M31",
-            Barcode = "SKI78596KLL",
-            Category = new Model.ProductCategory()
+            UserAction = UserAction.ADD;
+            _inputMode = new Model.Product()
             {
-                CategoryName = "Mobile"
-            },
-            Cost = 200,
-            Quantity = 5,
-            SellingPrice = 17800,
-            SupplierPrice = 14000,
-            Warranty = 730,
-            TaxGroup = new Tax()
-            {
-                Title = "5% - Tax",
-                TaxRate = 5.0f,
-                Description = "Household necessities such as edible oil, sugar, spices, tea, and coffee (except instant) are included. Coal, Mishti/Mithai (Indian Sweets) and Life-saving drugs are also covered under this GST slab."
-            },
-            Notes = "Samsung M31 Released 2021 Latest mobile phone",
-        };
-        Console.WriteLine($"Id Received: {Id}"); //Use this id and get the values from 'API'
-        if (Id == null)
-        {
-            Console.WriteLine("Add Mode");
+                Category = new Model.ProductCategory(),
+                TaxGroup = new Tax()
+            };
             _editToggle = true;
             _display = "d-flex";
             _isReadOnly = false;
+            
         }
         else
         {
-            Console.WriteLine("Edit Mode");
+            UserAction = UserAction.EDIT;
+            await GetModelDetails(Id);
             _display = "d-none";
             _editToggle = false;
-            //Do ajax call and assign it to _inputMode
+            _productTransactions = await ProductTransaction_SearchAsync(Id);
         }
+        _loginUser = await _localStore.GetItemAsync<User>("user");
+        Utilities.ConsoleMessage($"Load Completed.");
         _loading = false;
         StateHasChanged();
     }
+    
+    /// <summary>
+    /// Set Global Configuration
+    /// </summary>
+    private async Task SetGlobalConfiguration()
+    {
+        if (GlobalConfig.LoginUser == null)
+        {
+            Utilities.ConsoleMessage("GlobalConfig.LoginUser Is 'null'");
+            GlobalConfig.LoginUser = await _localStore.GetItemAsync<AuditUser>("LoginUser");
+        }
+        else
+        {
+            Utilities.ConsoleMessage($"Global User {GlobalConfig.LoginUser.ToJson()}");
+        }
+    }
+
+    #endregion
+    
+    #region Get Model Details - Edit
+    private async Task GetModelDetails(string id)
+    {
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductApi.GetDetails}";
+        url = string.Format(url, id);
+        Utilities.ConsoleMessage($"URL {url}");
+        _inputMode = await _httpService.GET<Model.Product>(url);
+        _loading = false;
+    }
+    #endregion
+
+    #region ProductTransaction Search - Last 10 Transaction
+
+    private async Task<IEnumerable<Model.ProductTransaction>> ProductTransaction_SearchAsync(string value)
+    {
+        var responseData = await GetProdTransaction_ByBatch(value);
+        _productTransactions = responseData.Items;
+        return _productTransactions;
+    }
+    
+    #region ProductTransaction - Ajax call
+    private async Task<ResponseData<Model.ProductTransaction>> GetProdTransaction_ByBatch(string searchValue)
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductTransactionApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(searchValue)) ? "0" : searchValue,
+            Page = 0,
+            PageSize = 10,
+            SortLabel = "Name",
+            SearchField = "ProductId",
+            SortDirection = "A"
+        };
+        var responseModel = await _httpService.POST<ResponseData<Model.ProductTransaction>>
+            (url, pageMetaData);
+        return responseModel;
+    }
+    #endregion
+    
+    #endregion
     
     #region Product Category Search - Autocomplete
 
     private async Task<IEnumerable<Model.ProductCategory>> ProductCategory_SearchAsync(string value)
     {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _productCategory;
-        }
-        return _productCategory.Where(x => x.CategoryName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        var responseData = await GetDataByBatch(value);
+        _productCategory = responseData.Items;
+        return _productCategory;
     }
-
+    
+    #region ClientType - AutoComplete Ajax call
+    private async Task<ResponseData<Model.ProductCategory>> GetDataByBatch(string searchValue)
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductCategoryApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(searchValue)) ? string.Empty : searchValue,
+            Page = 0,
+            PageSize = 10,
+            SortLabel = "Title",
+            SearchField = "Title",
+            SortDirection = "A"
+        };
+        var responseModel = await _httpService.POST<ResponseData<Model.ProductCategory>>(url, pageMetaData);
+        return responseModel;
+    }
     #endregion
     
-    #region Submit Button with Animation
-    async Task ProcessSomething()
-    {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
-    }
+    #endregion
     
+    #region Submit, Delete, Cancel Button with Animation
+
     private async Task Submit()
     {
         await form.Validate();
 
         if (form.IsValid)
         {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submited!", Severity.Success);
+            var isSuccess = await SubmitAction(UserAction);
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "Product Saved!");
+            }
         }
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
         }
+        Utilities.ConsoleMessage(_outputJson);
     }
-
+    
+    async Task<bool> SubmitAction(UserAction action)
+    {
+        _processing = true;
+        string url = string.Empty;
+        Model.Product responseModel = null;
+        bool result = false;
+        Utilities.ConsoleMessage($"Product JSON : {_inputMode.ToJson()}");
+        switch (action)
+        {
+            case UserAction.ADD:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductApi.Create}";
+                responseModel = await _httpService.POST<Model.Product>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.EDIT:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductApi.Update}";
+                responseModel = await _httpService.PUT<Model.Product>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            default:
+                break;
+        }
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        
+        _processing = false;
+        return result;
+    }
+    
+    
+    async Task Delete()
+    {
+        var canDelete = await Utilities.DeleteConfirm(DialogService);
+        if (canDelete)
+        {
+            await SubmitAction(UserAction.DELETE);
+            Utilities.SnackMessage(Snackbar, "Client Deleted!", Severity.Warning);
+        }
+        else
+        {
+            Utilities.SnackMessage(Snackbar, "Deletion Cancelled!", Severity.Normal);
+        }
+        StateHasChanged();
+    }
     #endregion
 
     #region Fake Data
 
-    private Task GetFakeData()
+    private async Task GetFakeData()
     {
-        throw new NotImplementedException();
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductApi.Fake}";
+        _inputMode = await _httpService.GET<Model.Product>(url);
+        _loading = false;
     }
 
     #endregion
 
+    #region 'Tax' Search - Autocomplete
 
+    private IEnumerable<Tax> _taxList = new List<Tax>();
+  
+    private async Task<IEnumerable<Tax>> Tax_SearchAsync(string value)
+    {
+        var responseData = await GetTaxDataByBatch(value);
+        _taxList = responseData.Items;
+        return _taxList;
+    }
+
+    
+    #region Tax - AutoComplete Ajax call
+    private async Task<ResponseData<Tax>> GetTaxDataByBatch(string searchValue)
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.TaxApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(searchValue)) ? string.Empty : searchValue,
+            Page = 0,
+            PageSize = 10,
+            SortLabel = "Title",
+            SearchField = "Title",
+            SortDirection = "A"
+        };
+        var responseModel = await _httpService.POST<ResponseData<Tax>>(url, pageMetaData);
+        return responseModel;
+    }
+    #endregion
+
+    #endregion
+    
     #region Tool Bar Action Dialogs
-
     
     private async Task EditToggle(bool toggled)
     {
@@ -204,12 +309,12 @@ public partial class ProductComponent
     }
     private async Task AddStock(MouseEventArgs arg)
     {
-        await InvokeDialog("_Product","Product", _inputMode, ActionType.AddStock);
+        await InvokeDialog("Product","Product", _inputMode, ActionType.AddStock);
     }
 
     private async Task ReduceStock(MouseEventArgs arg)
     {
-        await InvokeDialog("_Product","Product", _inputMode, ActionType.ReduceStock);
+        await InvokeDialog("Product","Product", _inputMode, ActionType.ReduceStock);
     }
     private DialogOptions _dialogOptions = new DialogOptions()
     {
@@ -221,7 +326,10 @@ public partial class ProductComponent
     private async Task InvokeDialog(string parameter, string title, Model.Product model, ActionType actionType)
     {
         var parameters = new DialogParameters
-            { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
+        {
+            [parameter] = model,
+            ["User"] = _loginUser
+        }; //'null' indicates that the Dialog should open in 'Add' Mode.
         IDialogReference dialog;
         if (actionType == ActionType.AddStock)
         {
@@ -236,6 +344,10 @@ public partial class ProductComponent
         {
             Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
         }
+        await GetModelDetails(Id);
+        _productTransactions = await ProductTransaction_SearchAsync(Id);
+        await Task.Delay(500);
+        StateHasChanged();
     }
 
     enum ActionType
@@ -246,65 +358,38 @@ public partial class ProductComponent
 
     #endregion
 
-    
-    #region ServiceCategory Search - Autocomplete
-    public List<Tax> _taxList = new List<Tax>()
-    {
-        new Tax()
-        {
-            Title = "0.00% - No Tax",
-            TaxRate = 0.0f,
-            Description = "No tax applied for the goods."
-        },
-        new Tax()
-        {
-            Title = "0.25% - Tax",
-            TaxRate = 0.25f,
-            Description = "Cut and semi-polished stones are included under this tax slab."
-        },
-        new Tax()
-        {
-            Title = "5% - Tax",
-            TaxRate = 5.0f,
-            Description = "Household necessities such as edible oil, sugar, spices, tea, and coffee (except instant) are included. Coal, Mishti/Mithai (Indian Sweets) and Life-saving drugs are also covered under this GST slab."
-        },
-        new Tax()
-        {
-            Title = "12% - Tax",
-            TaxRate = 12.0f,
-            Description = "This includes computers and processed food."
-        },
-        new Tax()
-        {
-            Title = "18% - Tax",
-            TaxRate = 18.0f,
-            Description = "Hair oil, toothpaste and soaps, capital goods and industrial intermediaries are covered in this slab."
-        },
-        new Tax()
-        {
-            Title = "28% - Tax",
-            TaxRate = 28.0f,
-            Description = "Luxury items such as small cars, consumer durables like AC and Refrigerators, premium cars, cigarettes and aerated drinks, High-end motorcycles are included here."
-        },
-        
-    }; // In reality it should come from API.
-    private async Task<IEnumerable<Tax>> Tax_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _taxList;
-        }
-        return _taxList.Where(x => x.Title.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
-
-    #endregion
-    
+    #region Load More 'Product' Transaction
     private async Task LoadMore()
     {
         _navigationManager.NavigateTo($"/Inventory?viewId=PT&Id={_inputMode.Id}");
+    }
+    #endregion
+    
+    #region Validation
+    private string ValidateQuntity(int qty)
+    {
+        if (_inputMode.MinQuantity == 0) return null;
+        if (_inputMode.MaxQuantity <= _inputMode.MinQuantity)
+            return "Maximum Quantity should be greater then 'Min' Quantity";
+        else
+            return null;
+    }
+    
+    private string ValidatePrice(double price)
+    {
+        if (_inputMode.SupplierPrice == 0) return null;
+        if (_inputMode.SellingPrice <= _inputMode.SupplierPrice)
+            return $"Selling Price '{_inputMode.SellingPrice}' cannot be lesser then or Equal to Supplier Price '{_inputMode.SupplierPrice}'.";
+        else
+            return null;
+    }
+
+    #endregion
+
+    private async Task PrintProduct()
+    {
+        object[] args = new object[] { "SomeInfo" };
+        var res = await JSRuntime.InvokeAsync<bool>("printProduct",args);
+        Utilities.ConsoleMessage($"Invoked Printing Method");
     }
 }

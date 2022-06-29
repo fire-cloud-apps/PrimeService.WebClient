@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using Model = PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Shopping.Inventory.ListItems;
@@ -24,256 +27,8 @@ public partial class ProductTransactionList
     string _outputJson;
     private bool _processing = false;
     private bool _isReadOnly = true;
-    private IEnumerable<Model.ProductTransaction> pagedData;
-    private MudTable<Model.ProductTransaction> table;
-    private int totalItems;
     private string searchString = null;
-    IEnumerable<Model.ProductTransaction> _data = new List<Model.ProductTransaction>()
-    {
-        new Model.ProductTransaction()
-        {
-            TransactionDate = DateTime.Now,
-            Reason = "Stock In",
-            Action = Model.StockAction.Out,
-            Quantity = -5,
-            Price = 5 * 2500,
-            Who = new Employee()
-            {
-                User = new User()
-                {
-                    Name = "SRG"
-                }
-            },
-        },
-        new Model.ProductTransaction()
-        {
-            TransactionDate = DateTime.Now,
-            Reason = "Purchase Order",
-            Action = Model.StockAction.In,
-            Quantity = 15,
-            Price = 15 * 2500,
-            Who = new Employee()
-            {
-                User = new User()
-                {
-                    Name = "Ram"
-                }
-            },
-        },
-        new Model.ProductTransaction()
-        {
-        TransactionDate = DateTime.Now,
-        Reason = "Stock In",
-        Action = Model.StockAction.Out,
-        Quantity = -5,
-        Price = 5 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "SRG"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Purchase Order",
-        Action = Model.StockAction.In,
-        Quantity = 15,
-        Price = 15 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "Ram"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Stock In",
-        Action = Model.StockAction.Out,
-        Quantity = -5,
-        Price = 5 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "SRG"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Purchase Order",
-        Action = Model.StockAction.In,
-        Quantity = 15,
-        Price = 15 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "Ram"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Stock In",
-        Action = Model.StockAction.Out,
-        Quantity = -5,
-        Price = 5 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "SRG"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Purchase Order",
-        Action = Model.StockAction.In,
-        Quantity = 15,
-        Price = 15 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "Ram"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Stock In",
-        Action = Model.StockAction.Out,
-        Quantity = -5,
-        Price = 5 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "SRG"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Purchase Order",
-        Action = Model.StockAction.In,
-        Quantity = 15,
-        Price = 15 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "Ram"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Stock In",
-        Action = Model.StockAction.Out,
-        Quantity = -5,
-        Price = 5 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "SRG"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Purchase Order",
-        Action = Model.StockAction.In,
-        Quantity = 15,
-        Price = 15 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "Ram"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Stock In",
-        Action = Model.StockAction.Out,
-        Quantity = -5,
-        Price = 5 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "SRG"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Purchase Order",
-        Action = Model.StockAction.In,
-        Quantity = 15,
-        Price = 15 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "Ram"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Stock In",
-        Action = Model.StockAction.Out,
-        Quantity = -5,
-        Price = 5 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "SRG"
-            }
-        },
-    },
-    new Model.ProductTransaction()
-    {
-        TransactionDate = DateTime.Now,
-        Reason = "Purchase Order",
-        Action = Model.StockAction.In,
-        Quantity = 15,
-        Price = 15 * 2500,
-        Who = new Employee()
-        {
-            User = new User()
-            {
-                Name = "Ram"
-            }
-        },
-    }
-    
-    
-
-    };
+    private IEnumerable<Model.ProductTransaction> _data = new List<Model.ProductTransaction>();
     
     private DialogOptions _dialogOptions = new DialogOptions()
     {
@@ -287,17 +42,29 @@ public partial class ProductTransactionList
     {
         GroupName = "Stock",
         Indentation = false,
-        Expandable = false,
+        Expandable = true,
         Selector = (e) => e.Action
     };
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    private Model.Product _inputMode;
+     
     #endregion
 
     #region Initialization Load
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
+        #region Ajax Call to Get Company Details
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        #endregion
+        _inputMode = new Model.Product()
+        {
+            Category = new Model.ProductCategory(),
+            TaxGroup = new Tax()
+        };
         if (string.IsNullOrEmpty(Id))
         {
             //Add Mode
@@ -306,49 +73,79 @@ public partial class ProductTransactionList
         {
             //This case always we should get the _Id.
             Console.WriteLine($"Product Id : {Id}");
+            await GetModelDetails(Id);
             //Edit Mode.
         }
         _loading = false;
         StateHasChanged();
     }
+    #region Get Model Details - Edit
+    private async Task GetModelDetails(string id)
+    {
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductApi.GetDetails}";
+        url = string.Format(url, id);
+        Utilities.ConsoleMessage($"URL {url}");
+        _inputMode = await _httpService.GET<Model.Product>(url);
+        _loading = false;
+    }
+    #endregion
     #endregion
 
+   
     #region Grid View
     /// <summary>
-    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// Used to Refresh Table data.
+    /// </summary>
+    private MudTable<Model.ProductTransaction> _mudTable;
+    
+    /// <summary>
+    /// To do Ajax Search in the 'MudTable'
+    /// </summary>
+    private string _searchString = string.Empty;
+    private string _searchField = "ProductId.Reason";
+    /// <summary>
+    /// Server Side pagination with, filtered and ordered data from the API Service.
     /// </summary>
     private async Task<TableData<Model.ProductTransaction>> ServerReload(TableState state)
     {
-        IEnumerable<Model.ProductTransaction> data = _data;
-            //await  _httpClient.GetFromJsonAsync<List<User>>("/public/v2/users");
-        await Task.Delay(300);
-        data = data.Where(element =>
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.Who.User.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }).ToArray();
-        totalItems = data.Count();
-        switch (state.SortLabel)
-        {
-            case "Quantity":
-                data = data.OrderByDirection(state.SortDirection, o => o.Quantity);
-                break;
-            default:
-                data = data.OrderByDirection(state.SortDirection, o => o.Price);
-                break;
-        }
+        #region Ajax Call to Get data by Batch
+        var responseModel = await GetDataByBatch(state);
+        #endregion
         
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        Console.WriteLine($"Table State : {JsonSerializer.Serialize(state)}");
-        return new TableData<Model.ProductTransaction>() {TotalItems = totalItems, Items = pagedData};
+        Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
+        return new TableData<Model.ProductTransaction>() {TotalItems = responseModel.TotalItems, Items = responseModel.Items};
     }
-    private void OnSearch(string text)
+    
+    /// <summary>
+    /// Do Ajax call to get 'ProductTransaction' Data
+    /// </summary>
+    /// <param name="state">Current Table State</param>
+    /// <returns>Product Data.</returns>
+    private async Task<ResponseData<Model.ProductTransaction>> GetDataByBatch(TableState state)
     {
-        searchString = text;
-        table.ReloadServerData();
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductTransactionApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = _searchString,
+            Page = state.Page,
+            PageSize = state.PageSize,
+            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "Price" : state.SortLabel,
+            SearchField = _searchField,
+            SortDirection = (state.SortDirection == SortDirection.Ascending) ? "A" : "D",
+            FilterParams = new List<string>() { Id }
+        };
+        var responseModel = await _httpService.POST<ResponseData<Model.ProductTransaction>>(url, pageMetaData);
+        return responseModel;
+    }
+
+    private void OnSearch(string text, string field = "Name")
+    {
+        _searchString = text;
+        _searchField = field;
+        _mudTable.ReloadServerData();//If we put Async, Loading progress bar is not closing.
+        StateHasChanged();
     }
     #endregion
     

@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Payments;
 
@@ -40,7 +41,7 @@ public class Sales
     /// Employee of the Organization, who handled the sales.
     /// </summary>
     [Required]
-    public Employee? BilledBy { get; set; } 
+    public AuditUser? BilledBy { get; set; } 
     
     /// <summary>
     /// Total Quantity purchased.

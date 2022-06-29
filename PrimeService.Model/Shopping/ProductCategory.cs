@@ -21,4 +21,7 @@ public class ProductCategory
     /// </summary>
     [Required(ErrorMessage = "Category Name is required.")]
     public string? CategoryName { get; set; }
+    
+    //TODO:In future we can bring this from 'MudIcon'
+    //public string? Icon { get; set; }
 }

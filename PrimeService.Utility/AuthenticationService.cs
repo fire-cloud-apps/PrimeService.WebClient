@@ -1,6 +1,11 @@
-﻿using Blazored.LocalStorage;
+﻿using System.Security.Claims;
+using System.Text.Json;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using PrimeService.Model;
+using PrimeService.Model.Common;
+using PrimeService.Model.Settings;
+using PrimeService.Utility.Helper;
 
 namespace PrimeService.Utility;
 public interface IAuthenticationService
@@ -50,6 +55,11 @@ public class AuthenticationService : IAuthenticationService
        {
            User = userResponse;
            User.Password = string.Empty;
+           var claims = Utilities.ParseClaimsFromJwt(User.JwtToken);
+           
+           var auditUser = GetLoginUser(claims);
+           GlobalConfig.LoginUser = auditUser;
+           await _localStorageService.SetItemAsync<AuditUser>("LoginUser", auditUser);
            await _localStorageService.SetItemAsync<User>("user", User);
            await _localStorageService.SetItemAsStringAsync("authToken", User.JwtToken);
            await _localStorageService.SetItemAsStringAsync("refreshToken", User.RefreshToken);
@@ -64,6 +74,34 @@ public class AuthenticationService : IAuthenticationService
        }
        
         return User;
+    }
+
+    private static AuditUser GetLoginUser(IEnumerable<Claim> claims)
+    {
+        AuditUser auditUser = new AuditUser();
+        foreach (var claim in claims)
+        {
+            switch (claim.Type)
+            {
+                case "Id":
+                    auditUser.UserId = claim.Value;
+                    break;
+                case "Email":
+                    auditUser.EmailId = claim.Value;
+                    break;
+                case "Name":
+                    auditUser.Name = claim.Value;
+                    break;
+                case "AccountId":
+                    auditUser.AccountId = claim.Value;
+                    break;
+                case "Picture":
+                    auditUser.Picture = claim.Value;
+                    break;
+            }
+        }
+
+        return auditUser;
     }
 
     private bool _isAuthorized = false;

@@ -33,4 +33,14 @@ public class PageMetaData
     /// </summary>
     public string SortDirection { get; set; } = "A";
 
+    /// <summary>
+    /// Additional Parameters
+    /// </summary>
+    public IList<string> FilterParams { get; set; } = new List<string>();
+    
+    /// <summary>
+    /// Get the Record count after filter & Search
+    /// </summary>
+    public long RecordCount { get; set; } = 0;
+
 }
