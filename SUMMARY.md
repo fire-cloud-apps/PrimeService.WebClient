@@ -1,6 +1,7 @@
 # Table of contents
 
 * [Mud-Blazor-Easy Integration](README.md)
+  * [Get - Login User](mud-blazor-easy-integration/get-login-user.md)
   * [Select Box](mud-blazor-easy-integration/select-box.md)
   * [Auto-Complete](code-reference.md)
   * [Table](mud-blazor-easy-integration/table.md)
