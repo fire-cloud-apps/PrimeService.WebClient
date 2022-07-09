@@ -1,10 +1,4 @@
----
-cover: >-
-  https://images.unsplash.com/photo-1516259762381-22954d7d3ad2?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwxOTcwMjR8MHwxfHNlYXJjaHwyfHxjb2RlfGVufDB8fHx8MTY1NzM1MjA4MQ&ixlib=rb-1.2.1&q=80
-coverY: 0
----
-
-# Code Reference
+# Auto-Complete
 
 ## Auto-Complete
 
