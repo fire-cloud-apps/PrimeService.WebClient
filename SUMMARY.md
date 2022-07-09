@@ -4,6 +4,7 @@
   * [Select Box](mud-blazor-easy-integration/select-box.md)
   * [Auto-Complete](code-reference.md)
   * [Table](mud-blazor-easy-integration/table.md)
+  * [Dialog Box - Invoke](mud-blazor-easy-integration/dialog-box-invoke.md)
 
 ## Reference
 
