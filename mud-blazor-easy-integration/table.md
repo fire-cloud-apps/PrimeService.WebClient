@@ -83,6 +83,36 @@ private TableGroupDefinition<Model.Payments> _groupDefinition = new()
 
 <details>
 
+<summary>Range Filter</summary>
+
+```html
+ <MudDateRangePicker Label="Get Sales, By Date Range"
+                     @bind-DateRange="SelectedDateRange" />
+```
+
+```csharp
+DateRange _dateRange = new DateRange(DateTime.Now.Date, DateTime.Now.AddDays(5).Date);
+private DateRange SelectedDateRange
+{
+	get
+	{
+		return _dateRange;
+	}
+	set
+	{
+		_dateRange = value;
+		Console.WriteLine($"Selected Date Range - From :{_dateRange.Start} End : {_dateRange.End}");
+		string dtRange = $"{_dateRange.Start}-{_dateRange.End}";
+		Console.WriteLine($"Date Range - {dtRange}");
+		OnSearch(dtRange, "Range");
+	}
+}
+```
+
+</details>
+
+<details>
+
 <summary>UI-Code</summary>
 
 ```html
@@ -164,3 +194,13 @@ private TableGroupDefinition<Model.Payments> _groupDefinition = new()
 ```
 
 </details>
+
+{% hint style="info" %}
+Mud Table with&#x20;
+
+1. Grouping
+2. Filter
+3. Range Filter
+4. Search
+5. CRUD Edit
+{% endhint %}
