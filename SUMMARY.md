@@ -2,7 +2,7 @@
 
 * [Mud-Blazor-Easy Integration](README.md)
   * [Select Box](mud-blazor-easy-integration/select-box.md)
-  * [Auto-Complete](mud-blazor-easy-integration/auto-complete.md)
+  * [Auto-Complete](code-reference.md)
 
 ## Reference
 

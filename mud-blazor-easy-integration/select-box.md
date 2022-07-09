@@ -2,6 +2,8 @@
 
 ## Select from Enum
 
+## Select
+
 ```html
 <MudSelect Variant="Variant.Outlined"
          Label="Service/Ticket Type" class="pa-0"
@@ -13,3 +15,16 @@
   }
 </MudSelect>
 ```
+
+```
+public enum TicketType
+{
+    GeneralService,
+    GeneralRepair,
+    Electronics,
+    Bike,
+    Mobile,
+}
+```
+
+The above code binds the enum with Selection box.
