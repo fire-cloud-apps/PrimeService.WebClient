@@ -20,5 +20,5 @@ protected override async Task OnInitializedAsync()
 Important Notes
 
 * This Local Store works only on the Razor Page and does not works on the Dialog Box Load.
-* @inject ILocalStorageService _localStore comes from the_ \_\_Imports.razor
+* `@inject ILocalStorageService`` `_`localStore comes from the`_` ``__Imports.razor`
 {% endhint %}
