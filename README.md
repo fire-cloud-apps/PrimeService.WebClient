@@ -1,4 +1,4 @@
-# Prime.Service!
+# Mud-Blazor-Easy Integration
 
 ## Welcome to Prime Service
 
@@ -8,8 +8,8 @@ Welcome to Prime Service Knowledge base.
 
 Feeling like an eager beaver? Jump in to the quick start docs and get making your first request:
 
-{% content-ref url="quick-start.md" %}
-[quick-start.md](quick-start.md)
+{% content-ref url="broken-reference" %}
+[Broken link](broken-reference)
 {% endcontent-ref %}
 
 ## Want to deep dive?

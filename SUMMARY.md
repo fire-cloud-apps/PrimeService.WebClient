@@ -1,8 +1,8 @@
 # Table of contents
 
-* [Prime.Service!](README.md)
-* [Quick Start](quick-start.md)
-* [Code Reference](code-reference.md)
+* [Mud-Blazor-Easy Integration](README.md)
+  * [Select Box](mud-blazor-easy-integration/select-box.md)
+  * [Auto-Complete](mud-blazor-easy-integration/auto-complete.md)
 
 ## Reference
 
