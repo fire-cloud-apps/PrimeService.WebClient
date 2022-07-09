@@ -67,6 +67,22 @@
 
 <details>
 
+<summary>Grouping Definition</summary>
+
+```csharp
+private TableGroupDefinition<Model.Payments> _groupDefinition = new()
+{
+	GroupName = "Staff",
+	Indentation = true,
+	Expandable = false,
+	Selector = (e) => e.Who.Name
+};
+```
+
+</details>
+
+<details>
+
 <summary>UI-Code</summary>
 
 ```html
