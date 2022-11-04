@@ -11,7 +11,7 @@ namespace FC.PrimeService.Common.Settings.Dialog;
 
 public partial class ServiceCategoryDialog
 {
-     #region Initialization
+    #region Initialization
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
 
@@ -56,8 +56,7 @@ public partial class ServiceCategoryDialog
     }
 
     #endregion
-    
-    
+
     #region Submit, Delete, Cancel Button with Animation
 
     private async Task Submit()

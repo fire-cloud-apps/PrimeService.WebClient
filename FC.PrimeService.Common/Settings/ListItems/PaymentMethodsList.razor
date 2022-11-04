@@ -40,7 +40,7 @@
             </ToolBarContent>
             <HeaderContent>
                 <MudTh><MudTableSortLabel SortLabel="Title" T="PaymentMethods">Title</MudTableSortLabel></MudTh>
-               
+                <MudTh><MudTableSortLabel SortLabel="Is Default" T="PaymentMethods">Is Default</MudTableSortLabel></MudTh>
             </HeaderContent>
            
             <RowTemplate>
@@ -57,6 +57,16 @@
                             <MudText Typo="Typo.body2"> Edit Status - '@context.Title' </MudText>
                         </TooltipContent>
                     </MudTooltip>
+                </MudTd>
+                <MudTd DataLabel="IsDefault">
+                    @if (context.IsDefault)
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.CheckCircle" Color="Color.Success" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.Close" Color="Color.Error" />
+                    }
                 </MudTd>
                
             </RowTemplate>

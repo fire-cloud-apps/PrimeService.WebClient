@@ -29,14 +29,15 @@ public class Sales
     /// Status (Draft, Void, OnHold, Closed, Confirmed)
     /// </summary>
     public SalesStatus Status { get; set; }
-    
+
     /// <summary>
     /// Sales Tag name for ease of identify , can be auto generated.
     /// </summary>
-    public string? SalesTag { get; set; }
-
+    public string? SalesTag { get; set; } = "QuickSales";
+    
     [Required]
     public DateTime TransactionDate { get; set; }
+    
     /// <summary>
     /// Employee of the Organization, who handled the sales.
     /// </summary>
@@ -90,7 +91,7 @@ public enum SalesStatus
     /// <summary>
     /// Draft - This indicates that a SO has been created successfully, but is yet to be sent to the customer.
     /// </summary>
-    [Description("Draft - This indicates that a SO has been created successfully, but is yet to be sent to the customer.")]
+    [Description("Draft - This indicates that a Sales Order(SO) has been created successfully, but is yet to be sent to the customer.")]
     Draft,
     /// <summary>
     /// Confirmed - This indicates that the SO created has been sent to the customer.
@@ -112,6 +113,11 @@ public enum SalesStatus
     /// </summary>
     [Description("On Hold - The status is set as On Hold, when there’s an un-billed back-ordered PO raised for the Sales Order. Once the PO has been billed, the SO will revert back to its previous status.")]
     OnHold,
+    /// <summary>
+    /// Refund - Customer returns the product, due to some exceptional reason. It is upto the retailer to take the call.
+    /// </summary>
+    [Description("Refund - Customer returns the product, due to some exceptional reason. It is upto the retailer to take the call.")]
+    Refund,
 }
 
 public enum PaymentStatus
@@ -127,7 +133,12 @@ public enum PaymentStatus
     [Description("Cancelled - due to customer action.")]
     Cancelled,
     [Description("Failed - due to some technical issue.")]
-    Failed 
+    Failed,
+    /// <summary>
+    /// Completed - The transaction is completed and hence no action required.
+    /// </summary>
+    [Description("Completed - The transaction is completed and hence no action required.")]
+    Completed
 }
 
 public class PurchasedProduct

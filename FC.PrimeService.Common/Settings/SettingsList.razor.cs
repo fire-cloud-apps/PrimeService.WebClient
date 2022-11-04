@@ -169,15 +169,16 @@ public partial class SettingsList
                     ToolTip = "Ticket Default Values",
                     Icon = @Icons.TwoTone.StickyNote2
                 },
-                new SettingsItem()
-                {
-                    Title = "Category",
-                    ButtonColor = Color.Default,
-                    IconColor = Color.Default,
-                    ToolTip = "Service Category",
-                    Icon = @Icons.TwoTone.Air,
-                    Link = $"/SettingsView?viewId=Category"
-                },
+                // new SettingsItem()
+                // {
+                //     Title = "Category",
+                //     ButtonColor = Color.Default,
+                //     IconColor = Color.Default,
+                //     ToolTip = "Service Category",
+                //     Icon = @Icons.TwoTone.Air,
+                //     Link = $"/SettingsView?viewId=Category"
+                // },
+                
                 // new SettingsItem()
                 // {
                 //     Title = "Notification",

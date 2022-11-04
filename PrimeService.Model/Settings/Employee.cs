@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using PrimeService.Model.Common;
 
 namespace PrimeService.Model.Settings;
 
@@ -29,5 +30,16 @@ public class Employee
     [StringLength(15, ErrorMessage = "Mobile length can't be more than 15.")]
     public string Mobile { get; set; }
     
+    public AuditUser ToAuditUser(Employee emp)
+    {
+        return new AuditUser()
+        {
+            AccountId = emp.User.AccountId,
+            Name = emp.User.Name,
+            EmailId = emp.User.Email,
+            Picture = emp.User.Picture,
+            UserId = emp.Id
+        };
+    }
 }
 

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Model.Utility;
 
 namespace PrimeService.Model.Tickets;
 
@@ -8,10 +9,68 @@ namespace PrimeService.Model.Tickets;
 /// </summary>
 public class TicketProperty
 {
-    
-    public static Dictionary<TicketType, Dictionary<string, string>> GetDetails(TicketType type)
+    public static Dictionary<string, IList<CustomField>> GetTicketCustomProperty(TicketType type)
     {
-        Dictionary<TicketType, Dictionary<string, string>> returnData = null;
+        Dictionary<string, IList<CustomField>> returnData = null;
+        switch (type)
+        {
+            case TicketType.Appliances:
+                returnData = BikeFields;
+                break;
+            case TicketType.Mobile:
+                returnData = BikeFields;
+                break;
+            case TicketType.Bike:
+                returnData = BikeFields;
+                break;
+            default:
+                returnData = BikeFields;
+                break;
+        }
+
+        return returnData;
+    }
+
+    #region Custom Field Value
+
+    private static Dictionary<string, IList<CustomField>> BikeFields = new Dictionary<string, IList<CustomField>>()
+    {
+        {
+            TicketType.Bike.ToString(), new List< CustomField>()
+            {
+                new CustomField()
+                {
+                    Property = "Registration No",
+                    Value = ""
+                },
+                new CustomField()
+                {
+                    Property = "Batch Id",
+                    Value = ""
+                },
+                new CustomField()
+                {
+                    Property = "Model",
+                    Value = ""
+                },
+                new CustomField()
+                {
+                    Property = "Fuel Type",
+                    Value = ""
+                },
+                new CustomField()
+                {
+                    Property = "Serial No",
+                    Value = ""
+                }
+            }
+        }
+    };
+
+    #endregion
+    public static Dictionary<string, Dictionary<string, string>> GetTicketProperty(TicketType type)
+    {
+        Dictionary<string, Dictionary<string, string>> returnData = null;
         switch (type)
         {
             case TicketType.Appliances:
@@ -30,10 +89,12 @@ public class TicketProperty
 
         return returnData;
     }
-    public static Dictionary<TicketType, Dictionary<string, string>> Bike = new Dictionary<TicketType, Dictionary<string, string>>()
+    
+    
+    public static Dictionary<string, Dictionary<string, string>> Bike = new Dictionary<string, Dictionary<string, string>>()
     {
         {
-            TicketType.SmartPhone, new Dictionary<string, string>()
+            TicketType.Bike.ToString(), new Dictionary<string, string>()
             {
                 {"Registration No", string.Empty},
                 {"Batch Id", string.Empty},
@@ -43,10 +104,10 @@ public class TicketProperty
             }
         }
     };
-    public static Dictionary<TicketType, Dictionary<string, string>> SmartPhone = new Dictionary<TicketType, Dictionary<string, string>>()
+    public static Dictionary<string, Dictionary<string, string>> SmartPhone = new Dictionary<string, Dictionary<string, string>>()
     {
         {
-            TicketType.SmartPhone, new Dictionary<string, string>()
+            TicketType.SmartPhone.ToString(), new Dictionary<string, string>()
             {
                 {"IMEI No", string.Empty},
                 {"Serial No", string.Empty},
@@ -57,10 +118,10 @@ public class TicketProperty
         }
     };
     
-    public static Dictionary<TicketType, Dictionary<string, string>> Appliances = new Dictionary<TicketType, Dictionary<string, string>>()
+    public static Dictionary<string, Dictionary<string, string>> Appliances = new Dictionary<string, Dictionary<string, string>>()
     {
         {
-            TicketType.Appliances, new Dictionary<string, string>()
+            TicketType.Appliances.ToString(), new Dictionary<string, string>()
             {
                 {"Batch No", string.Empty},
                 {"Serial No", string.Empty},
@@ -73,3 +134,4 @@ public class TicketProperty
 
     
 }
+

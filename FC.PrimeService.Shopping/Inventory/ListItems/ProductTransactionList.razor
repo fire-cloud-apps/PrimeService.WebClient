@@ -92,9 +92,13 @@
                     {
                         <MudIcon Icon="@Icons.TwoTone.ArrowCircleUp" Color="Color.Success" Title="Add" />
                     }
-                    else
+                    else if (context.Action == StockAction.Out)
                     {
                         <MudIcon Icon="@Icons.TwoTone.ArrowCircleDown" Color="Color.Error" Title="Reduce" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.TwoTone.CompareArrows" Color="Color.Info" Title="No change in stock" />
                     }
                 </MudTd>
                 <MudTd DataLabel="Quantity">

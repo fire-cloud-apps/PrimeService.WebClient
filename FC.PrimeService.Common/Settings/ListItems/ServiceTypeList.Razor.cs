@@ -2,10 +2,13 @@
 using FC.PrimeService.Common.Settings.Dialog;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Model.Shopping;
+using PrimeService.Model.Tickets;
 using PrimeService.Utility;
 using PrimeService.Utility.Helper;
 
@@ -97,6 +100,23 @@ public partial class ServiceTypeList
     #endregion
 
     #region Dialog Open Action
+    
+    private async Task Set2Default(MouseEventArgs arg)
+    {
+        var canReset = await Utilities.DeleteConfirm(DialogService, message:"Are you sure? do you want to Reset?", yesTxt:"Reset!");
+        if (canReset)
+        {
+            await SubmitAction(UserAction.RESET);
+            OnSearch(string.Empty);
+            Utilities.SnackMessage(Snackbar, "Reset Completed!", Severity.Warning);
+        }
+        else
+        {
+            Utilities.SnackMessage(Snackbar, "Reset Cancelled!", Severity.Normal);
+        }
+        StateHasChanged();
+    }
+    
     private DialogOptions _dialogOptions = new ()
     {
         MaxWidth = MaxWidth.Small,
@@ -104,6 +124,7 @@ public partial class ServiceTypeList
         CloseButton = true,
         CloseOnEscapeKey = true,
     };
+    
     private async Task OpenEditDialog(ServiceType model)
     {
         Utilities.ConsoleMessage(JsonSerializer.Serialize(model));
@@ -140,4 +161,102 @@ public partial class ServiceTypeList
     }
     
     #endregion
+
+    #region Submit
+    private async Task Submit( ServiceType model)
+    {
+        _processing = true;
+        await form.Validate();
+        if (form.IsValid)
+        {
+            _inputMode = model;
+            var isSuccess = await SubmitAction(UserAction.EDIT);
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "ServiceType Saved!");
+            }
+            Utilities.ConsoleMessage(model.ToJson());
+        }
+        else
+        {
+            _outputJson = "Validation Error occured.";
+            Utilities.ConsoleMessage(_outputJson);
+        }
+        _processing = false;
+    }
+    
+    async Task<bool> SubmitAction(UserAction action)
+    {
+        _processing = true;
+        string url = string.Empty;
+        ServiceType responseModel = null;
+        bool result = false;
+        switch (action)
+        {
+            case UserAction.RESET:
+                _loading = true;
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ServiceTypeApi.Reset2Default}";
+                var restModel = await _httpService.POST<ResponseData<ServiceType>>(url, _inputMode);
+                //var responseModel = await httpService.POST<ResponseData<Client>>(url, pageMetaData);
+                result = (restModel != null);
+                _loading = false;
+                break;
+            case UserAction.EDIT:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ServiceTypeApi.Update}";
+                responseModel = await _httpService.PUT<ServiceType>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ServiceTypeApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            default:
+                break;
+        }
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"ServiceType JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
+    }
+    #endregion
+
+    #region Expansion
+
+    private RenderFragment _panelContent;
+    private ServiceType _inputMode = new ServiceType()
+    {
+        Cost = 250,
+        Price = 150,
+        Title = "General Service",
+        Type = TicketType.GeneralService,
+        Warranty = 90
+    };
+
+    private MudExpansionPanel _panel;
+
+    TicketType _selectedType;
+    private async Task ExpandedChanged(bool newVal)
+    {
+        if (newVal)
+        {
+            await Task.Delay(600);
+            Utilities.ConsoleMessage($"Selected Panel Tag : {_panel.Tag}");
+            Utilities.ConsoleMessage($"Selected Ticket Type : {_selectedType}");
+        }
+        else
+        {
+            // Reset after a while to prevent sudden collapse.
+            Task.Delay(350).ContinueWith(t => _panelContent = null).AndForget(); 
+        }
+    }
+
+    
+
+
+
+    #endregion
+
+    
 }

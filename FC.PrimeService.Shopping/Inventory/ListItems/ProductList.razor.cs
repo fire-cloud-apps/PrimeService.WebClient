@@ -168,7 +168,6 @@ public partial class ProductList
         return responseModel;
     }
     
-
     #endregion
     
     #region Grid View
@@ -241,7 +240,11 @@ public partial class ProductList
     private async Task InvokeDialog(string parameter, string title, Model.ProductCategory model)
     {
         var parameters = new DialogParameters
-            { [parameter] = model }; //'null' indicates that the Dialog should open in 'Add' Mode.
+        {
+            ["ProductCategory"] = model,
+            ["UserAction"] =  UserAction.ADD as object,
+            ["Title"] = title
+        };
         var dialog = DialogService.Show<ProductCategoryDialog>(title, parameters, _dialogOptions);
         var result = await dialog.Result;
 

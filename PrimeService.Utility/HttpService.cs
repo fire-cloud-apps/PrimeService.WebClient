@@ -137,7 +137,7 @@ public class HttpService : IHttpService
         T result = default;
         using var response = await _httpClient.SendAsync(request);
         var resRes = await response.Content.ReadAsStringAsync();
-        Utilities.ConsoleMessage($"Status Code :{response.StatusCode}");
+        //Utilities.ConsoleMessage($"Status Code :{response.StatusCode}");
         
         if (response.IsSuccessStatusCode)
         {

@@ -173,6 +173,17 @@
                                      Immediate="true" />
                 </MudItem>
                 <MudItem xs="12" sm="6" md="4">
+                    <MudNumericField Disabled="@_isReadOnly" Label="Discount Percentage" 
+                                     AdornmentIcon="@Icons.TwoTone.Discount"
+                                     HelperText="Max 5 Character Allowed"
+                                     @bind-Value="_inputMode.Discount"
+                                     For="@(() => _inputMode.Discount)"
+                                     MaxLength="2"
+                                     Min="0"
+                                     Max="90"
+                                     Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
                     <MudNumericField Disabled="@_isReadOnly" Label="Additional Cost" 
                                      AdornmentIcon="@Icons.Material.TwoTone.CurrencyRupee"
                                      HelperText="Max 5 Character Allowed"
@@ -244,9 +255,9 @@
 </MudCardContent>
 <MudCardActions Class="@($"pa-0 mt-0 d-flex justify-end")">
     <MudToolBar>
-        <MudTooltip Text="Actions to be Performed" Arrow="true" Placement="Placement.Bottom">
-            <MudIconButton Icon="@Icons.Material.Outlined.TaskAlt"/>
-        </MudTooltip>
+        @* <MudTooltip Text="Actions to be Performed" Arrow="true" Placement="Placement.Bottom"> *@
+        @*     <MudIconButton Icon="@Icons.Material.Outlined.TaskAlt"/> *@
+        @* </MudTooltip> *@
         <MudTooltip Text="Print the 'Product' details & History" Arrow="true" Placement="Placement.Bottom">
             <MudIconButton OnClick="PrintProduct" Icon="@Icons.Material.Outlined.Print"/>
         </MudTooltip>

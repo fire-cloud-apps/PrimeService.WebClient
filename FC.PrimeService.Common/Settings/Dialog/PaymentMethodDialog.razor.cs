@@ -55,10 +55,9 @@ public partial class PaymentMethodDialog
     #endregion
     
     #region Submit, Delete, Cancel Button with Animation
-
+    private string _eventMessage = "Payment Methods Saved!";
     private async Task Submit()
     {
-        
         await form.Validate();
 
         if (form.IsValid)
@@ -67,7 +66,7 @@ public partial class PaymentMethodDialog
             if (isSuccess)
             {
                 _outputJson = JsonSerializer.Serialize(_inputMode);
-                Utilities.SnackMessage(Snackbar, "ServiceType Saved!");
+                Utilities.SnackMessage(Snackbar, _eventMessage);
                 MudDialog.Close(DialogResult.Ok(true));
             }
         }
@@ -92,9 +91,17 @@ public partial class PaymentMethodDialog
                 result = (responseModel != null);
                 break;
             case UserAction.EDIT:
-                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentMethodsApi.Update}";
-                responseModel = await _httpService.PUT<PaymentMethods>(url, _inputMode);
-                result = (responseModel != null);
+                if (_inputMode.IsDefault)
+                {
+                    result = await SetDefaultAccount();
+                    _eventMessage = $"Payment Method : '{_inputMode.Title}' set as Default.";
+                }
+                else
+                {
+                    url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentMethodsApi.Update}";
+                    responseModel = await _httpService.PUT<PaymentMethods>(url, _inputMode);
+                    result = (responseModel != null);
+                }
                 break;
             case UserAction.DELETE:
                 url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentMethodsApi.Delete}";
@@ -107,6 +114,15 @@ public partial class PaymentMethodDialog
         Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
         Utilities.ConsoleMessage($"PaymentMethods JSON : {_inputMode.ToJson()}");
         _processing = false;
+        return result;
+    }
+    private async Task<bool> SetDefaultAccount()
+    {
+        string url = string.Empty;
+        PaymentMethods responseModel = null;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentMethodsApi.SetDefault}";
+        responseModel = await _httpService.PUT<PaymentMethods>(url, _inputMode);
+        var result = (responseModel != null);
         return result;
     }
     private void Cancel()
@@ -129,5 +145,7 @@ public partial class PaymentMethodDialog
         }
         StateHasChanged();
     }
+    
+    
     #endregion
 }

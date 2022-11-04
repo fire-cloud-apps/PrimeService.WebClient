@@ -2,19 +2,27 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Payments;
 using PrimeService.Model.Tickets;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 
 namespace FC.PrimeService.Tickets.ActivityTask.Dialog;
 
 public partial class ActivityTaskDialog
 {
-     #region Global Variables
+    #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
     private string _title = string.Empty;
-    [Parameter] public ActivityTasks _TaskDetails { get; set; } 
+    #region Dialog Parameters
+    [Parameter] public ActivityTasks TaskDetails { get; set; } 
+    [Parameter] public string Title { get; set; }
+    [Parameter] public UserAction UserAction { get; set; }
+    [Parameter] public IList<ActivityTasks> TaskList { get; set; }
+    #endregion
     private bool _processing = false;
     MudForm form;
     private ActivityTasks _inputMode;
@@ -23,58 +31,40 @@ public partial class ActivityTaskDialog
     string[] errors = { };
     private bool _isReadOnly = false;
     private ActivityTasks TaskItem = null;
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
     #endregion
 
     #region Load Async
+
     protected override async Task OnInitializedAsync()
     {
-        if (_TaskDetails == null)
-        {
-            //Dialog box opened in "Add" mode
-            //No Add mode.
-            _inputMode = new ActivityTasks();
-            _title = "Add Task";
-        }
-        else
-        {
-            //Dialog box opened in "Edit" mode
-            _inputMode = _TaskDetails;
-            _title = "Edit Task";
-        }
+        _httpService = new HttpService(_httpClient, _navigationManager,
+            _localStore, _configuration, Snackbar);
+        //Dialog box opened in "Edit" mode
+        _inputMode = TaskDetails;
+        _title = "Enter Task";
     }
+
     #endregion
     
     #region Staff/Employee Search - Autocomplete
-    
-    public List<Employee> _employees = new List<Employee>()
+
+    public List<AuditUser> _employees = new List<AuditUser>();
+
+    private async Task<IEnumerable<AuditUser>> Employee_SearchAsync(string value)
     {
-        new Employee(){ User = new User(){ Name = "SRG"}},
-        new Employee(){ User = new User(){ Name = "Alam"}},
-        new Employee(){ User = new User(){ Name = "Priti"}},
-        new Employee(){ User = new User(){ Name = "Joshmi"}},
-    };
-
-    private async Task<IEnumerable<Employee>> Employee_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-        Console.WriteLine($"Find Client : '{value}'");
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
+        var responseData = await Utilities.GetEmployee(_appSettings, _httpService, value);
+        var employees = responseData.Items;
+        List<AuditUser> auditUserList = new List<AuditUser>();
+        foreach (var emp in employees)
         {
-            return _employees;
+            auditUserList.Add(emp.ToAuditUser(emp));
         }
-
-        var result = _employees.Where(x => x.User.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-        if (result.FirstOrDefault() == null)
-        {
-            result = new List<Employee>()
-            {
-                new Employee() { User = new User() { Name = "Not Found" } }
-            };
-        }
-
-        return result;
+        Utilities.ConsoleMessage($"Find Audit Users : '{value}'" );
+        return auditUserList;
     }
 
     #endregion
@@ -87,12 +77,7 @@ public partial class ActivityTaskDialog
     #endregion
 
     #region Submit Button with Animation
-    async Task ProcessSomething()
-    {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
-    }
+    
 
     private async Task Submit()
     {
@@ -101,23 +86,25 @@ public partial class ActivityTaskDialog
         if (form.IsValid)
         {
             // //Todo some animation.
-            await ProcessSomething();
-
+            //await ProcessSomething();
+            TaskList.Add(_inputMode);
             //Do server actions.
             _outputJson = JsonSerializer.Serialize(_inputMode);
-
+            
             //Success Message
             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
             Snackbar.Configuration.SnackbarVariant = Variant.Filled;
             //Snackbar.Configuration.VisibleStateDuration  = 2000;
             //Can also be done as global configuration. Ref:
             //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submitted!", Severity.Success);
+            Snackbar.Add("Task Added!", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
         }
         else
         {
             _outputJson = "Validation Error occured.";
             Console.WriteLine(_outputJson);
+            MudDialog.Close(DialogResult.Cancel());
         }
     }
 

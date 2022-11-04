@@ -63,7 +63,8 @@ public partial class ProductComponent
             _inputMode = new Model.Product()
             {
                 Category = new Model.ProductCategory(),
-                TaxGroup = new Tax()
+                TaxGroup = new Tax(),
+                
             };
             _editToggle = true;
             _display = "d-flex";
@@ -133,9 +134,9 @@ public partial class ProductComponent
             SearchText = (string.IsNullOrEmpty(searchValue)) ? "0" : searchValue,
             Page = 0,
             PageSize = 10,
-            SortLabel = "Name",
+            SortLabel = "TransactionDate",
             SearchField = "ProductId",
-            SortDirection = "A"
+            SortDirection = "D"
         };
         var responseModel = await _httpService.POST<ResponseData<Model.ProductTransaction>>
             (url, pageMetaData);
@@ -228,7 +229,6 @@ public partial class ProductComponent
         _processing = false;
         return result;
     }
-    
     
     async Task Delete()
     {

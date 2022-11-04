@@ -3,6 +3,8 @@
 @using global::PrimeService.Utility.ValidationHelper
 @using System.Text.Json
 @using global::PrimeService.Model.Settings.Tickets
+@using global::PrimeService.Model.Tickets
+@using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 @inject ISnackbar Snackbar
 @inject IJSRuntime JsRuntime
@@ -71,16 +73,25 @@
                     
                 <MudGrid>
                     <MudItem xs="12" sm="12" md="12">
-                        <MudAutocomplete T="ServiceCategory" Label="Service Category"
-                                         HelperText="Select Service Category"
-                                         @bind-Value="_inputMode.Category"
-                                         ToStringFunc="@(e => e == null ? null : $"{e.CategoryName}")"
-                                         Required="true"
-                                         RequiredError="Please Select Work Location"
-                                         SearchFunc="@ServiceCategory_SearchAsync" Immediate="true"
-                                         ResetValueOnEmptyText="true"
-                                         CloseIcon="@Icons.Material.Filled.Search"
-                                         AdornmentColor="Color.Tertiary"/>
+                        <MudSelect 
+                                   Label="Service/Ticket Type" class="pa-0"
+                                   @bind-Value="_inputMode.Type"
+                                   OpenIcon="@Icons.Material.TwoTone.Tab" AdornmentColor="Color.Secondary">
+                            @foreach (TicketType item in Enum.GetValues(typeof(TicketType)))
+                            {
+                                <MudSelectItem Value="@item">@item</MudSelectItem>
+                            }
+                        </MudSelect>
+                        @* <MudAutocomplete T="ServiceCategory" Label="Service Category" *@
+                        @*                  HelperText="Select Service Category" *@
+                        @*                  @bind-Value="_inputMode.Category" *@
+                        @*                  ToStringFunc="@(e => e == null ? null : $"{e.CategoryName}")" *@
+                        @*                  Required="true" *@
+                        @*                  RequiredError="Please Select Work Location" *@
+                        @*                  SearchFunc="@ServiceCategory_SearchAsync" Immediate="true" *@
+                        @*                  ResetValueOnEmptyText="true" *@
+                        @*                  CloseIcon="@Icons.Material.Filled.Search" *@
+                        @*                  AdornmentColor="Color.Tertiary"/> *@
                         @* Validation="@(new Func<string, IEnumerable<string>>(Validate))" *@
                     </MudItem>
                    

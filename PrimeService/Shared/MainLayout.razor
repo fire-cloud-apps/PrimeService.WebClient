@@ -16,14 +16,13 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-
-
+    
 @* <MudThemeManager Open="_themeManagerOpen" OpenChanged="OpenThemeManager" Theme="_themeManager" ThemeChanged="UpdateTheme" /> *@
 @*  <MudThemeManagerButton OnClick="@(() => OpenThemeManager(true))" /> *@
 @*  Elevation="_themeManager.AppBarElevation" -to be added in appBar *@
 
 <MudAppBar Elevation="2" Bottom="false"> 
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" 
+    <MudIconButton Icon="@Icons.Material.Filled.Menu"
                    Color="Color.Inherit" Edge="Edge.Start" 
                    OnClick="@((e) => DrawerToggle())" />
     <MudSpacer />

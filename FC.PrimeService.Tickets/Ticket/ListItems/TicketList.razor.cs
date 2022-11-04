@@ -1,12 +1,15 @@
 ﻿using System.Text.Json;
+using Humanizer;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Forms;
 using PrimeService.Model.Settings.Payments;
 using PrimeService.Model.Settings.Tickets;
+using PrimeService.Utility;
 using Model = PrimeService.Model.Tickets;
 using Shop = PrimeService.Model.Shopping;
 
@@ -14,6 +17,7 @@ namespace FC.PrimeService.Tickets.Ticket.ListItems;
 
 public  partial class TicketList
 {
+
     #region Variables
     [Inject] 
     ISnackbar Snackbar { get; set; }
@@ -28,8 +32,8 @@ public  partial class TicketList
     private int totalItems;
     [Parameter] public string? Id { get; set; } 
     private string searchString = null;
-    DateRange _dateRange = new DateRange(DateTime.Now.Date, DateTime.Now.AddDays(5).Date);
-
+    private DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-10).Date, DateTime.Now.Date);
+    
     private DateRange SelectedDateRange
     {
         get
@@ -65,7 +69,6 @@ public  partial class TicketList
     
     #endregion
     
-    
     IEnumerable<Model.TicketService> _data = new List<Model.TicketService>()
     {
         new Model.TicketService()
@@ -80,92 +83,19 @@ public  partial class TicketList
             TargetDate = DateTime.Now.AddDays(2),
             TotalAmount = 5000,
             Reasons = "Audio is not clear",
-            AssignedTo =  new Employee()
+            AssignedTo = new AuditUser()
             {
-                    User = new User()
-                    {
-                    Name = "Alam"
-                }
+                Name = "SRG"
             },
-            EnteredBy = new Employee()
+            EnteredBy = new AuditUser()
             {
-                User = new User()
-                {
-                    Name = "SR Ganesh Ram"
-                }
+                Name = "SR Ganesh Ram"
             },
             Client = new Shop.Client()
             {
                 Name = "SRG",
                 Mobile = "8589645123"
             }
-        
-        },
-        new Model.TicketService()
-        {
-            Id = "85893409jdl934l34l43",
-            TicketNo = "TN#5.30.2022.1",
-            CreatedDate = DateTime.Now.AddDays(5),
-            TicketStatus = new Status(){ Name = "Init" },
-            AdvanceAmount = 5000,
-            Appearance = "Slightly Damaged",
-            BalanceAmount = 5000,
-            TargetDate = DateTime.Now.AddDays(5),
-            TotalAmount = 10000,
-            Reasons = "Audio is not clear",
-            AssignedTo =  new Employee()
-            {
-                User = new User()
-                {
-                    Name = "Alam"
-                }
-            },
-            EnteredBy = new Employee()
-            {
-                User = new User()
-                {
-                    Name = "SR Ganesh Ram"
-                }
-            },
-            Client = new Shop.Client()
-            {
-                Name = "SRG",
-                Mobile = "8589645123"
-            }
-        
-        },
-        new Model.TicketService()
-        {
-            Id = "58899409OLKI934l34l43",
-            TicketNo = "TN#5.31.2022.3",
-            CreatedDate = DateTime.Now.AddDays(5),
-            TicketStatus = new Status(){ Name = "Init" },
-            AdvanceAmount = 5000,
-            Appearance = "No Physical Damage found",
-            BalanceAmount = 5000,
-            TargetDate = DateTime.Now.AddDays(5),
-            TotalAmount = 10000,
-            Reasons = "Audio is not clear",
-            AssignedTo =  new Employee()
-            {
-                User = new User()
-                {
-                    Name = "SRG"
-                }
-            },
-            EnteredBy = new Employee()
-            {
-                User = new User()
-                {
-                    Name = "SR Ganesh Ram"
-                }
-            },
-            Client = new Shop.Client()
-            {
-                Name = "SRG",
-                Mobile = "8589645123"
-            }
-        
         }
     };
 
@@ -221,65 +151,14 @@ public  partial class TicketList
         GroupName = "Target Date",
         Indentation = false,
         Expandable = false,
-        Selector = (e) => e.TargetDate
+        Selector = (e) => e.TargetDate.Humanize()
     };
-    #endregion
-
-    #region Initialization Load
-    protected override async Task OnInitializedAsync()
-    {
-        _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
-        
-        _loading = false;
-        StateHasChanged();
-    }
-    #endregion
-
-    #region Grid View
+    
     /// <summary>
-    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// HTTP Request
     /// </summary>
-    private async Task<TableData<Model.TicketService>> ServerReload(TableState state)
-    {
-        IEnumerable<Model.TicketService> data = _data;
-            //await  _httpClient.GetFromJsonAsync<List<User>>("/public/v2/users");
-        await Task.Delay(300);
-        data = data.Where(element =>
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.TicketNo.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }).ToArray();
-        totalItems = data.Count();
-        switch (state.SortLabel)
-        {
-            case "Date":
-                data = data.OrderByDirection(state.SortDirection, o => o.CreatedDate);
-                break;
-            case "TicketStatus":
-                data = data.OrderByDirection(state.SortDirection, o => o.TicketStatus.Name);
-                break;
-            case "Balance":
-                data = data.OrderByDirection(state.SortDirection, o => o.BalanceAmount);
-                break;
-            default:
-                data = data.OrderByDirection(state.SortDirection, o => o.TargetDate);
-                break;
-        }
-        
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        Console.WriteLine($"Table State : {JsonSerializer.Serialize(state)}");
-        return new TableData<Model.TicketService>() {TotalItems = totalItems, Items = pagedData};
-    }
-    private void OnSearch(string text)
-    {
-        searchString = text;
-        table.ReloadServerData();
-    }
+    private IHttpService _httpService;
+    private User _loginUser;
     #endregion
     
     #region Add Action

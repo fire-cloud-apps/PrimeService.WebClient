@@ -1,4 +1,5 @@
-﻿using PrimeService.Model.Settings;
+﻿using PrimeService.Model.Common;
+using PrimeService.Model.Settings;
 
 namespace PrimeService.Model.Tickets;
 
@@ -27,7 +28,7 @@ public class ActivityTasks
     public string Title { get; set; }
     public string Notes { get; set; }
 
-    public Employee AssignedTo { get; set; }
+    public AuditUser AssignedTo { get; set; }
     public bool IsCompleted { get; set; }
     
     public DateTime? TargetDate { get; set; }

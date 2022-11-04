@@ -1,4 +1,6 @@
-﻿namespace PrimeService.Model.Common;
+﻿using PrimeService.Model.Settings;
+
+namespace PrimeService.Model.Common;
 
 /// <summary>
 /// To Capture Transaction details
@@ -25,4 +27,6 @@ public class AuditUser
     /// User Picture in URL or in Base64
     /// </summary>
     public string? Picture { get; set; }
+
+    
 }

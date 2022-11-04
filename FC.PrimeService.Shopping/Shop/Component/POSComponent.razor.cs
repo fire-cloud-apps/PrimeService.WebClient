@@ -2,6 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Schema;
 using FC.PrimeService.Shopping.Client.Dialog;
 using FC.PrimeService.Shopping.Inventory.Dialog;
 using FC.PrimeService.Shopping.Shop.Dialog;
@@ -9,10 +10,14 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Win32.SafeHandles;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.IdGenerators;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Payments;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using Model = PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Shopping.Shop.Component;
@@ -24,8 +29,8 @@ public partial class POSComponent
     [Inject] ISnackbar Snackbar { get; set; }
     MudForm form;
     private bool _loading = false;
-    private string _display = "d-none";//Display 'none' during loading.
-    public Model.Sales _inputMode;
+    private string _display = "d-flex";//"d-none";//Display 'none' during loading.
+    private Model.Sales _inputMode;
 
     private string _termsCondition = "1. Goods once sold will not be taken back or Exchanged \n" +
                                      "2. A late fee of 5% of due amount will be added for delayed payments";
@@ -43,108 +48,199 @@ public partial class POSComponent
     private bool _processing = false;
     private bool _isReadOnly = false;
     private bool _editToggle = false;
-    private Model.SalesStatus _selectedStatus { get; set; } = Model.SalesStatus.Draft;
+    private Model.SalesStatus _selectedStatus { get; set; } = Model.SalesStatus.Confirmed;
+    
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
+    private UserAction UserAction;
     
     #endregion
     
+    #region Load Async
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details for now it is filled as Static value
-        int serialNo = 1; //should come from DB
-        var datetime = DateTime.Now;
-        var formatInfo = new CultureInfo("en-US").DateTimeFormat;
-        formatInfo.DateSeparator = ".";
-        var billNumber = 
-            string.Concat(
-            "SL",
-            "#",
-            datetime.ToString("d", formatInfo), 
-            ".", 
-            serialNo);
-        _inputMode = new Model.Sales()
+        _httpService = new HttpService(_httpClient, _navigationManager, 
+            _localStore, _configuration, Snackbar);
+        await GetPaymentMethods_ByBatch();
+         
+        if (string.IsNullOrEmpty(Id))
         {
-            Id = "6270d1cce5452d9169e86c50",
-            
-            BillNumber = billNumber,
-            TransactionDate = DateTime.Now,
-            Client = new Model.Client()
+            UserAction = UserAction.ADD;
+            var billNo = await GenerateBillNo();
+            var responseData = await Utilities.GetClients(_appSettings, _httpService, "00-000");
+             var guestClient = responseData.Items.FirstOrDefault();
+            _inputMode = new Model.Sales()
             {
-                Name = "Guest", Mobile = "1234567890"
-            },
-            PaymentMethod = new PaymentMethods() { Id = "125", Title = "Cash" }
-        };
-        
-        Console.WriteLine($"Id Received: {Id}"); //Use this id and get the values from 'API'
-        if (Id == null)
-        {
-            Console.WriteLine("Add Mode");
+                BillNumber = billNo,
+                TransactionDate = DateTime.Now,
+                Status = Model.SalesStatus.Draft,
+                BilledBy = await Utilities.GetLoginUser(_localStore),
+                Client = guestClient,
+                Products = _salesTransaction,
+                PaymentAccount = await Utilities.GetDefault_PaymentAccount(_appSettings, _httpService),
+                PaymentStatus = Model.PaymentStatus.Paid,
+                PaymentMethod = await Utilities.GetDefault_PaymentMethods(_appSettings, _httpService)
+            };
             _editToggle = true;
-            _display = "d-flex";
+            //_display = "d-flex";
             _isReadOnly = false;
         }
         else
         {
-            Console.WriteLine("Edit Mode");
-            _display = "d-none";
+            UserAction = UserAction.EDIT;
+            _inputMode = await Get_Sales(Id);
+            _salesTransaction = _inputMode.Products;
+            Console.WriteLine($"Edit Data {_inputMode.ToJson()}");
+            //_display = "d-none";
             _editToggle = false;
             Console.WriteLine($"Id: {Id}");
-            //Do ajax call and assign it to _inputMode
+            CalculateSales();
+            //TODO: Get the details from 'Sales'
         }
         _loading = false;
         StateHasChanged();
     }
-    
-    #region Submit Button with Animation
-    async Task ProcessSomething()
+    #endregion
+
+    #region Get Default Payment Account
+
+    private async Task<Model.Sales> Get_Sales(string salesId)
     {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.SalesApi.GetDetails}";
+        url = string.Format(url, salesId);
+        Utilities.ConsoleMessage($"Get Sales Data: {url}");
+        var data = await _httpService.GET<Model.Sales>(url);
+        _loading = false;
+        return data;
     }
-    
-    private async Task Submit()
+    private async Task<PaymentTags> GetDefault_PaymentAccount()
     {
-        await form.Validate();
-
-        if (form.IsValid)
-        {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submited!", Severity.Success);
-        }
-        else
-        {
-            _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
-        }
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentTagsApi.GetDefault}";
+        Utilities.ConsoleMessage($"Default Account No: {url}");
+        var accounts = await _httpService.GET<PaymentTags>(url);
+        _loading = false;
+        return accounts;
     }
 
     #endregion
-
-    #region Fake Data
-
-    private Task GetFakeData()
+    
+    #region Generate Sales Unique Id
+    private async Task<string> GenerateBillNo()
     {
-        throw new NotImplementedException();
+        _loading = true;
+        string url = string.Empty;
+        url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.SalesApi.GenerateBillNo}";
+        Utilities.ConsoleMessage($"Generate Bill No: {url}");
+        var serialNumber = await _httpService.GET<SerialNumber>(url);
+        _loading = false;
+        return serialNumber.Preview;
     }
+    #endregion
+    
+    #region Client Search - Autocomplete
 
+    private IEnumerable<Model.Client> _clients = new List<Model.Client>();
+    
+    private async Task<IEnumerable<Model.Client>> Client_SearchAsync(string value)
+    {
+        var responseData = await Utilities.GetClients(_appSettings, _httpService, value);
+        _clients = responseData.Items;
+        Console.WriteLine($"Find Client : '{value}'" );
+        return _clients;
+    }
+    
+    #endregion
+    
+    #region Product Search & BarCode Search - Autocomplete
+    private Model.Product _selectedProduct = new Model.Product();
+    private IEnumerable<Model.Product> _productList = new List<Model.Product>();
+    
+    private async Task<IEnumerable<Model.Product>> Product_SearchAsync(string value)
+    {
+        var responseData = await GetProduct_DataByBatch(value);
+        _productList = responseData.Items;
+        Utilities.ConsoleMessage($"Product Count : {_productList.Count()}");
+        return _productList;
+    }
+    
+    #region Product - AutoComplete Ajax call
+    private async Task<ResponseData<Model.Product>> GetProduct_DataByBatch
+    (string searchValue, string searchField ="Name")
+    {
+        Utilities.ConsoleMessage("3. GetProduct_DataByBatch");
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.ProductApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = (string.IsNullOrEmpty(searchValue)) ? string.Empty : searchValue,
+            Page = 0,
+            PageSize = 10,
+            SortLabel = "Name",
+            SearchField = searchField,
+            SortDirection = "A"
+        };
+        var responseModel = await _httpService.POST<ResponseData<Model.Product>>(url, pageMetaData);
+        return responseModel;
+    }
+    #endregion
+    
+    private async Task ProductSelected_Changed(Model.Product selectedProduct)
+    {
+        if (selectedProduct != null)
+        {
+            Console.WriteLine($"Selected Product - Name: {selectedProduct.Name} | BarCode: {selectedProduct.Barcode}");
+            AddAndCalculate(selectedProduct);
+        }
+    }
     #endregion
 
+    #region Find by BarCode
+    private string? _barCode = string.Empty;
+    private MudTextField<string> _barcodeMudTextField;
+    private string? GetBarCode
+    {
+        get => _barCode;
+        set
+        {
+            _barCode = value;
+            if(string.IsNullOrEmpty(_barCode)) return;
+            
+            Utilities.ConsoleMessage("1. GetBarCode");
+            AddProductToSales(_barCode);
+            Utilities.ConsoleMessage($"Bind BarCode: {_barCode}");
+        }
+    }
+    
+    /// <summary>
+    /// Search the exact value of the barcode.
+    /// </summary>
+    /// <param name="value">BarCode value</param>
+    /// <returns>returns Product</returns>
+    private async Task<IEnumerable<Model.Product>> ProductBar_SearchAsync(string value)
+    {
+        Utilities.ConsoleMessage("2. ProductBar_SearchAsync");
+        var responseData = await GetProduct_DataByBatch(value, "Barcode");
+        _productList = responseData.Items;
+        return _productList;
+    }
 
+    
+    private async Task BarCode_ValueChanged(string arg)
+    {
+        Console.WriteLine($"BarCode : {arg}");
+        Console.WriteLine($"Bind BarCode: {_barCode}");
+    }
+    
+
+    #endregion
+    
     #region Tool Bar Action Dialogs
-
     private async Task OpenExpandPOS()
     {
         var url = $"/SalesFullView?Id={_inputMode.Id}";
@@ -168,211 +264,6 @@ public partial class POSComponent
         //d-flex or d-none
     }
     
-    
-  
-
-    #endregion
-
-    #region Client Search - Autocomplete
-    public List<Model.Client> _clients = new List<Model.Client>()
-    {
-        new Model.Client() { Name = "SRG", Mobile = "8596963"},
-        new Model.Client() { Name = "Alam", Mobile = "96936"},
-        new Model.Client() { Name = "Pritish", Mobile = "74512"},
-        new Model.Client() { Name = "Joshmitha", Mobile = "556326"},
-        
-    };
-    private async Task<IEnumerable<Model.Client>> Client_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-        Console.WriteLine($"Find Client : '{value}'" );
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _clients;
-        }
-        var result = _clients.Where(x => x.Mobile.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-        if (result.FirstOrDefault() == null)
-        {
-            result = new List<Model.Client>()
-            {
-                new Model.Client() { Name = "Customer Not found", Mobile = "" }
-            };
-        }
-        return result;
-    }
-
-    #endregion
-    
-    #region Product Search & BarCode Search - Autocomplete
-
-    private Model.Product _selectedProduct = new Model.Product();
-    public List<Model.Product> _productList = new List<Model.Product>()
-    {
-        new Model.Product()
-        {
-            Id = "6270d1cce5452d9169e86c50",
-            Barcode = "0002671908",
-            Name = "Samsung Mobile M31",
-            Notes = "Some Data",
-            Discount = 0.5d,
-            Quantity = 5,
-            SellingPrice = 100,
-            Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
-        },
-        new Model.Product()
-        {
-            Id = "6270d1cce5452d9169e86c51",
-            Barcode = "0002687419",
-            Name = "Samsung Mobile M32",
-            Notes = "Some Data",
-            Discount = 0.8d,
-            Quantity = 15,
-            SellingPrice = 200,
-            Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
-        },
-        new Model.Product()
-        {
-            Id = "6270d1cce5452d9169e86c52",
-            Barcode = "0002671930" ,
-            Name = "Samsung Mobile M33",
-            Notes = "Some Data",
-            Discount = 5.0d,
-            Quantity = 10,
-            SellingPrice = 300,
-            Category = new Model.ProductCategory(){ CategoryName = "Mobile"}
-        },
-        new Model.Product()
-        {
-            Id = "6270d1cce5452d9169e86c60",
-            Barcode = "0002671901" ,
-            Name = "Lenovo L67",
-            Notes = "Some Data",
-            Discount = 6.5d,
-            Quantity = 25,
-            SellingPrice = 500,
-            Category = new Model.ProductCategory(){ CategoryName = "Laptop"}
-        },
-        
-    }; // In reality it should come from API.
-    
-    private async Task<IEnumerable<Model.Product>> Product_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _productList;
-        }
-        return _productList.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
-
-    private async Task ProductSelected_Changed(Model.Product selectedProduct)
-    {
-        if (selectedProduct != null)
-        {
-            Console.WriteLine($"Selected Product - Name: {selectedProduct.Name} | BarCode: {selectedProduct.Barcode}");
-            AddAndCalculate(selectedProduct);
-        }
-        
-    }
-    
-    /// <summary>
-    /// Search the exact value of the barcode.
-    /// </summary>
-    /// <param name="value">BarCode value</param>
-    /// <returns>returns Product</returns>
-    private async Task<IEnumerable<Model.Product>> ProductBar_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _productList;
-        }
-        return _productList.Where(x => x.Barcode == value);
-    }
-
-    private string? _barCode = string.Empty;
-    private MudTextField<string> _barcodeMudTextField;
-    private string? GetBarCode
-    {
-        get => _barCode;
-        set
-        {
-            _barCode = value;
-            AddProductToSales(_barCode);
-            Console.WriteLine($"Bind BarCode: {_barCode}");
-        }
-    }
-    private async Task BarCode_ValueChanged(string arg)
-    {
-        //ValueChanged="BarCode_ValueChanged"
-        Console.WriteLine($"BarCode : {arg}");
-        Console.WriteLine($"Bind BarCode: {_barCode}");
-    }
-
-    #endregion
-    
-    #region Tax Search - Autocomplete
-    public List<Tax> _taxList = new List<Tax>()
-    {
-        new Tax()
-        {
-            Title = "0.00% - No Tax",
-            TaxRate = 0.0f,
-            Description = "No tax applied for the goods."
-        },
-        new Tax()
-        {
-            Title = "0.25% - Tax",
-            TaxRate = 0.25f,
-            Description = "Cut and semi-polished stones are included under this tax slab."
-        },
-        new Tax()
-        {
-            Title = "5% - Tax",
-            TaxRate = 5.0f,
-            Description = "Household necessities such as edible oil, sugar, spices, tea, and coffee (except instant) are included. Coal, Mishti/Mithai (Indian Sweets) and Life-saving drugs are also covered under this GST slab."
-        },
-        new Tax()
-        {
-            Title = "12% - Tax",
-            TaxRate = 12.0f,
-            Description = "This includes computers and processed food."
-        },
-        new Tax()
-        {
-            Title = "18% - Tax",
-            TaxRate = 18.0f,
-            Description = "Hair oil, toothpaste and soaps, capital goods and industrial intermediaries are covered in this slab."
-        },
-        new Tax()
-        {
-            Title = "28% - Tax",
-            TaxRate = 28.0f,
-            Description = "Luxury items such as small cars, consumer durables like AC and Refrigerators, premium cars, cigarettes and aerated drinks, High-end motorcycles are included here."
-        },
-        
-    }; // In reality it should come from API.
-    private async Task<IEnumerable<Tax>> Tax_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _taxList;
-        }
-        return _taxList.Where(x => x.Title.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
-
     #endregion
     
     private async Task LoadMore()
@@ -380,49 +271,49 @@ public partial class POSComponent
         _navigationManager.NavigateTo($"/Sales?viewId=POS&Id={_inputMode.Id}");
     }
 
-    #region Payment Methods
+    #region Load Payment Methods 
 
     /// <summary>
     /// Assume that this comes from Ajax call.
     /// </summary>
-    private IList<PaymentMethods> _paymentMethods = new List<PaymentMethods>()
-    {
-        new PaymentMethods()
-        {
-            Id = "123",
-            Title = "Cash"
-        },
-        new PaymentMethods()
-        {
-            Id = "452",
-            Title = "Card"
-        },
-        new PaymentMethods()
-        {
-            Id = "7896",
-            Title = "QR"
-        },
-        new PaymentMethods()
-        {
-            Id = "969",
-            Title = "Cashless"
-        },
-    };
+    private IEnumerable<PaymentMethods> _paymentMethods = new List<PaymentMethods>();
     
+    private async Task<ResponseData<PaymentMethods>> GetPaymentMethods_ByBatch()
+    {
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentMethodsApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = string.Empty,
+            Page = 0,
+            PageSize = 15,
+            SortLabel = "Title",
+            SearchField = "Title",
+            SortDirection = "A"
+        };
+        var responseModel = await _httpService.POST<ResponseData<PaymentMethods>>(url, pageMetaData);
+        _paymentMethods = responseModel.Items; 
+        return responseModel;
+    }
 
     #endregion
     
     #region Sales Transaction
-
     
     private string _currency = "₹";
     
-    private List<Model.PurchasedProduct> _salesTransaction = new List<Model.PurchasedProduct>();
-    private void AddProductToSales(string barcode)
+    private IList<Model.PurchasedProduct> _salesTransaction = new List<Model.PurchasedProduct>();
+    private async Task AddProductToSales(string barcode)
     {
-        var product = _productList?.Where(code => code.Barcode == barcode).FirstOrDefault();
-        if (product == null) return;
+        var products = await ProductBar_SearchAsync(barcode);
+        var product = products?.FirstOrDefault();
+        if (product == null)
+        {
+            Utilities.ConsoleMessage("Product Not found");
+            return;
+        }
+        Utilities.ConsoleMessage("4.AddProductToSales");
         AddAndCalculate(product);
+        _barCode = string.Empty;
     }
 
     void AddAndCalculate(Model.Product product)
@@ -431,8 +322,7 @@ public partial class POSComponent
        
         CalculateSales();//Uses '_salesTransaction" to calculate the discount/Tax/SubTotal/Additional Charges etc.
     }
-
-
+    
     private void AddProductForSales(Model.Product product)
     {
         #region Add Product for Sales
@@ -440,10 +330,10 @@ public partial class POSComponent
         {
             ProductId = product?.Id,
             Discount = product.Discount,
-            Price = product.SellingPrice,
+            Price = Math.Round(product.SellingPrice, 2),
             Quantity = 1,
             ProductName = product.Name,
-            AppliedTax = _taxList[1],
+            AppliedTax = product.TaxGroup,
         };
         //SubTotal - Calculated at the method 'CalculateSales' 
         //If we calculate here then it will wont calculate total quantity. also all calculations should be in one place.
@@ -462,11 +352,10 @@ public partial class POSComponent
         }
         Snackbar.Add(msg, Severity.Success);
         #endregion
-        
-
     }
 
 
+    private string _subTotalHelpText = string.Empty;
     /// <summary>
     /// SubTotal Price, Tax, Discount, Additional Charges were Calculated.
     /// </summary>
@@ -477,30 +366,39 @@ public partial class POSComponent
         double totDiscount = 0d;
         double tax = 0;
         double total = 0;
+        
         StringBuilder sbNotes = new StringBuilder();
         foreach (var item in _salesTransaction)
         {
-            tax = tax + (item.AppliedTax.TaxRate / 100) * item.Price;
+            //Calculates Tax for individual product
+            tax = tax + ((item.AppliedTax.TaxRate / 100) * item.Price) * item.Quantity;
+            
             //Calculate Total Quantity
             totQty = totQty + item.Quantity;
             item.SubTotal = item.Price * item.Quantity;
             total = total + item.SubTotal;
+            
             //Calculate Discount
             item.DiscountPrice = Math.Round((item.Discount / 100) * item.SubTotal, 2);
-            totDiscount = item.DiscountPrice;
+            //totDiscount = item.DiscountPrice * item.Quantity;
+            totDiscount = totDiscount + item.DiscountPrice;// * item.Quantity;
             sbNotes.AppendLine(string.Concat(item.ProductName, " - ", item.Quantity));
+            Utilities.ConsoleMessage("");
         }
         //Notes
         _inputMode.Notes = sbNotes.ToString();
         
         //Total Quantity bought by customer.
         _inputMode.TotalQuantity = totQty;
+        
         //Discount calculation. Before applying Tax/Additional cost we should calculate discount.
+        double beforeDiscount = total;
         total = total - totDiscount;
-        _inputMode.TotalDiscount = totDiscount;
+        _inputMode.TotalDiscount = Math.Round(totDiscount,2);
         
         //Item Total/Sub Total of all items
-        _inputMode.SubTotal = total;
+        _inputMode.SubTotal = Math.Round(total, 2);
+        _subTotalHelpText = $"Total Cost = SubTotal - Discount eg. {_inputMode.SubTotal}={beforeDiscount} - {totDiscount}";
         
         //Additional Cost Calculation
         double grandTotal = total + _inputMode.AdditonalCost;
@@ -515,56 +413,8 @@ public partial class POSComponent
         _inputMode.GrandTotal = grandTotal;
         #endregion
     }
-
-    public List<Model.PurchasedProduct> _purchasedProduct = new List<Model.PurchasedProduct>()
-    {
-        new Model.PurchasedProduct()
-        {
-            ProductId = "6270d1cce5452d9169e86c50",
-            ProductName = "Samsung Mobile M31",
-            Quantity = 2,
-            Discount = 2,
-            AppliedTax = new Tax()
-            {
-                TaxRate = 5,
-                Description = "5% Tax",
-                Title = "5% Tax"
-            },
-            Price = 21568,
-        },
-        new Model.PurchasedProduct()
-        {
-            ProductId = "6270d1cce5452d9169e86c511",
-            ProductName = "Samsung Mobile M21",
-            Quantity = 1,
-            Discount = 2,
-            AppliedTax = new Tax()
-            {
-                TaxRate = 5,
-                Description = "5% Tax",
-                Title = "5% Tax"
-            },
-            Price = 16060,
-        },
-        new Model.PurchasedProduct()
-        {
-            ProductId = "6270d1cce5452d9169e86c600",
-            ProductName = "Samsung Mobile M11",
-            Quantity = 1,
-            Discount = 2,
-            AppliedTax = new Tax()
-            {
-                TaxRate = 18,
-                Description = "18% Tax",
-                Title = "18% Tax"
-            },
-            Price = 10060,
-        },
-    }; // In reality it should come from API.
     
-
     #endregion
-
 
     #region Sales Item Adjust stock/price/discount any action in the Dialog
 
@@ -624,12 +474,12 @@ public partial class POSComponent
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
+            CalculateSales();
         }
+        
     }
     #endregion
-
-
+    
     private async Task AddClientDialog()
     {
         var parameters = new DialogParameters
@@ -647,4 +497,105 @@ public partial class POSComponent
             Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
         }
     }
+    
+    #region Submit, Delete, Cancel Button with Animation
+
+    private async Task PayLater()
+    {
+        _inputMode.PaymentStatus = Model.PaymentStatus.Pending;
+        await Submit();
+    }
+    private async Task Submit()
+    {
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            //Custom Validation
+            Utilities.ConsoleMessage($"Count {_inputMode.Products.Count}");
+            if  (_inputMode.Products?.Count <= 0)
+            {
+                Utilities.SnackMessage(Snackbar, "No Product Selected", Severity.Error);
+                return;
+            }
+            
+            var isSuccess = await SubmitAction(UserAction);
+            if (isSuccess)
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "Sales Saved!");
+                await Task.Delay(500);
+                Utilities.ConsoleMessage("Reload initiated.");
+                //windowReload
+                await JSRuntime.InvokeAsync<bool>("windowReload",null);
+            }
+        }
+        else
+        {
+            _outputJson = "Validation Error occured.";
+        }
+        Utilities.ConsoleMessage(_outputJson);
+    }
+    
+    async Task<bool> SubmitAction(UserAction action)
+    {
+        _processing = true;
+        _loading = true;
+            
+        string url = string.Empty;
+        Model.Sales responseModel = null;
+        bool result = false;
+        
+        switch (action)
+        {
+            case UserAction.ADD:
+                _inputMode.Status = Model.SalesStatus.Confirmed;
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.SalesApi.Create}";
+                responseModel = await _httpService.POST<Model.Sales>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.EDIT:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.SalesApi.Update}";
+                responseModel = await _httpService.PUT<Model.Sales>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.SalesApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            default:
+                break;
+        }
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"Sales JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        _loading = false;
+        return result;
+    }
+    
+    async Task Delete()
+    {
+        var canDelete = await Utilities.DeleteConfirm(DialogService);
+        if (canDelete)
+        {
+            await SubmitAction(UserAction.DELETE);
+            Utilities.SnackMessage(Snackbar, "Client Deleted!", Severity.Warning);
+        }
+        else
+        {
+            Utilities.SnackMessage(Snackbar, "Deletion Cancelled!", Severity.Normal);
+        }
+        StateHasChanged();
+    }
+    #endregion
+
+    #region Fake Data
+
+    private Task GetFakeData()
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
 }

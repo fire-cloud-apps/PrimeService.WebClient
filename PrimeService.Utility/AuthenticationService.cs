@@ -63,6 +63,7 @@ public class AuthenticationService : IAuthenticationService
            await _localStorageService.SetItemAsync<User>("user", User);
            await _localStorageService.SetItemAsStringAsync("authToken", User.JwtToken);
            await _localStorageService.SetItemAsStringAsync("refreshToken", User.RefreshToken);
+           //setLogRocketUser
        }
        else
        {

@@ -50,9 +50,51 @@ public class API
      public TaxApi TaxApi { get; set; }
      public ClientApi ClientApi { get; set; }
      public ProductApi ProductApi { get; set; }
-     //
      public ProductTransactionApi ProductTransactionApi { get; set; }
+     
+     public SalesApi SalesApi { get; set; }
+     public PaymentApi PaymentApi { get; set; }
+     public TicketApi TicketApi { get; set; }
 }
+
+#region Ticket API
+public class TicketApi
+{
+    public string GetDetails { get; set; }
+    public string GenerateTicketNo { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
+
+#region PaymentApi API
+public class PaymentApi
+{
+    public string GetDetails { get; set; }
+    public string PayCard { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
+
+#region SalesApi API
+public class SalesApi
+{
+    public string GetDetails { get; set; }
+    public string GenerateBillNo { get; set; }
+    public string GetBatch { get; set; }
+    public string Fake { get; set; }
+    public string Create { get; set; }
+    public string Update { get; set; }
+    public string Delete { get; set; }
+}
+#endregion
 
 #region ProductTransactionApi API
 public class ProductTransactionApi
@@ -136,6 +178,10 @@ public class PaymentTagsApi
         get;
         set;
     }
+    public string GetDefault {
+        get;
+        set;
+    }
     public string GetBatch { get; set; }
     public string Fake { get; set; }
     public string Create { get; set; }
@@ -149,6 +195,8 @@ public class PaymentTagsApi
 
 public class PaymentMethodsApi
 {
+    public string SetDefault { get; set; }
+    public string GetDefault { get; set; }
     public string GetDetails { get; set; }
     public string GetBatch { get; set; }
     public string Fake { get; set; }
@@ -164,6 +212,7 @@ public class PaymentMethodsApi
 public class ServiceTypeApi
 {
     public string GetDetails { get; set; }
+    public string Reset2Default { get; set; }
     public string GetBatch { get; set; }
     public string Fake { get; set; }
     public string Create { get; set; }

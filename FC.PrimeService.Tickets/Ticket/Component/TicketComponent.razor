@@ -6,6 +6,11 @@
 @using global::PrimeService.Model.Tickets
 @using MudBlazor.Extensions
 @using global::PrimeService.Model.Settings
+@using global::PrimeService.Model.Common
+@using global::PrimeService.Model.Settings.Payments
+@using global::PrimeService.Model.Settings.Tickets
+@using Humanizer
+@using MongoDB.Bson
 
 @if (_loading)
 {
@@ -18,6 +23,8 @@
 }
 else
 {
+    <MudForm class="mt-2" @ref="form" Model="_inputMode" @bind-IsValid="@success"
+             @bind-Errors="@errors">
     <MudCard>
     <MudCardHeader>
         <CardHeaderAvatar>
@@ -39,33 +46,34 @@ else
                 </MudItem>
                            
                 <MudItem xs="12" sm="4" md="4">
-                    <MudSelect Variant="Variant.Outlined"
-                               Label="Service/Ticket Type" class="pa-0"
-                               @bind-Value="_inputMode.TicketType"
-                               OpenIcon="@Icons.Material.TwoTone.Tab" AdornmentColor="Color.Secondary">
-                        @foreach (TicketType item in Enum.GetValues(typeof(TicketType)))
-                        {
-                            <MudSelectItem Value="@item">@item</MudSelectItem>
-                        }
-                    </MudSelect>
+                    <MudAutocomplete T="ServiceType" Label="Service/Ticket Type"
+                                     Variant="Variant.Outlined"
+                                     Disabled="@_isReadOnly"
+                                     @bind-Value="SelectedServiceType"
+                                     OpenIcon="@Icons.Material.TwoTone.Search"
+                                     ToStringFunc="@(e => e == null ? null : $"{e.Type.ToString().Humanize(LetterCasing.Title)}")"
+                                     SearchFunc="@ServiceType_SearchAsync" Immediate="true" Required="true"
+                                     RequiredError="Please select Ticket Type" ResetValueOnEmptyText="false"
+                                     CloseIcon="@Icons.Material.Filled.Search" 
+                                     AdornmentColor="Color.Tertiary"/>
                 </MudItem>
                 <MudItem xs="12" sm="4" md="4">
-                    <MudAutocomplete T="Employee" Label="Select Staff"
+                    <MudAutocomplete T="AuditUser" Label="Assigned to Staff"
                                      Variant="Variant.Outlined"
                                      Disabled="@_isReadOnly"
                                      @bind-Value="_inputMode.AssignedTo"
                                      OpenIcon="@Icons.Material.TwoTone.Search"
-                                     ToStringFunc="@(e => e == null ? null : $"{e.User.Name}")"
+                                     ToStringFunc="@(e => e == null ? null : $"{e.Name}")"
                                      SearchFunc="@Employee_SearchAsync" Immediate="true" Required="true"
-                                     RequiredError="Please Select Staff" ResetValueOnEmptyText="false"
-                                     CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
+                                     RequiredError="Please Assigned to Staff" ResetValueOnEmptyText="false"
+                                     CloseIcon="@Icons.Material.Filled.Search" 
+                                     AdornmentColor="Color.Tertiary"/>
                 </MudItem>
             </MudGrid>
                         
         </CardHeaderContent>
             
         <CardHeaderActions>
-                        
             <MudToolBar>
                 <MudTooltip Text="Expand & Open in new window" Arrow="true" 
                             Placement="Placement.Bottom">
@@ -74,66 +82,77 @@ else
                                    OnClick="ExpandTicket"/>
                 </MudTooltip>
             </MudToolBar>
-                       
         </CardHeaderActions>
         
     </MudCardHeader>
     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
     <MudCardContent>
     <MudTabs Elevation="2" Rounded="true" Centered="false">
+    
     <MudTabPanel Text="Tickets" Icon="@Icons.Material.TwoTone.Tag" BadgeColor="Color.Info">
-    <MudForm class="mt-2" @ref="form" Model="_inputMode" @bind-IsValid="@success"
-             @bind-Errors="@errors">
-    <MudPaper Class="mb-2" Outlined="true" >
-        <MudGrid Class="pa-2">
-            <MudItem xs="12" sm="12" md="12">
-                <MudText Typo="Typo.button">Client</MudText>
-            </MudItem>
-            <MudItem xs="12" sm="12" md="4">
-                <MudAutocomplete T="Client" Label="Find Customer"
-                                 Disabled="@_isReadOnly" HelperText="Find Customer by Mobile"
-                                 @bind-Value="_inputMode.Client"
-                                 OpenIcon="@Icons.Material.TwoTone.Search"
-                                 ToStringFunc="@(e => e == null ? null : $"{e.Mobile}")"
-                                 SearchFunc="@Client_SearchAsync" Immediate="true" Required="true"
-                                 RequiredError="Please Select Customer" ResetValueOnEmptyText="false"
-                                 CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
-            </MudItem>
-            <MudItem xs="12" sm="12" md="4">
-                <MudTextField Label="Customer Name"
-                              ReadOnly="true"
-                              Placeholder="Customer Name"
-                              @bind-Value="_inputMode.Client.Name"
-                              For="@(() => _inputMode.Client.Name)"/>
-            </MudItem>
-            <MudItem xs="12" sm="12" md="4">
-                <MudTextField Label="Mobile Number"
-                              ReadOnly="true"
-                              Placeholder="Mobile Number"
-                              @bind-Value="_inputMode.Client.Mobile"
-                              For="@(() => _inputMode.Client.Mobile)"/>
-            </MudItem>
-                                                                   
-        </MudGrid>
-    </MudPaper>
-                        
+
+    <MudGrid>
+        <MudItem xs="12" sm="12" md="12"></MudItem>
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper Class="mb-2" Outlined="true">
+                <MudGrid Class="pa-2">
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudText Typo="Typo.button">Client</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudAutocomplete T="Client" Label="Find Customer"
+                                         Disabled="@_isReadOnly" HelperText="Find Customer by Mobile"
+                                         @bind-Value="_inputMode.Client"
+                                         OpenIcon="@Icons.Material.TwoTone.Search"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.Mobile}")"
+                                         SearchFunc="@Client_SearchAsync" Immediate="true" Required="true"
+                                         RequiredError="Please Select Customer" ResetValueOnEmptyText="false"
+                                         CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
+                        <MudCard Outlined="false">
+                            <MudCardContent>
+                                <MudTex Typo="Typo.h5">@_inputMode.Client.Name</MudTex>
+                                <MudText Typo="Typo.body2">Type: @_inputMode.Client.Type.Title</MudText>
+                                <MudText Typo="Typo.body2">Note: @_inputMode.Client.Note</MudText>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary">@_inputMode.Client.Mobile</MudButton>
+                                <MudButton Variant="Variant.Text" Title="Add Customer/Client"
+                                           OnClick="AddClientDialog"
+                                           EndIcon="@Icons.Material.Filled.Add" Color="Color.Info">Add Client</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper Class="mb-2" Outlined="true">
+                <MudGrid Class="pa-2">
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudText Typo="Typo.button">Service Status</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudContainer Class="d-flex justify-center">
+                            <MudSelect T="Status" Label="Ticket Status"
+                                       ToStringFunc="@StatusConverter"
+                                       AnchorOrigin="Origin.BottomCenter"
+                                       @bind-Value="@_inputMode.TicketStatus">
+                                @foreach (var item in _ticketStatus)
+                                {
+                                    <MudSelectItem Value="@item">@item.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudContainer>
+                    </MudItem>
+                </MudGrid>
+
+            </MudPaper>
+        </MudItem>
+
+    </MudGrid>
+
     <MudPaper Class="mb-2" Outlined="true">
-        <MudContainer Class="d-flex justify-center" >
-                           
-            <MudRadioGroup @bind-SelectedOption="@SelectedStatus">
-                @foreach (var item in _ticketStatus)
-                {
-                    // Color color = (Color)item.ColorCode;
-                    // Color="color"
-                    <MudRadio Option="item" >@item.Name</MudRadio>
-                }
-            </MudRadioGroup>
-                           
-        </MudContainer>
-                        
-    </MudPaper>
-                    
-    <MudPaper Class="mb-2" Outlined="true" >
         <MudGrid Class="pa-2">
             <MudItem xs="12" sm="12" md="12">
                 <MudText Typo="Typo.button">Service Details</MudText>
@@ -142,133 +161,216 @@ else
                 <MudTextField @bind-Value="_inputMode.Appearance"
                               T="string"
                               Label="Appearance"
-                              Placeholder="Product Appearance" />
+                              Placeholder="Product Appearance"/>
             </MudItem>
             <MudItem xs="12" sm="12" md="4">
                 <MudTextField Label="Reason of Service"
                               @bind-Value="_inputMode.Reasons"
                               T="string"
-                              Placeholder="Reason of Service"
-                />
+                              Placeholder="Reason of Service"/>
             </MudItem>
             <MudItem xs="12" sm="12" md="4">
-                <MudDatePicker Label="Target Date" 
+                <MudDatePicker Label="Target Date"
                                PickerVariant="PickerVariant.Dialog"
                                DisableToolbar="true"
                                @bind-Date="_inputMode.TargetDate"/>
             </MudItem>
-                                                                      
             <MudItem xs="12" sm="12" md="12">
                 <MudDivider/>
-            </MudItem>   
-            @foreach (var item in TicketProperty.GetDetails(_inputMode.TicketType))
-            {
-                var fields = item.Value;
-                foreach (var field in fields)
+            </MudItem>
+            @{
+                var customProperties = TicketProperty.GetTicketCustomProperty(_inputMode.ServiceType.Type);
+
+                @foreach (var item in customProperties)
                 {
-                    <MudItem xs="12" sm="12" md="4">
-                        <MudTextField Label="@field.Key"
-                                      T="string"
-                                      Placeholder="@field.Key"
-                        />
-                    </MudItem>
+                    var fields = item.Value;
+                    foreach (var field in fields)
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudTextField Label="@field.Property"
+                                          T="string"
+                                          @bind-Value="@field.Value"
+                                          Placeholder="@field.Property"/>
+                        </MudItem>                        
+                    }
                 }
+
+                _customProperties = customProperties;
             }
-                                                                     
+
+
         </MudGrid>
     </MudPaper>
-                        
-    <MudPaper Class="mb-2" Outlined="true" >
+
+    <MudPaper Class="mb-2" Outlined="true">
         <MudGrid Class="pa-2">
             <MudItem xs="6" sm="6" md="6">
-                <MudText Typo="Typo.button" >Payments</MudText>
+                <MudText Typo="Typo.button">Payments</MudText>
             </MudItem>
-            <MudItem Class="d-flex justify-end"  xs="6" sm="6" md="6">
+            <MudItem Class="d-flex justify-end" xs="6" sm="6" md="6">
                 <MudButton Variant="Variant.Outlined"
-                           Color="Color.Primary"
+                           Disabled="@_paymentDisable"
+                           Color="Color.Success"
                            @onclick="() => InvokeAddPaymentDialog()"
-                           StartIcon="@Icons.Material.TwoTone.PostAdd"
-                >Add Payments</MudButton>
+                           StartIcon="@Icons.Material.TwoTone.PostAdd">Add Payments</MudButton>
+                <MudButton Variant="Variant.Outlined"
+                           Class="ml-2"
+                           Color="Color.Error"
+                           @onclick="() => InvokeRefundPaymentDialog()"
+                           StartIcon="@Icons.TwoTone.PlaylistRemove">Refund</MudButton>
             </MudItem>
             <MudItem xs="12" sm="12" md="12">
-                <MudTable Items="@_paymentDetails"
+                <MudTable Items="@_inputMode.Payments"
                           Elevation="0"
                           FixedFooter="true"
                           Height="250px;"
                           FixedHeader="true"
-                          Hover="true" Breakpoint="Breakpoint.Sm" 
-                          Loading="@_loading" 
+                          Hover="true" Breakpoint="Breakpoint.Sm"
+                          Loading="@_loading"
                           LoadingProgressColor="Color.Info">
-                                                                          
+
                     <HeaderContent>
+                        <MudTh>#</MudTh>
                         <MudTh>Date</MudTh>
                         <MudTh>Payment Method</MudTh>
-                        <MudTh>Payed Amount</MudTh>
+                        <MudTh>Paid Amount</MudTh>
                         <MudTh>Payment Status</MudTh>
+                        <MudTh>
+                            <MudIcon Size="Size.Small"
+                                     Icon="@Icons.TwoTone.Delete"/>
+                        </MudTh>
                     </HeaderContent>
-                                                                          
+
                     <RowTemplate>
+                        <MudTd>
+                            @if (@context.PaymentCategory == PaymentCategory.Income)
+                            {
+                                <MudIconButton Color="Color.Success"
+                                               Size="Size.Small"
+                                               Icon="@Icons.TwoTone.Add"/>
+                            }
+                            else
+                            {
+                                <MudIconButton Color="Color.Error"
+                                               Size="Size.Small"
+                                               Icon="@Icons.TwoTone.Remove"/>
+                            }
+                        </MudTd>
                         <MudTd DataLabel="TransactionDate">@context.TransactionDate</MudTd>
                         <MudTd DataLabel="PaymentMethod">@context.PaymentMethod.Title </MudTd>
-                        <MudTd DataLabel="PayedAmount">@context.Amount</MudTd>
+                        @if (@context.PaymentCategory == PaymentCategory.Income)
+                        {
+                            <MudTd DataLabel="PayedAmount">@context.IncomeAmount</MudTd>
+                        }
+                        else
+                        {
+                            <MudTd DataLabel="PayedAmount">@context.ExpenseAmount</MudTd>
+                        }
                         <MudTd DataLabel="PaymentStatus">@context.PaymentStatus</MudTd>
+                        <MudTd>
+                            <MudIconButton Color="Color.Error"
+                                           Size="Size.Small"
+                                           @onclick="() => RemovePaymentItem(context)"
+                                           Icon="@Icons.TwoTone.Delete"/>
+                        </MudTd>
                     </RowTemplate>
                 </MudTable>
             </MudItem>
             <MudItem xs="12" sm="12" md="12">
                 <MudDivider/>
             </MudItem>
+
             <MudItem xs="12" sm="12" md="4">
-                <MudTextField Label="Advance Amount"
-                              Placeholder="Advance Amount"
-                              @bind-Value="_inputMode.AdvanceAmount"
-                              For="@(() => _inputMode.AdvanceAmount)"/>
+                <MudTextField Label="Service Price"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.CurrencyRupee"
+                              AdornmentColor="Color.Warning"
+                              Variant="Variant.Filled"
+                              ReadOnly="false"
+                              OnBlur="CalculateAmount_Changed"
+                              Placeholder="Ticket Service Price"
+                              @bind-Value="_inputMode.ServiceType.Price"
+                              For="@(() => _inputMode.ServiceType.Price)"/>
             </MudItem>
             <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Service Cost"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.CurrencyRupee"
+                              AdornmentColor="Color.Warning"
+                              Variant="Variant.Filled"
+                              ReadOnly="false"
+                              OnBlur="CalculateAmount_Changed"
+                              Placeholder="Ticket Service Cost"
+                              @bind-Value="_inputMode.ServiceType.Cost"
+                              For="@(() => _inputMode.ServiceType.Cost)"/>
+            </MudItem>
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Service Warranty"
+                              ReadOnly="true"
+                              Placeholder="Ticket Service Warranty"
+                              @bind-Value="_inputMode.ServiceType.Warranty"
+                              For="@(() => _inputMode.ServiceType.Warranty)"/>
+            </MudItem>
+
+            <MudItem xs="12" sm="12" md="4">
+                <MudTextField Label="Paid Amount"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.CurrencyRupee"
+                              AdornmentColor="Color.Warning"
+                              Variant="Variant.Filled"
+                              ReadOnly="true"
+                              OnBlur="CalculateAmount_Changed"
+                              Placeholder="Ticket Service Price"
+                              @bind-Value="_inputMode.PaidAmount"
+                              For="@(() => _inputMode.PaidAmount)"/>
+            </MudItem>
+            @* <MudItem xs="12" sm="12" md="3"> *@
+            @*     <MudTextField Label="Advance Amount" *@
+            @*                   Placeholder="Advance Amount" *@
+            @*                   OnBlur="CalculateAmount_Changed" *@
+            @*                   @bind-Value="_inputMode.AdvanceAmount" *@
+            @*                   For="@(() => _inputMode.AdvanceAmount)"/> *@
+            @* </MudItem> *@
+            <MudItem xs="12" sm="12" md="4">
                 <MudTextField Label="Balance Amount"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.CurrencyRupee"
+                              AdornmentColor="Color.Warning"
+                              Variant="Variant.Filled"
                               Placeholder="Balance Amount"
                               ReadOnly="true"
+                              Style="font-size:18px;font-weight: bold;"
                               @bind-Value="_inputMode.BalanceAmount"
                               For="@(() => _inputMode.BalanceAmount)"/>
             </MudItem>
             <MudItem xs="12" sm="12" md="4">
                 <MudTextField Label="Total Amount"
                               ReadOnly="true"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.CurrencyRupee"
+                              AdornmentColor="Color.Warning"
+                              Variant="Variant.Filled"
+                              Style="font-size:18px;font-weight: bold;"
                               Placeholder="Total Amount"
                               @bind-Value="_inputMode.TotalAmount"
                               For="@(() => _inputMode.TotalAmount)"/>
             </MudItem>
-                                                                                   
+
         </MudGrid>
     </MudPaper>
-                        
+
     <MudTextField Disabled="@_isReadOnly" Label="User notes"
                   HelperText="Max. 300 characters"
                   Variant="Variant.Filled"
-                  @bind-Value="_userComments"
-                  For="@(() => _userComments)"
+                  @bind-Value="_inputMode.UserLastComments"
+                  For="@(() => _inputMode.UserLastComments)"
                   Lines="3"
                   Counter="300"
                   MaxLength="300"
-                  Immediate="true" />
-                        
+                  Immediate="true"/>
+
     <MudPaper Elevation="0" Class="@($"pa-1 mt-1 d-flex justify-end ")">
-                        
-        <MudButton Variant="Variant.Filled"
-                   Class="ma-2"
-                   StartIcon="@Icons.TwoTone.WatchLater"
-                   Color="Color.Primary" DisableElevation="true"
-                   OnClick="@(async () => await Submit())">
-            @if (_processing)
-            {
-                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
-                <MudText Class="ms-2">Processing</MudText>
-            }
-            else
-            {
-                <MudText>Save & Pay-later</MudText>
-            }
-        </MudButton>
+
         <MudButton Variant="Variant.Filled"
                    Class="ma-2"
                    StartIcon="@Icons.Filled.CurrencyRupee"
@@ -281,27 +383,31 @@ else
             }
             else
             {
-                <MudText>Pay & Save</MudText>
+                <MudText>Pay</MudText>
             }
         </MudButton>
 
-        @if (_appSettings.IsDev)
-        {
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Warning" DisableElevation="true"
-                       OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Secondary" DisableElevation="true"
-                       OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
-            <MudButton Variant="Variant.Filled"
-                       DisableElevation="true"
-                       OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
-        }
+        <MudButton Variant="Variant.Filled"
+                   Class="ma-2"
+                   StartIcon="@Icons.TwoTone.WatchLater"
+                   Color="Color.Primary" DisableElevation="true"
+                   OnClick="@(async () => await Submit())">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                <MudText Class="ms-2">Processing</MudText>
+            }
+            else
+            {
+                <MudText>Pay-Later</MudText>
+            }
+        </MudButton>
+
     </MudPaper>
-    
-    </MudForm>
+
+
     </MudTabPanel>
-                
+
     <MudTabPanel Text="Tasks" Icon="@Icons.TwoTone.AddTask" BadgeData='"10+"'>
         <MudPaper Class="mt-2" Outlined="true">
             <MudGrid>
@@ -311,16 +417,46 @@ else
                                  TimelineOrientation="TimelineOrientation.Vertical"
                                  TimelinePosition="TimelinePosition.Alternate"
                                  Reverse="false">
-                        
+
                         <MudTimelineItem Color="Color.Default" Variant="Variant.Filled">
                             <ItemOpposite>
                                 <MudIconButton Edge="Edge.Start"
-                                               Icon="@Icons.TwoTone.AddTask" 
+                                               Icon="@Icons.TwoTone.AddTask"
                                                OnClick="AddTask"
-                                               Title="Add Task" />
+                                               Title="Add Task"/>
                             </ItemOpposite>
                         </MudTimelineItem>
 
+                        @foreach (var task in _inputMode.TaskList)
+                        {
+                            <MudTimelineItem Size="Size.Medium" Color="Color.Info"
+                                             Elevation="3">
+                                <ItemContent>
+                                    <MudCard Outlined="false" Elevation="3">
+                                        <MudCardContent>
+                                            <MudText Typo="Typo.h6">@task.Title</MudText>
+                                            <MudText Typo="Typo.body2">@task.Notes</MudText>
+                                            Assigned to
+                                            <MudChip Variant="Variant.Text" Color="Color.Primary">@task.AssignedTo.Name</MudChip>
+                                            @* Status <MudChip Variant="Variant.Text" Color="Color.Info">@task.</MudChip> *@
+                                            <MudText Typo="Typo.body2">DeadLine set to
+                                                <MudChip Variant="Variant.Text" Color="Color.Error">@task.TargetDate.Humanize()</MudChip>
+                                            </MudText>
+                                        </MudCardContent>
+                                    </MudCard>
+                                </ItemContent>
+                                <ItemOpposite>
+                                    <MudText Typo="Typo.body2">Is Activity Compled ?
+                                        <MudToggleIconButton @bind-Toggled="@task.IsCompleted"
+                                                             Icon="@Icons.TwoTone.CheckBoxOutlineBlank" 
+                                                             Color="@Color.Error" Title="Task Open"
+                                                             ToggledIcon="@Icons.TwoTone.CheckBox"
+                                                             ToggledColor="@Color.Success" ToggledTitle="Task Completed"/>
+                                    </MudText>
+                                </ItemOpposite>
+                            </MudTimelineItem>
+                        }
+                       
                         <MudTimelineItem Size="Size.Medium" Color="Color.Info"
                                          Elevation="3">
                             <ItemContent>
@@ -329,7 +465,7 @@ else
                                         <MudText Typo="Typo.h6">:Task Name:</MudText>
                                         <MudText Typo="Typo.body2">Task Details here ...
                                         </MudText>
-                                        Assigned to 
+                                        Assigned to
                                         <MudChip Variant="Variant.Text" Color="Color.Primary">SRG</MudChip>
                                         Task <MudChip Variant="Variant.Text" Color="Color.Info">Init</MudChip>
                                         <MudText Typo="Typo.body2">DeadLine set to
@@ -339,42 +475,11 @@ else
                                 </MudCard>
                             </ItemContent>
                             <ItemOpposite>
-                                <MudText Typo="Typo.body2">Is Activity Compled ? 
+                                <MudText Typo="Typo.body2">Is Activity Compled ?
                                     <MudToggleIconButton @bind-Toggled="@IsCompleted"
                                                          Icon="@Icons.TwoTone.CheckBoxOutlineBlank" Color="@Color.Error" Title="Task Open"
-                                                         ToggledIcon="@Icons.TwoTone.CheckBox" 
+                                                         ToggledIcon="@Icons.TwoTone.CheckBox"
                                                          ToggledColor="@Color.Success" ToggledTitle="Task Completed"/>
-                                    
-                                
-                                </MudText>
-                            </ItemOpposite>
-                        </MudTimelineItem>
-
-                        <MudTimelineItem Size="Size.Medium" Color="Color.Info"
-                                         Elevation="3">
-                            <ItemContent>
-                                <MudCard Outlined="false" Elevation="3">
-                                    <MudCardContent>
-                                        <MudText Typo="Typo.h6">:Task Name:</MudText>
-                                        <MudText Typo="Typo.body2">Task Details here ...
-                                        </MudText>
-                                        Assigned to 
-                                        <MudChip Variant="Variant.Text" Color="Color.Primary">SRG</MudChip>
-                                        Task <MudChip Variant="Variant.Text" Color="Color.Info">Init</MudChip>
-                                        <MudText Typo="Typo.body2">DeadLine set to
-                                            <MudChip Variant="Variant.Text" Color="Color.Error">Saturday, 31 May 2022.</MudChip>
-                                        </MudText>
-                                    </MudCardContent>
-                                </MudCard>
-                            </ItemContent>
-                            <ItemOpposite>
-                                <MudText Typo="Typo.body2">Is Activity Compled ? 
-                                    <MudToggleIconButton @bind-Toggled="@IsCompleted"
-                                                         Icon="@Icons.TwoTone.CheckBoxOutlineBlank" Color="@Color.Error" Title="Task Open"
-                                                         ToggledIcon="@Icons.TwoTone.CheckBox" 
-                                                         ToggledColor="@Color.Success" ToggledTitle="Task Completed"/>
-                                                            
-                                                        
                                 </MudText>
                             </ItemOpposite>
                         </MudTimelineItem>
@@ -384,70 +489,70 @@ else
             </MudGrid>
         </MudPaper>
     </MudTabPanel>
-    
+
     <MudTabPanel Text="More" Icon="@Icons.TwoTone.MoreHoriz" BadgeData='"5+"'>
-       
-            <MudPaper Class="mt-2" Outlined="true">
-                <MudGrid Class="ma-2 pa-2">
-                    <MudItem xs="12" sm="12" md="12">
-                        <MudText Typo="Typo.button">More Details</MudText>
+
+        <MudPaper Class="mt-2" Outlined="true">
+            <MudGrid Class="ma-2 pa-2">
+                <MudItem xs="12" sm="12" md="12">
+                    <MudText Typo="Typo.button">More Details</MudText>
+                </MudItem>
+                @foreach (var keyPair in _inputMode.AdditionalDetails)
+                {
+                    Console.WriteLine($"KeyCount: {_inputMode.AdditionalDetails}");
+
+                    <MudItem xs="12" sm="12" md="5">
+                        <MudTextField Label="Key"
+                                      Placeholder="Additional Key"
+                                      @bind-Value="keyPair.Property"/>
                     </MudItem>
-                    @foreach (var keyPair in keyList)
-                    {
-                        Console.WriteLine($"KeyCount: {keyList.Count}");
-                    
-                        <MudItem xs="12" sm="12" md="5">
-                            <MudTextField Label="Key"
-                                          Placeholder="Additional Key"
-                                          @bind-Value="keyPair.Key"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="12" md="5">
-                            <MudTextField Label="Value"
-                                          Placeholder="Additional Value"
-                                          @bind-Value="keyPair.Value"/>
-                        </MudItem>
-                    
-                        <MudItem xs="12" sm="12" md="2">
-                            <MudIconButton
-                                Size="Size.Medium"
-                                Color="Color.Error"
-                                @onclick="() => RemoveKeyValue(keyPair)"
-                                Icon="@Icons.TwoTone.Close"/>
-                        </MudItem>
-                    
-                    }
-                
-                </MudGrid>
-            </MudPaper>
-        
+                    <MudItem xs="12" sm="12" md="5">
+                        <MudTextField Label="Value"
+                                      Placeholder="Additional Value"
+                                      @bind-Value="keyPair.Value"/>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="12" md="2">
+                        <MudIconButton
+                            Size="Size.Medium"
+                            Color="Color.Error"
+                            @onclick="() => RemoveKeyValue(keyPair)"
+                            Icon="@Icons.TwoTone.Close"/>
+                    </MudItem>
+
+                }
+
+            </MudGrid>
+        </MudPaper>
+
         <MudPaper Elevation="0" Class="@($"d-flex justify-end ")">
             <MudButton Variant="Variant.Filled"
                        Class="ma-2"
-                       StartIcon="@Icons.TwoTone.Add" 
-                       OnClick="AddKeyValue" >Add</MudButton>
-            <MudButton Variant="Variant.Filled"
-                       Class="ma-2"
-                       ButtonType="ButtonType.Button"
-                       StartIcon="@Icons.TwoTone.DownloadDone"
-                       Color="Color.Success" DisableElevation="true"
-                       OnClick="@(async () => await Submit())">
-                @if (_processing)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
-                    <MudText Class="ms-2">Processing</MudText>
-                }
-                else
-                {
-                    <MudText>Save</MudText>
-                }
-            </MudButton>
+                       StartIcon="@Icons.TwoTone.Add"
+                       OnClick="AddKeyValue">Add</MudButton>
+            @* <MudButton Variant="Variant.Filled" *@
+            @*            Class="ma-2" *@
+            @*            ButtonType="ButtonType.Button" *@
+            @*            StartIcon="@Icons.TwoTone.DownloadDone" *@
+            @*            Color="Color.Success" DisableElevation="true" *@
+            @*            OnClick="@(async () => await Submit())"> *@
+            @*     @if (_processing) *@
+            @*     { *@
+            @*         <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/> *@
+            @*         <MudText Class="ms-2">Processing</MudText> *@
+            @*     } *@
+            @*     else *@
+            @*     { *@
+            @*         <MudText>Save</MudText> *@
+            @*     } *@
+            @* </MudButton> *@
         </MudPaper>
         <MudPaper Class="mt-2" Outlined="true">
             <MudGrid Class="ma-2 pa-2">
                 <MudItem xs="12" sm="12" md="12">
                     <MudText Typo="Typo.button">Link Sales</MudText>
                 </MudItem>
-                <MudItem>
+                <MudItem xs="4" sm="4" md="4">
                     <MudAutocomplete T="Sales" Label="Select Sales"
                                      Variant="Variant.Outlined"
                                      Disabled="@_isReadOnly"
@@ -458,12 +563,18 @@ else
                                      RequiredError="Please Select Sales" ResetValueOnEmptyText="false"
                                      CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
                 </MudItem>
-                
+                <MudItem xs="8" sm="8" md="8">
+                @foreach (var bill in  _inputMode.BillNumbers)
+                {
+                    <MudChip Variant="Variant.Text" Color="Color.Info">@bill</MudChip>
+                }
+                </MudItem>
+                   
             </MudGrid>
         </MudPaper>
-        
+
     </MudTabPanel>
-    
+
     <MudTabPanel Text="Activity" Icon="@Icons.Material.TwoTone.History" BadgeData='"99+"'>
         <MudPaper Class="mt-2" Outlined="true">
             <MudGrid>
@@ -473,57 +584,57 @@ else
                                  TimelineOrientation="TimelineOrientation.Vertical"
                                  TimelinePosition="TimelinePosition.Alternate"
                                  Reverse="false">
-                                
-                        <MudTimelineItem Size="Size.Medium" Color="Color.Info"
-                                         Elevation="25">
-                            <MudCard Outlined="true" Elevation="25">
-                                <MudCardContent>
-                                    <MudText Typo="Typo.h6">SR GaneshRam</MudText>
-                                    <MudText Typo="Typo.body2">Ticket created and asigned to 
-                                        <MudChip Variant="Variant.Text" Color="Color.Primary">Alam</MudChip>
-                                    </MudText>
-                                    <MudText Typo="Typo.body2">Ticket Status
-                                        <MudChip Variant="Variant.Text" Color="Color.Info">Init</MudChip>
-                                    </MudText>
-                                    <MudText Typo="Typo.body2">DeadLine set to 
-                                        <MudChip Variant="Variant.Text" Color="Color.Error">Saturday, 31 May 2022.</MudChip>
-                                    </MudText>
-                                </MudCardContent>
-                            </MudCard>
-                        </MudTimelineItem>
+                        @foreach (var activity in _inputMode.Activities)
+                        {
+                            <MudTimelineItem Size="Size.Medium" Color="Color.Info"
+                                             Elevation="25">
+                                <ItemContent>
+                                    <MudCard Outlined="true" Elevation="25">
+                                        <MudCardContent>
+                                            <MudText Typo="Typo.h6">@activity.ByWho.Name</MudText>
+                                            <MudText Typo="Typo.body2">Assigned to
+                                                <MudChip Variant="Variant.Text" Color="Color.Primary">@activity.AssignedTo.Name</MudChip>
+                                            </MudText>
+                                            <MudText Typo="Typo.body2">
+                                                <MudChip Variant="Variant.Text" Color="Color.Info">Status - @activity.ToStatus.Name</MudChip>
+                                            </MudText>
+                                            <MudText Typo="Typo.body2">
+                                                <MudChip Variant="Variant.Text" Color="Color.Error">@activity.Log</MudChip>
+                                            </MudText>
+                                        </MudCardContent>
+                                    </MudCard>
+                                </ItemContent>
 
-                        <MudTimelineItem Color="Color.Success" Variant="Variant.Filled">
-                            <ItemContent>
-                                <MudAlert Severity="Severity.Success">The reactor is running at optimum temperature</MudAlert>
-                            </ItemContent>
-                            <ItemOpposite>
-                                <MudText Color="Color.Success">13:37</MudText>
-                            </ItemOpposite>
-                        </MudTimelineItem>
+                                <ItemOpposite>
+                                    <MudCard Elevation="25">
+                                        <MudCardContent>
+                                            <MudText Typo="Typo.caption">@activity.UserComments</MudText>
+                                            <MudText Color="Color.Success">@activity.ActivityDate.Humanize()</MudText>
+                                        </MudCardContent>
+                                    </MudCard>
+                                    
+                                </ItemOpposite>
+                            </MudTimelineItem>
+                        }
                         
-                        <MudTimelineItem Color="Color.Warning" Variant="Variant.Filled">
-                            <ItemContent>
-                                <MudAlert Severity="Severity.Warning">The reactor temperature exceeds the optimal range</MudAlert>
-                            </ItemContent>
-                            <ItemOpposite>
-                                <MudText Color="Color.Warning">14:08</MudText>
-                            </ItemOpposite>
-                        </MudTimelineItem>
-                        <MudTimelineItem Color="Color.Error" Variant="Variant.Filled">
-                            <ItemContent>
-                                <MudAlert Severity="Severity.Error">Meltdown is imminent</MudAlert>
-                            </ItemContent>
-                            <ItemOpposite>
-                                <MudText Color="Color.Error">15:00</MudText>
-                            </ItemOpposite>
-                        </MudTimelineItem>
                     </MudTimeline>
                 </MudItem>
             </MudGrid>
         </MudPaper>
     </MudTabPanel>
-    
+
     </MudTabs>
     </MudCardContent>
     </MudCard>
+     </MudForm>
 }
+
+<MudMessageBox @ref="mbox" Title="Delete?" CancelText="Cancel">
+    <MessageContent>
+        Attention, are you sure?. <b><i>'Delete'</i></b>
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error"
+                   StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+    </YesButton>
+</MudMessageBox>

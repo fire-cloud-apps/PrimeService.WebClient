@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using PrimeService.Model.Common;
 using PrimeService.Model.Shopping;
 
 namespace PrimeService.Model.Settings.Payments;
@@ -21,7 +22,7 @@ public class Payments
     /// BillNo/SalesNo/Any associated no. to track, used to get, for which 'Sales', this 'Payment' is associated with.
     /// </summary>
     public string? BillNo { get; set; }
-
+    
     public PaymentCategory PaymentCategory { get; set; }
     
     public DateTime TransactionDate { get; set; }
@@ -35,7 +36,7 @@ public class Payments
     
     public string Reason { get; set; }
     
-    public Employee Who { get; set; }
+    public AuditUser Who { get; set; }
 
     public Client Client { get; set; } 
 

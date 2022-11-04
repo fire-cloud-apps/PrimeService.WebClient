@@ -1,43 +1,59 @@
 ﻿
 <MudGrid>
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.Material.Filled.CurrencyRupee" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
-            <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Total Amount</MudText>
-                <MudText Typo="Typo.h5">31,25,000</MudText>
-            </div>
-        </MudPaper>
-    </MudItem>
-            
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.TwoTone.KeyboardDoubleArrowDown" 
-                     Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
-            <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Income</MudText>
-                <MudText Typo="Typo.h5">1,50,000</MudText>
-            </div>
-        </MudPaper>
-    </MudItem>
-            
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.TwoTone.KeyboardDoubleArrowUp" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
-            <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Expense</MudText>
-                <MudText Typo="Typo.h5">1,20,000</MudText>
-            </div>
-        </MudPaper>
-    </MudItem>
-            
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
-            <MudIcon Icon="@Icons.TwoTone.Percent" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
-            <div>
-                <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Profit</MudText>
-                <MudText Typo="Typo.h5">25%</MudText>
-            </div>
-        </MudPaper>
-    </MudItem>
+    @if (_loading)
+    {
+        <MudItem xs="12" sm="12" md="12">
+            <MudSkeleton Class="my-2"/>
+            <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+            <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+            <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+            <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+            <MudSkeleton Class="my-2"/>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+
+                <MudIcon Icon="@Icons.Material.Filled.CurrencyRupee" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Total Amount</MudText>
+                    <MudText Typo="Typo.h5">@Utilities.CurrencyConvert(_inputMode.OverAllBalance)</MudText>
+
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.TwoTone.KeyboardDoubleArrowUp"
+                         Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Income</MudText>
+                    <MudText Typo="Typo.h5">@Utilities.CurrencyConvert(_inputMode.TotalRevenue)</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.TwoTone.KeyboardDoubleArrowDown" Color="Color.Secondary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Expense</MudText>
+                    <MudText Typo="Typo.h5">@Utilities.CurrencyConvert(_inputMode.TotalExpense)</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="25" Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.TwoTone.Percent" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Profit</MudText>
+                    <MudText Typo="Typo.h5">@($"{_inputMode.Margin}%")</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+    }
 </MudGrid>

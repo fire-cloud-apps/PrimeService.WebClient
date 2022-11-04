@@ -61,8 +61,9 @@ public partial class Login
             if (user.IsSuccess)
             {
                 var returnUrl = NavigationManager.QueryString("returnUrl") ?? "";
+                await _JsRuntime.InvokeAsync<bool>("setLogRocketUser",null);
                 NavigationManager.NavigateTo($"/index?{returnUrl}");
-                Snackbar.Add($"Welcome {user.Username}!", Severity.Success);    
+                Snackbar.Add($"Welcome {user.Username}!", Severity.Success);
             }
             else
             {

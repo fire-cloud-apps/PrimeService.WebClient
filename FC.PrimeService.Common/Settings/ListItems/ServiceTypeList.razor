@@ -1,4 +1,6 @@
 ﻿@using global::PrimeService.Model.Settings.Tickets
+@using global::PrimeService.Model.Tickets
+@using global::PrimeService.Utility.ValidationHelper
 @inject IDialogService DialogService
 
 <MudCard>
@@ -12,72 +14,114 @@
             <MudText Typo="Typo.caption">List of Services provided by the organization eg.'Repair', 'Support' etc.</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-            <MudIconButton Icon="@Icons.Material.Outlined.AddBox" 
+            <MudIconButton Icon="@Icons.TwoTone.DisplaySettings" 
                            Size="Size.Large"
-                           OnClick="OpenAddDialog"
-                           Color="Color.Default"/>
+                           OnClick="Set2Default"
+                           Title="Set all the Items to Default Value"
+                           Color="Color.Secondary"/>
         </CardHeaderActions>
     </MudCardHeader>
     <MudDivider Style="margin-left:8px; margin-right:8px;"/>
     <MudCardContent>
-
-        <MudTable ServerData="@(new Func<TableState, Task<TableData<ServiceType>>>(ServerReload))"
-                  Loading="true"  LoadingProgressColor="Color.Warning"
-                  SortLabel="Title" AllowUnsorted="true"
-                  Dense="true" Hover="true" @ref="_mudTable">
-            <ToolBarContent>
-                @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
-                @* <MudSpacer /> *@
-                <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" 
-                              FullWidth="true"
-                              Placeholder="Search" Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search" 
-                              IconSize="Size.Medium" Class="mt-0"></MudTextField>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh><MudTableSortLabel SortLabel="Title" T="ServiceType">Title</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortLabel="Price" T="ServiceType">Price</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel T="ServiceType">Cost</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel T="ServiceType">Warranty</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortLabel="Category" T="ServiceType">Category</MudTableSortLabel></MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Name">
-                    <MudTooltip Color="Color.Tertiary" Arrow="true">
-                        <ChildContent>
-                            <MudButton Variant="Variant.Filled" OnClick="@(s => OpenEditDialog(@context))">
-                                @context.Title
-                            </MudButton>
-                        </ChildContent>
-                        
-                        <TooltipContent>
-                            <MudText Typo="Typo.body2"> Edit Status - '@context.Title' </MudText>
-                        </TooltipContent>
-                    </MudTooltip>
-                </MudTd>
-                <MudTd DataLabel="Price">
-                    @context.Price
-                </MudTd>
-                <MudTd DataLabel="Cost">
-                    @context.Cost
-                </MudTd>
-                <MudTd DataLabel="Warranty">
-                    @context.Warranty
-                </MudTd>
-                <MudTd DataLabel="Category">
-                    @context.Category.CategoryName
-                </MudTd>
-            </RowTemplate>
-            <NoRecordsContent>
-                <MudText>No matching records found</MudText>
-            </NoRecordsContent>
-            <LoadingContent>
-                <MudText>Loading...</MudText>
-            </LoadingContent>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
-        
+         @if (_loading)
+         {
+             <MudSkeleton Class="my-2"/>
+             <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Circle" Width="50px" Height="50px"/>
+             <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+             <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="5px"/>
+             <MudSkeleton Class="my-2" SkeletonType="SkeletonType.Rectangle" Height="50px"/>
+             <MudSkeleton Class="my-2"/>
+         }
+         else
+         {
+             <MudTable ServerData="@(new Func<TableState, Task<TableData<ServiceType>>>(ServerReload))"
+                       Loading="false" LoadingProgressColor="Color.Warning"
+                       SortLabel="Title" AllowUnsorted="true"
+                       RowsPerPage="5"
+                       Dense="true" Hover="true" @ref="_mudTable">
+                 <ToolBarContent>
+                     @* <MudText Typo="Typo.h6">Work Branch Location</MudText> *@
+                     @* <MudSpacer /> *@
+                     <MudTextField T="string" ValueChanged="@(s => OnSearch(s))"
+                                   FullWidth="true"
+                                   Placeholder="Search" Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.Search"
+                                   IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                 </ToolBarContent>
+                 <HeaderContent>
+                     <MudTh>
+                         <MudTableSortLabel SortLabel="Title" T="ServiceType">Service Details </MudTableSortLabel>
+                     </MudTh>
+                 </HeaderContent>
+                 <RowTemplate>
+                     <MudTd>
+                         <MudExpansionPanel Text="@context.Type.ToString()">
+                             <MudForm @ref="form" Model="@context">
+                                 <MudGrid Style="max-height: 450px; overflow-y: scroll; overflow-x: hidden;">
+                                     <MudItem xs="12" sm="6" md="6">
+                                         <MudTextField Label="Title" HelperText="Max. 50 characters"
+                                                       @bind-Value="context.Title"
+                                                       For="@(() => context.Title)"
+                                                       Counter="50" MaxLength="50"
+                                                       Immediate="true"
+                                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
+                                     </MudItem>
+                                     <MudItem xs="12" sm="6" md="6">
+                                         <MudNumericField Label="Price" HelperText="Max. 10 characters"
+                                                          @bind-Value="context.Price"
+                                                          For="@(() => context.Price)"
+                                                          MaxLength="10"
+                                                          Min="1"
+                                                          Max="9999999999"
+                                                          Immediate="true"/>
+                                     </MudItem>
+                                     <MudItem xs="12" sm="6" md="6">
+                                         <MudNumericField Label="Cost" HelperText="Max. 10 characters"
+                                                          @bind-Value="context.Cost"
+                                                          For="@(() => context.Cost)"
+                                                          MaxLength="10" Min="1" Max="9999999999"
+                                                          Immediate="true"/>
+                                     </MudItem>
+                                     <MudItem xs="12" sm="6" md="6">
+                                         <MudNumericField Label="Warranty" HelperText="Max. 3 characters"
+                                                          @bind-Value="context.Warranty"
+                                                          For="@(() => context.Warranty)"
+                                                          MaxLength="3" Min="1" Max="999"
+                                                          Immediate="true"/>
+                                     </MudItem>
+                                     <MudItem xs="12" sm="12" md="12" Class="d-flex justify-end">
+                                         <MudButton Variant="Variant.Filled"
+                                                    StartIcon="@Icons.Filled.Input"
+                                                    Color="Color.Primary" DisableElevation="true"
+                                                    OnClick="@(async () => await Submit(context))">
+                                             @if (_processing)
+                                             {
+                                                 <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                                                 <MudText Class="ms-2">Processing</MudText>
+                                             }
+                                             else
+                                             {
+                                                 <MudText>Update</MudText>
+                                             }
+                                         </MudButton>
+                                     </MudItem>
+                                 </MudGrid>
+                             </MudForm>
+                         </MudExpansionPanel>
+                     </MudTd>
+                 </RowTemplate>
+                 <NoRecordsContent>
+                     <MudText>No matching records found</MudText>
+                 </NoRecordsContent>
+                 <LoadingContent>
+                     <MudText>Loading...</MudText>
+                 </LoadingContent>
+                 <PagerContent>
+                     <MudTablePager/>
+                 </PagerContent>
+             </MudTable>
+         }
     </MudCardContent>
 </MudCard>
+
+

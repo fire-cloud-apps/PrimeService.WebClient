@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using PrimeService.Model.Tickets;
 
 namespace PrimeService.Model.Settings.Tickets;
 
@@ -26,10 +27,12 @@ public class ServiceType
     /// Price of the service type
     /// </summary>
     public double Price { get; set; }
+    
     /// <summary>
     /// Charges for the existing Service
     /// </summary>
     public double Cost { get; set; }
+    
     /// <summary>
     /// Warranty can be applied or default Warranty will be applied.
     /// </summary>
@@ -38,5 +41,11 @@ public class ServiceType
     /// <summary>
     /// Service Category of the Service provided.
     /// </summary>
-    public ServiceCategory? Category { get; set; }
+    //public ServiceCategory? Category { get; set; }
+    
+    /// <summary>
+    /// Type of Service provided by the company
+    /// </summary>
+    public TicketType Type { get; set; }
+        
 }

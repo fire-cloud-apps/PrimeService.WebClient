@@ -2,6 +2,7 @@
 @using global::PrimeService.Model.Settings
 @using global::PrimeService.Utility.ValidationHelper
 @using System.Text.Json
+@using global::PrimeService.Model.Common
 @using global::PrimeService.Model.Settings.Payments
 @using global::PrimeService.Model.Settings.Tickets
 @using global::PrimeService.Model.Shopping
@@ -46,11 +47,11 @@
                                       Immediate="true"/>
                     </MudItem>
                     <MudItem xs="12" sm="12" md="12">
-                        <MudAutocomplete T="Employee" Label="Assigned To"
+                        <MudAutocomplete T="AuditUser" Label="Assigned To"
                                          Disabled="@_isReadOnly"
                                          @bind-Value="_inputMode.AssignedTo"
                                          OpenIcon="@Icons.Material.TwoTone.Search"
-                                         ToStringFunc="@(e => e == null ? null : $"{e.User.Name}")"
+                                         ToStringFunc="@(e => e == null ? null : $"{e.Name}")"
                                          SearchFunc="@Employee_SearchAsync" Immediate="true" Required="true"
                                          RequiredError="Assigned To" ResetValueOnEmptyText="false"
                                          CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"/>
@@ -60,6 +61,16 @@
                                        PickerVariant="PickerVariant.Dialog"
                                        DisableToolbar="true"
                                        @bind-Date="_inputMode.TargetDate"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12">
+                        <MudTextField Disabled="@_isReadOnly"
+                                      Label="Additional Details"
+                                      Placeholder="Notes"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@Icons.TwoTone.AddCircle"
+                                      @bind-Value="_inputMode.Notes"
+                                      For="@(() => _inputMode.Notes)"
+                                      Immediate="true"/>
                     </MudItem>
                     
                 </MudGrid>
@@ -84,19 +95,6 @@
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
                        StartIcon="@Icons.Outlined.Cancel"
                        OnClick="Cancel">Cancel</MudButton>
-            
-            @if (_appSettings.IsDev)
-            {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Warning" DisableElevation="true"
-                           OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Secondary" DisableElevation="true"
-                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           DisableElevation="true"
-                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
-            }
             
         </DialogActions>
     </MudDialog>

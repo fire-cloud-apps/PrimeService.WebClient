@@ -37,6 +37,14 @@
                                       Immediate="true"
                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
                     </MudItem>
+                    @if (UserAction == UserAction.EDIT)
+                    {
+                        <MudItem xs="12" sm="6" md="6">
+                            <MudSwitch @bind-Checked="@_inputMode.IsDefault"
+                                       Color="Color.Success"
+                                       Label="Is Default"></MudSwitch>
+                        </MudItem>
+                    }
                 </MudGrid>
             }
         

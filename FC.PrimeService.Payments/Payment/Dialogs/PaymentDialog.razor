@@ -14,7 +14,7 @@
         <TitleContent>
             <MudText Typo="Typo.h6">
                 <MudIcon Icon="@Icons.TwoTone.Money" Class="mr-3 mb-n1"/>
-                @_title
+                @Title
             </MudText>
         
         </TitleContent>
@@ -46,7 +46,6 @@
                                              For="@(() => _inputMode.IncomeAmount)"
                                              MaxLength="10"
                                              Immediate="true"/>
-                            _title = "Add Income";
                         }
                         else
                         {
@@ -59,7 +58,6 @@
                                              For="@(() => _inputMode.ExpenseAmount)"
                                              MaxLength="10"
                                              Immediate="true"/>
-                            _title = "Add Expense";
                         }
                         
                     </MudItem>
@@ -108,7 +106,6 @@
                                       Immediate="true"
                                       Validation="@(new Func<string, IEnumerable<string>>(CharacterValidation.Max50Characters))"/>
                     </MudItem>
-                   
                     
                 </MudGrid>
                     
@@ -116,59 +113,28 @@
         
         </DialogContent>
         <DialogActions>
-
-             @if (_inputMode.PaymentCategory == PaymentCategory.Income)
-             {
-                 <MudButton @ref="submitButton" Variant="Variant.Filled"
-                            StartIcon="@Icons.Filled.Input"
-                            Color="Color.Success" DisableElevation="true"
-                            OnClick="@(async () => await Submit())">
-                     @if (_processing)
-                     {
-                         <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
-                         <MudText Class="ms-2">Processing</MudText>
-                     }
-                     else
-                     {
-                         <MudText>Add Income</MudText>
-                     }
-                 </MudButton>
-             }
-             else
-             {
-                 <MudButton @ref="submitButton" Variant="Variant.Filled"
-                            StartIcon="@Icons.Filled.Output"
-                            Color="Color.Secondary" DisableElevation="true"
-                            OnClick="@(async () => await Submit())">
-                     @if (_processing)
-                     {
-                         <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
-                         <MudText Class="ms-2">Processing</MudText>
-                     }
-                     else
-                     {
-                         <MudText>Add Expense</MudText>
-                     }
-                 </MudButton>
-             }
-           
+            @{
+                var dynamicColor = _inputMode.PaymentCategory == PaymentCategory.Income ? Color.Success : Color.Error;
+            }
+            <MudButton @ref="submitButton" Variant="Variant.Filled"
+                        StartIcon="@Icons.Filled.Input"
+                        Color="@dynamicColor" DisableElevation="true"
+                        OnClick="@(async () => await Submit())">
+                 @if (_processing)
+                 {
+                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                     <MudText Class="ms-2">Processing</MudText>
+                 }
+                 else
+                 {
+                     <MudText>@Title</MudText>
+                 }
+             </MudButton>
+             
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
                        StartIcon="@Icons.Outlined.Cancel"
                        OnClick="Cancel">Cancel</MudButton>
-            
-            @if (_appSettings.IsDev)
-            {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Warning" DisableElevation="true"
-                           OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Secondary" DisableElevation="true"
-                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           DisableElevation="true"
-                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
-            }
-            
+
         </DialogActions>
     </MudDialog>
 </MudForm>

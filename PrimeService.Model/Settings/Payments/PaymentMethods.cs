@@ -21,4 +21,9 @@ public class PaymentMethods
     /// </summary>
     [Required(ErrorMessage = "Payment Method is required.")]
     public string? Title { get; set; }
+    
+    /// <summary>
+    /// Which is my default account.
+    /// </summary>
+    public bool IsDefault { get; set; }
 }

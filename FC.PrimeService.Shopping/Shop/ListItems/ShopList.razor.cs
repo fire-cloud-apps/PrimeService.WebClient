@@ -8,6 +8,8 @@ using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
 using PrimeService.Model.Settings.Forms;
 using PrimeService.Model.Settings.Payments;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using Model = PrimeService.Model.Shopping;
 
 namespace FC.PrimeService.Shopping.Shop.ListItems;
@@ -17,18 +19,15 @@ public partial class ShopList
     #region Variables
     [Inject] 
     ISnackbar Snackbar { get; set; }
-    MudForm form;
     private bool _loading = false;
     bool success;
     string _outputJson;
     private bool _processing = false;
     private bool _isReadOnly = true;
     private IEnumerable<Model.Sales> pagedData;
-    private MudTable<Model.Sales> table;
     private int totalItems;
     private string searchString = null;
     DateRange _dateRange = new DateRange(DateTime.Now.Date, DateTime.Now.AddDays(5).Date);
-
     private DateRange SelectedDateRange
     {
         get
@@ -39,622 +38,47 @@ public partial class ShopList
         {
             _dateRange = value;
             Console.WriteLine($"Selected Date Range - From :{_dateRange.Start} End : {_dateRange.End}");
+            string dtRange = $"{_dateRange.Start}-{_dateRange.End}";
+            Console.WriteLine($"Date Range - {dtRange}");
+            OnSearch(dtRange, "Range");
         }
     }
+    private User _loginUser;
+    
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
 
-    #region Category Selection
+    #region Payment Selection
 
-    private MudListItem _selectedCategory;
-    public MudListItem SelectedCategory
+    private MudListItem _selectedPayment;
+    private MudListItem SelectedPayment
     {
         get
         {
-            return _selectedCategory;
+            return _selectedPayment;
         }
         set
         {
-            _selectedCategory = value;
-            if (_selectedCategory != null)
+            _selectedPayment = value;
+            if (_selectedPayment.Value.ToString() == "0")
             {
-                Console.WriteLine($"Selected Item Category {_selectedCategory.Text}");
+                OnSearch(string.Empty, "PaymentStatus");
             }
+            else
+            {
+                OnSearch(_selectedPayment.Text, "PaymentStatus");
+            }
+            
+            Console.WriteLine($"Selected Item Payment Value: {_selectedPayment.Value} - Text: { _selectedPayment.Text}");
         }
     }
 
     
     #endregion
     
-    
-    IEnumerable<Model.Sales> _data = new List<Model.Sales>()
-    {
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.1",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.Closed,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-           TotalDiscount = 50,
-           SubTotal = 501,
-           TotalTax = 52,
-           PaymentStatus = Model.PaymentStatus.Paid,
-           TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.4",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.OnHold,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-            TotalDiscount = 50,
-            SubTotal = 501,
-            TotalTax = 52,
-            PaymentStatus = Model.PaymentStatus.Pending,
-            TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.1",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.Void,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-           TotalDiscount = 50,
-           SubTotal = 501,
-           TotalTax = 52,
-           PaymentStatus = Model.PaymentStatus.Paid,
-           TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.4",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.OnHold,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-            TotalDiscount = 50,
-            SubTotal = 501,
-            TotalTax = 52,
-            PaymentStatus = Model.PaymentStatus.Pending,
-            TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.1",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.Confirmed,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-           TotalDiscount = 50,
-           SubTotal = 501,
-           TotalTax = 52,
-           PaymentStatus = Model.PaymentStatus.Paid,
-           TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.4",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.OnHold,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-            TotalDiscount = 50,
-            SubTotal = 501,
-            TotalTax = 52,
-            PaymentStatus = Model.PaymentStatus.Pending,
-            TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.1",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.Confirmed,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-           TotalDiscount = 50,
-           SubTotal = 501,
-           TotalTax = 52,
-           PaymentStatus = Model.PaymentStatus.Paid,
-           TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.4",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.OnHold,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-            TotalDiscount = 50,
-            SubTotal = 501,
-            TotalTax = 52,
-            PaymentStatus = Model.PaymentStatus.Pending,
-            TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.1",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.Confirmed,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-           TotalDiscount = 50,
-           SubTotal = 501,
-           TotalTax = 52,
-           PaymentStatus = Model.PaymentStatus.Paid,
-           TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.4",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.OnHold,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-            TotalDiscount = 50,
-            SubTotal = 501,
-            TotalTax = 52,
-            PaymentStatus = Model.PaymentStatus.Pending,
-            TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.1",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.Confirmed,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-           TotalDiscount = 50,
-           SubTotal = 501,
-           TotalTax = 52,
-           PaymentStatus = Model.PaymentStatus.Paid,
-           TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.4",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.OnHold,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-            TotalDiscount = 50,
-            SubTotal = 501,
-            TotalTax = 52,
-            PaymentStatus = Model.PaymentStatus.Pending,
-            TransactionDate = DateTime.Now
-        },
-        new Model.Sales()
-        {
-            BillNumber = "#2022.05.03.2",
-            BilledBy = new AuditUser(){  Name = "SRG"},
-            Client = new Model.Client(){ Name = "Alam"},
-            AdditonalCost = 30,
-            Id = "626f61717c3a4477dc2d8275",
-            Notes = "Samsung M31, Samsung M33, Lenovo",
-            GrandTotal = 1230.02d,
-            TotalQuantity = 3,
-            Products =  new List<Model.PurchasedProduct>()
-            {
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 256,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 250,
-                    ProductId = "626f61717c3a4477dc2d8275",
-                    ProductName = "Samsung M31",
-                    SubTotal = 250
-
-                },
-                new Model.PurchasedProduct() {
-                    Discount = 3,
-                    Price = 366,
-                    Quantity = 1,
-                    AppliedTax = new Tax(){  Title = "Elecronic Tax", TaxRate = 5.8f},
-                    DiscountPrice = 16,
-                    ProductId = "626f61717c3a4477dc2d8285",
-                    ProductName = "Samsung M33",
-                    SubTotal = 350
-
-                },
-                
-            },
-            Status = Model.SalesStatus.Confirmed,
-            PaymentAccount = new PaymentTags(){ Title = "Primary Account"},
-            PaymentMethod = new PaymentMethods(){ Title = "Card"},
-            TotalDiscount = 50,
-            SubTotal = 501,
-            TotalTax = 52,
-            PaymentStatus = Model.PaymentStatus.Paid,
-            TransactionDate = DateTime.Now
-        }
-        
-    };
-    
+    private IEnumerable<Model.Sales> _data = new List<Model.Sales>();
     private DialogOptions _dialogOptions = new DialogOptions()
     {
         MaxWidth = MaxWidth.Small,
@@ -667,7 +91,7 @@ public partial class ShopList
     {
         GroupName = "Sales Status",
         Indentation = false,
-        Expandable = false,
+        Expandable = true,
         Selector = (e) => e.Status
     };
     #endregion
@@ -676,56 +100,68 @@ public partial class ShopList
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await  Task.Delay(2000);
-        //An Ajax call to get company details
-        
+        #region Ajax Call Initialized.
+        _httpService = new HttpService(_httpClient, _navigationManager, _localStore, _configuration, Snackbar);
+        #endregion
         _loading = false;
+        _loginUser = await _localStore.GetItemAsync<User>("user");
+        Utilities.ConsoleMessage($"Login User {_loginUser.AccountId}");
+        _loading = true;
         StateHasChanged();
     }
     #endregion
-
+    
     #region Grid View
     /// <summary>
-    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// Used to Refresh Table data.
+    /// </summary>
+    private MudTable<Model.Sales> _mudTable;
+    
+    /// <summary>
+    /// To do Ajax Search in the 'MudTable'
+    /// </summary>
+    private string _searchString = string.Empty;
+    private string _searchField = "Name";
+    /// <summary>
+    /// Server Side pagination with, filtered and ordered data from the API Service.
     /// </summary>
     private async Task<TableData<Model.Sales>> ServerReload(TableState state)
     {
-        IEnumerable<Model.Sales> data = _data;
-            //await  _httpClient.GetFromJsonAsync<List<User>>("/public/v2/users");
-        await Task.Delay(300);
-        data = data.Where(element =>
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return true;
-            if (element.Notes.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }).ToArray();
-        totalItems = data.Count();
-        switch (state.SortLabel)
-        {
-            case "Date":
-                data = data.OrderByDirection(state.SortDirection, o => o.TransactionDate);
-                break;
-            case "SalesStatus":
-                data = data.OrderByDirection(state.SortDirection, o => o.Status);
-                break;
-            case "Quantity":
-                data = data.OrderByDirection(state.SortDirection, o => o.TotalQuantity);
-                break;
-            default:
-                data = data.OrderByDirection(state.SortDirection, o => o.GrandTotal);
-                break;
-        }
+        #region Ajax Call to Get data by Batch
+        var responseModel = await GetDataByBatch(state);
+        #endregion
         
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        Console.WriteLine($"Table State : {JsonSerializer.Serialize(state)}");
-        return new TableData<Model.Sales>() {TotalItems = totalItems, Items = pagedData};
+        Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
+        return new TableData<Model.Sales>() {TotalItems = responseModel.TotalItems, Items = responseModel.Items};
     }
-    private void OnSearch(string text)
+    
+    /// <summary>
+    /// Do Ajax call to get 'Sales' Data
+    /// </summary>
+    /// <param name="state">Current Table State</param>
+    /// <returns>Sales Data.</returns>
+    private async Task<ResponseData<Model.Sales>> GetDataByBatch(TableState state)
     {
-        searchString = text;
-        table.ReloadServerData();
+        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.SalesApi.GetBatch}";
+        PageMetaData pageMetaData = new PageMetaData()
+        {
+            SearchText = _searchString,
+            Page = state.Page,
+            PageSize = state.PageSize,
+            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "Name" : state.SortLabel,
+            SearchField = _searchField,
+            SortDirection = (state.SortDirection == SortDirection.Ascending) ? "A" : "D"
+        };
+        var responseModel = await _httpService.POST<ResponseData<Model.Sales>>(url, pageMetaData);
+        return responseModel;
+    }
+
+    private void OnSearch(string text, string field = "Name")
+    {
+        _searchString = text;
+        _searchField = field;
+        _mudTable.ReloadServerData();//If we put Async, Loading progress bar is not closing.
+        StateHasChanged();
     }
     #endregion
     
@@ -739,6 +175,7 @@ public partial class ShopList
     }
     #endregion
 
+    #region Action Dialog
     private async Task AddProductCategory()
     {
         await InvokeDialog("_ProductCategory","Product Category", null);//Null indicates its an 'Add' Mode.
@@ -755,4 +192,6 @@ public partial class ShopList
             Guid.TryParse(result.Data.ToString(), out Guid deletedServer);
         }
     }
+    #endregion
+   
 }

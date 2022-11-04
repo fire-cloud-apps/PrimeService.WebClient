@@ -46,11 +46,27 @@ public partial class POSSalesItemDialog
     }
     #endregion
 
+    #region Quantity Validation
+
+    private string ValidateQuantity(int qty)
+    {
+        // if (_inputMode.Quantity == 0)
+        // {
+        //     _inputMode.Discount = 0;
+        //     _inputMode.DiscountPrice = 0;
+        //     _inputMode.Price = 0;
+        //     _inputMode.SubTotal = 0;
+        // }
+
+        return null;
+    }
+    #endregion
+    
     #region Submit Button with Animation
-    async Task ProcessSomething()
+    async Task ProcessQuantity()
     {
         _processing = true;
-        await Task.Delay(2000);
+        
         _processing = false;
     }
 
@@ -61,7 +77,7 @@ public partial class POSSalesItemDialog
         if (form.IsValid)
         {
             // //Todo some animation.
-            await ProcessSomething();
+            await ProcessQuantity();
 
             //Do server actions.
             _outputJson = JsonSerializer.Serialize(_inputMode);
@@ -73,6 +89,7 @@ public partial class POSSalesItemDialog
             //Can also be done as global configuration. Ref:
             //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
             Snackbar.Add("Submitted!", Severity.Success);
+            MudDialog.Close();
         }
         else
         {

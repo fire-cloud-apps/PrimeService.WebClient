@@ -59,34 +59,13 @@ public partial class EmployeeList
     private async Task<TableData<Employee>> ServerReload(TableState state)
     {
         #region Ajax Call to Get data by Batch
-        var responseModel = await GetDataByBatch(state);
+
+        var responseModel = await Utilities.GetEmployee(_appSettings, _httpService, _searchString);
         #endregion
         
         Utilities.ConsoleMessage($"Table State : {JsonSerializer.Serialize(state)}");
         return new TableData<Employee>() {TotalItems = responseModel.TotalItems, Items = responseModel.Items};
     }
-
-    /// <summary>
-    /// Do Ajax call to get 'WorkLocation' Data
-    /// </summary>
-    /// <param name="state">Current Table State</param>
-    /// <returns>WorkLocation Data.</returns>
-    private async Task<ResponseData<Employee>> GetDataByBatch(TableState state)
-    {
-        string url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.EmployeeApi.GetBatch}";
-        PageMetaData pageMetaData = new PageMetaData()
-        {
-            SearchText = (string.IsNullOrEmpty(_searchString)) ? string.Empty : _searchString,
-            Page = state.Page,
-            PageSize = state.PageSize,
-            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "Title" : state.SortLabel,
-            SearchField = "Title",
-            SortDirection = (state.SortDirection == SortDirection.Ascending) ? "A" : "D"
-        };
-        var responseModel = await _httpService.POST<ResponseData<Employee>>(url, pageMetaData);
-        return responseModel;
-    }
-
     private void OnSearch(string text)
     {
         _searchString = text;

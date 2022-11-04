@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FC.PrimeService.Payments\FC.PrimeService.Payments.csproj" />
+    <ProjectReference Include="..\FC.PrimeService.Shopping\FC.PrimeService.Shopping.csproj" />
     <ProjectReference Include="..\PrimeService.Utility\PrimeService.Utility.csproj" />
   </ItemGroup>
 

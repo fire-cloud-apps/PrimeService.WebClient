@@ -131,7 +131,7 @@ public partial class ProductTransactionList
             SearchText = _searchString,
             Page = state.Page,
             PageSize = state.PageSize,
-            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "Price" : state.SortLabel,
+            SortLabel = (string.IsNullOrEmpty(state.SortLabel)) ? "TransactionDate" : state.SortLabel,
             SearchField = _searchField,
             SortDirection = (state.SortDirection == SortDirection.Ascending) ? "A" : "D",
             FilterParams = new List<string>() { Id }

@@ -49,6 +49,7 @@
                                          HelperText="Max. 100 characters."
                                          @bind-Value="_inputMode.Quantity"
                                          For="@(() => _inputMode.Quantity)"
+                                         Validation="@(new Func<int, string>(ValidateQuantity))"
                                          MaxLength="3"
                                          Min="0"
                                          Max="100"
@@ -96,25 +97,25 @@
                 }
                 else
                 {
-                    <MudText>Submit</MudText>
+                    <MudText>Update</MudText>
                 }
             </MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" 
                        StartIcon="@Icons.Outlined.Cancel"
                        OnClick="Cancel">Cancel</MudButton>
             
-            @if (_appSettings.IsDev)
-            {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Warning" DisableElevation="true"
-                           OnClick="GetFakeData" Class="mx-2">Fake It</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Secondary" DisableElevation="true"
-                           OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton>
-                <MudButton Variant="Variant.Filled"
-                           DisableElevation="true"
-                           OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton>
-            }
+            @* @if (_appSettings.IsDev) *@
+            @* { *@
+            @*     <MudButton Variant="Variant.Filled" *@
+            @*                Color="Color.Warning" DisableElevation="true" *@
+            @*                OnClick="GetFakeData" Class="mx-2">Fake It</MudButton> *@
+            @*     <MudButton Variant="Variant.Filled" *@
+            @*                Color="Color.Secondary" DisableElevation="true" *@
+            @*                OnClick="@(() => form.Reset())" Class="mx-2">Reset</MudButton> *@
+            @*     <MudButton Variant="Variant.Filled" *@
+            @*                DisableElevation="true" *@
+            @*                OnClick="@(() => form.ResetValidation())">Reset Validation</MudButton> *@
+            @* } *@
             
         </DialogActions>
     </MudDialog>

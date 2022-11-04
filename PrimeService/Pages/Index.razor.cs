@@ -12,6 +12,7 @@ public partial class Index
     private IEnumerable<User> users;
     private bool _isAuthenticated;
     private User _userInfo;
+    DateRange _dateRange = new DateRange(DateTime.Now.Date, DateTime.Now.AddDays(5).Date);
 
     protected override async Task OnInitializedAsync()
     {

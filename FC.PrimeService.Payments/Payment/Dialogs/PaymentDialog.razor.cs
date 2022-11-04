@@ -1,8 +1,12 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using MongoDB.Bson;
 using MudBlazor;
 using PrimeService.Model;
+using PrimeService.Model.Common;
 using PrimeService.Model.Settings;
+using PrimeService.Utility;
+using PrimeService.Utility.Helper;
 using Shop = PrimeService.Model.Shopping;
 using Model = PrimeService.Model.Settings.Payments;
 
@@ -13,8 +17,13 @@ public partial class PaymentDialog
     #region Global Variables
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     private bool _loading = false;
-    private string _title = string.Empty;
-    [Parameter] public Model.Payments _Payments { get; set; } 
+    
+    #region Dialog Parameters
+    [Parameter] public Model.Payments Payments { get; set; } 
+    [Parameter] public string Title { get; set; }
+    [Parameter] public UserAction UserAction { get; set; }
+    #endregion
+    
     private bool _processing = false;
     MudForm form;
     private Model.Payments _inputMode;
@@ -26,176 +35,149 @@ public partial class PaymentDialog
     private bool _isReadOnly = false;
     private MudButton submitButton;
     
+    /// <summary>
+    /// HTTP Request
+    /// </summary>
+    private IHttpService _httpService;
     
     #endregion
 
     #region Load Async
     protected override async Task OnInitializedAsync()
     {
-        if (_Payments == null)
-        {
-            //Dialog box opened in "Add" mode
-            _inputMode = new Model.Payments()
-            {
-               ExpenseAmount = 2500,
-               PaymentCategory = Model.PaymentCategory.Expense,
-               PaymentMethod = new Model.PaymentMethods(){ Title = "Cash"},
-               Reason = "Product Service",
-               PaymentTag = new Model.PaymentTags(){ Title = "Expense Account"},
-               TransactionDate = DateTime.Now,
-               Who = new Employee(){ User = new User(){ Name = "SRG"}}
-            };
-            _title = "Payments";
-        }
-        else
-        {
-            //Dialog box opened in "Edit" mode
-            _inputMode = _Payments;
-            _title = "Payments";
-            //_title = "Edit Payment"; //Title is assigned in the design page based on 'Income' or 'Expense' Category.
-        }
+        _httpService = new HttpService(_httpClient, _navigationManager, 
+            _localStore, _configuration, Snackbar);
+        _inputMode = Payments;
     }
     #endregion
     
-    #region Cancel & Close
-    private void Cancel()
+    
+    #region Client Search - Autocomplete
+
+    private IEnumerable<Shop.Client> _clients = new List<Shop.Client>();
+
+    private async Task<IEnumerable<Shop.Client>> Client_SearchAsync(string value)
     {
-        MudDialog.Cancel();
+        var responseData = await Utilities.GetClients(_appSettings, _httpService, value, "Name");
+        _clients = responseData.Items;
+        Console.WriteLine($"Find Client : '{value}'" );
+        return _clients;
     }
+
+    #endregion
+    
+    #region PaymentTags Search - Autocomplete
+
+    private IEnumerable<Model.PaymentTags> _paymentTags = new List<Model.PaymentTags>();
+    private async Task<IEnumerable<Model.PaymentTags>> PaymentTag_SearchAsync(string value)
+    {
+        var responseData = await Utilities.GetPaymentTags(_appSettings, _httpService, value);
+        _paymentTags = responseData.Items;
+        Console.WriteLine($"Find Payment Tags : '{value}'" );
+        return _paymentTags;
+    }
+
     #endregion
 
-    #region Submit Button with Animation
-    async Task ProcessSomething()
+    #region PaymentMethods Search - Autocomplete
+
+    IEnumerable<Model.PaymentMethods> _paymentMethods = new List<Model.PaymentMethods>();
+
+    async Task<IEnumerable<Model.PaymentMethods>> PaymentMethod_SearchAsync(string value)
     {
-        _processing = true;
-        await Task.Delay(2000);
-        _processing = false;
+        var responseData = await Utilities.GetPaymentMethods(_appSettings, _httpService, value);
+        _paymentMethods = responseData.Items;
+        Console.WriteLine($"Find Payment Tags : '{value}'" );
+        return _paymentMethods;
     }
+
+    #endregion
     
+    #region Submit, Delete, Cancel Button with Animation
+
     private async Task Submit()
     {
         await form.Validate();
 
         if (form.IsValid)
         {
-            // //Todo some animation.
-            await ProcessSomething();
-
-            //Do server actions.
-            _outputJson = JsonSerializer.Serialize(_inputMode);
-
-            //Success Message
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
-            Snackbar.Configuration.SnackbarVariant = Variant.Filled;
-            //Snackbar.Configuration.VisibleStateDuration  = 2000;
-            //Can also be done as global configuration. Ref:
-            //https://mudblazor.com/components/snackbar#7f855ced-a24b-4d17-87fc-caf9396096a5
-            Snackbar.Add("Submited!", Severity.Success);
+            if (await SubmitAction(UserAction))
+            {
+                _outputJson = JsonSerializer.Serialize(_inputMode);
+                Utilities.SnackMessage(Snackbar, "Payment Details Saved!");
+                MudDialog.Close(DialogResult.Ok(_inputMode));
+            }
         }
         else
         {
             _outputJson = "Validation Error occured.";
-            Console.WriteLine(_outputJson);
+            Utilities.ConsoleMessage(_outputJson);
         }
     }
-
-    #endregion
-
-    #region PaymentTags Search - Autocomplete
-
-    public List< Model.PaymentTags> _paymentTags = new List<Model.PaymentTags>()
+    
+    async Task<bool> SubmitAction(UserAction action)
     {
-        new Model.PaymentTags() {  Title = "Main Location" },
-        new Model.PaymentTags() {  Title = "Secondary Location"},
-        new Model.PaymentTags() {  Title = "Emergency Location"},
-    }; // In reality it should come from API.
-    private async Task<IEnumerable<Model.PaymentTags>> PaymentTag_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
+        _processing = true;
+        string url = string.Empty;
+        Model.Payments responseModel = null;
+        bool result = false;
+        switch (action)
         {
-            return _paymentTags;
+            case UserAction.ADD:
+                _inputMode.TransactionDate = DateTime.Now;
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentApi.Create}";
+                responseModel = await _httpService.POST<Model.Payments>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.EDIT:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentApi.Update}";
+                responseModel = await _httpService.PUT<Model.Payments>(url, _inputMode);
+                result = (responseModel != null);
+                break;
+            case UserAction.DELETE:
+                url = $"{_appSettings.App.ServiceUrl}{_appSettings.API.PaymentApi.Delete}";
+                url = string.Format(url, _inputMode.Id);
+                result = await _httpService.DELETE<bool>(url);
+                break;
+            case UserAction.NA:
+                result = true;//Action should taken the receiver. Eg. in TicketService
+                if (_inputMode.PaymentCategory == Model.PaymentCategory.Income)
+                {
+                    _inputMode.Reason = $"Client {_inputMode.Client.Name} Paid the Amount of {_inputMode.IncomeAmount}.";
+                }
+                else
+                {
+                    _inputMode.Reason = $"Amount of {_inputMode.IncomeAmount} has been refunded to the client {_inputMode.Client.Name}.";
+                }
+                
+                break;
+            default:
+                break;
         }
-        return _paymentTags.Where(x => x.Title.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        Utilities.ConsoleMessage($"Executed API URL : {url}, Method {action}");
+        Utilities.ConsoleMessage($"Payments JSON : {_inputMode.ToJson()}");
+        _processing = false;
+        return result;
+    }
+    private void Cancel()
+    {
+        MudDialog.Cancel();
     }
 
-    #endregion
-    
-    #region PaymentMethods Search - Autocomplete
-    
-    public List< Model.PaymentMethods> _paymentMethods = new List<Model.PaymentMethods>()
+    async Task Delete()
     {
-        new Model.PaymentMethods() {  Title = "Main Location" },
-        new Model.PaymentMethods() {  Title = "Secondary Location"},
-        new Model.PaymentMethods() {  Title = "Emergency Location"},
-    }; // In reality it should come from API.
-
-    private async Task<IEnumerable<Model.PaymentMethods>> PaymentMethod_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
+        var canDelete = await Utilities.DeleteConfirm(DialogService);
+        if (canDelete)
         {
-            return _paymentMethods;
-        }
-        return _paymentMethods.Where(x => x.Title.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
-
-    #endregion
-    
-    #region Client Search - Autocomplete
-    
-    public List<Shop.Client> _clients = new List<Shop.Client>()
-    {
-        new Shop.Client() {  Name = "James" },
-        new Shop.Client() {  Name = "Rowson"},
-        new Shop.Client() {  Name = "Matt"},
-    }; // In reality it should come from API.
-
-    private async Task<IEnumerable<Shop.Client>> Client_SearchAsync(string value)
-    {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-        {
-            return _clients;
-        }
-        return _clients.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-    }
-
-    #endregion
-
-    #region Password Toggle
-    bool PasswordVisibility;
-    InputType PasswordInput = InputType.Password;
-    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-    void TogglePasswordVisibility()
-    {
-        if (PasswordVisibility)
-        {
-            PasswordVisibility = false;
-            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-            PasswordInput = InputType.Password;
+            await SubmitAction(UserAction.DELETE);
+            Utilities.SnackMessage(Snackbar, "Payments Deleted!", Severity.Warning);
+            MudDialog.Close(DialogResult.Ok(true));
         }
         else
         {
-            PasswordVisibility = true;
-            PasswordInputIcon = Icons.Material.Filled.Visibility;
-            PasswordInput = InputType.Text;
+            Utilities.SnackMessage(Snackbar, "Deletion Cancelled!", Severity.Normal);
         }
+        StateHasChanged();
     }
-
     #endregion
-
-    private Task GetFakeData()
-    {
-        throw new NotImplementedException();
-    }
 }

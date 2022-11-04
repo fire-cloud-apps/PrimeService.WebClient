@@ -21,6 +21,25 @@ function InitalizeBarCode(){
 function isDevice() {
     return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(navigator.userAgent);
 }
+function setLogRocketUser() {
+    var userJson = window.localStorage.getItem('LoginUser');
+    if (userJson === undefined) return;
+    var user = JSON.parse(userJson);
+    console.log("Log Rocket - Set Login User");    
+    LogRocket.identify('PrimeService', {
+        name: user.Name,
+        email: user.EmailId,
+        accountId: user.AccountId,
+        // Add your own custom user variables here, ie:
+        subscriptionType: 'pro'
+    });
+    console.log("Log Rocket - Set Login Completed");
+}
+
+function windowReload(){
+    location.reload();
+}
+
 function printProduct(data){
     var a = window.open('', '', 'height=500, width=500');
     a.document.write('<html>');
